@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+        <style></style>
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <div th:replace="~{seinfo/layout/include/frame/navCategory :: menuMid610}"></div>
+    <main>
+        <div class="subpage-content">
+            <h2>[(#{seinfo.menu.mid.00610})]</h2> <!--1:1문의-->
+            <div class="contact-area">
+                <section>
+                    <div class="notice-list-top">
+                        <!--총 N건의 문의가 있습니다-->
+                        <div class="total">
+                            [(#{seinfo.board.label.00011})] <i><span id="totalRecords"></span>[(#{seinfo.board.label.00012})]</i>[(#{seinfo.board.label.00222})]
+                        </div>
+
+                        <div class="search-area">
+                            <div class="input-area">
+                                <!--검색어 입력에디트-->
+                                <input type="text" id="keyword" name="keyword" th:value="${param.keyword}">
+                            </div>
+                            <!--조회-->
+                            <button type="button" id="searchBtn" onclick="reloadQnaList()" class="secondary-md-btn">조회</button>
+                        </div>
+                    </div>
+                    <div class="table-normal-container">
+                        <table id="qnaList">
+                            <colgroup>
+                                <col style="width: 8%" />
+                                <col />
+                                <col style="width: 15%" />
+                                <col style="width: 10%" />
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th class="text-center">[(#{seinfo.pps.label.00120})]</th><!--번호-->
+                                    <th class="text-center">[(#{seinfo.board.label.00015})]</th><!--제목-->
+                                    <th class="text-center">등록자</th><!--등록자-->
+                                    <th class="text-center">[(#{seinfo.board.label.00050})]</th><!--등록일-->
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="button-area">
+                        <!--문의하기-->
+                        <button class="primary-md-btn" id="regInputBtn" onclick="fnQnaAnswerOpen('R')" style="display: none;">
+                        [(#{seinfo.com.btn.00180})]
+                        </button>
+                    </div>
+                </section>
+
+                <div class="pagination"></div>
+            </div>
+
+            <div th:replace="~{seinfo/board/popupQnaRegForm :: popup01View}"></div>
+            <div th:replace="~{seinfo/board/popupAnswerRegForm :: popup01View}"></div>
+
+        </div>
+    </main>
+</th:block>
+
+<th:block layout:fragment="html_js">
+    <script type="text/javascript" th:inline="javascript">
+        const paginationImages = {
+            first: /*[[ @{/static/seinfo/img/icon-pagination-first.svg} ]]*/ '',
+            prev: /*[[ @{/static/seinfo/img/icon-pagination-prev.svg} ]]*/ '',
+            next: /*[[ @{/static/seinfo/img/icon-pagination-next.svg} ]]*/ '',
+            last: /*[[ @{/static/seinfo/img/icon-pagination-last.svg} ]]*/ ''
+        };
+
+        const answerButton = {
+            answerArrow: /*[[ @{/static/seinfo/img/icon-table-answer-arrow.svg} ]]*/ '',
+            answerLock: /*[[ @{/static/seinfo/img/icon-table-answer-lock.svg} ]]*/ ''
+        };
+
+        const tmpToken = pf.token();
+
+        let pageResult = /*[[${pageResult != null ? pageResult : '{}'}]]*/ {};
+        let qnaList = /*[[${qnaList != null ? qnaList : '[]'}]]*/ [];
+        let page = /*[[${page != null ? page : ''}]]*/ '';
+        let keyword = /*[[${keyword != null ? keyword : ''}]]*/ '';
+        const adminYn = /*[[${adminYn != null ? adminYn : 'N'}]]*/ '';
+        const userType = /*[[${userType != null ? userType : ''}]]*/ '';
+        const message = /*[[${message != null ? message : ''}]]*/ '';
+        let modifyMode = "";
+        let replyMode = "";
+        let qnaDelMode = "";
+
+        //초기 페이지 처리
+        function loadQnaList() {
+            if(adminYn === 'Y') {
+
+            }else if(adminYn === 'N') {
+                $('#regInputBtn').css('display','block');
+            }
+            $('#totalRecords').text(pageResult.totalRecords);
+
+            renderTableData();
+            renderPagination(pageResult);
+        }
+
+        //QnA 다시 불러오기
+        function reloadQnaList() {
+            pf.seinfo.ajax({
+                userType: userType,
+                method  : 'post',
+                url     :'/anyone/qnaList/reloadQnaList',
+                data    : {userType: userType, page: page, keyword: $('#keyword').val()}
+            }, (rData) => {
+                if(rData.process_code === '00'){ //성공
+                    qnaList = rData.data.qnaList;
+                    pageResult = rData.data.pageResult;
+                    $('#totalRecords').text(pageResult.totalRecords);
+                    renderTableData();
+                    renderPagination(pageResult);
+                } else {
+                    //[조회오류]..
+                    pf.seinfoAlert.warning('[(#{seinfo.com.msg.00170})] <br> '+ rData.data.message);
+                }
+            });
+        }
+
+        //목록 그리드 동적 처리 : date bind
+        function renderTableData() {
+            let tbody = $('#qnaList tbody');
+            tbody.empty();
+
+            //조회된 데이터가 없습니다.
+            if(!Array.isArray(qnaList) || qnaList.length <= 0) {
+                let row = `
+                    <tr class="question_row">
+                        <td colspan="4" class="text-center">[(#{seinfo.pps.label.00180})]</td>
+                    </tr>
+                    `;
+                tbody.append(row);
+                return null;
+            }
+
+            $.each(qnaList, function (index, list) {
+
+                let row = `
+                    <tr class="question_row">
+                        <td class="text-center">${list.rnum}</td>
+                        <td class="text-left"><!--RU. 문의조회 (첫번째행)-->
+                    `;
+
+                if(list.qnaDelYn === 'Y') {
+                    row += `
+                            ${list.noticeTitle}
+                            `;
+                }else {
+                    row += `
+                            <button onclick="fnQnaAnswerOpen('RU', '${list.noticeNo}', '${list.replyYn}', '${list.qnaDelYn}')">
+                                ${list.noticeTitle}
+                            </button>
+                            `;
+                }
+
+                row += `
+                        </td>
+                        <td class="text-center">${list.noticeUserNm}</td>
+                        <td class="text-center">${list.noticeD}</td>
+                     </tr>
+                `;
+
+                if(list.replyYn === 'Y') {
+                    row += `
+                        <tr class="answer-row">
+                            <td colspan="2">
+                                <!--AU. 답변조회 (두번째행)-->
+                                <button onclick="fnQnaAnswerOpen('AU', '${list.noticeNo}', '${list.replyYn}', '${list.qnaDelYn}')">
+                                    <div class="answer-content">
+                                        <img src="${answerButton.answerArrow}" alt="arrow">
+                                        <img src="${answerButton.answerLock}" alt="lock">
+                                        <strong>[(#{seinfo.board.label.00238})]</strong> <!--답변-->
+                                        <p>[(#{seinfo.board.label.00239})]</p> <!--문의글에 대한 답변입니다.-->
+                                    </div>
+                                </button>
+                            </td>
+                            <td class="text-center">${list.answerUserNm}</td>
+                            <td class="text-center">${list.answerD}</td>
+                        </tr>
+                    `;
+                }
+                    tbody.append(row);
+            });
+        }
+
+        //목록 그리드 하단 페이지 처리
+        function renderPagination(pageResult) {
+            let pagination = "";
+
+            //첫 페이지 버튼
+            if(pageResult.cPage > 1) {
+                pagination += `<button type="button" class="page-navi first" style="display: block" data-page="1">
+                               <img src="${paginationImages.first}">
+                               </button>`;
+            }
+
+            //이전 페이지 버튼
+            if(pageResult.hPrev) {
+                pagination += `<button type="button" class="page-navi prev" style="display: block" data-page="${pageResult.cPage - 1}">
+                    <img src="${paginationImages.prev}">
+                </button>`;
+            }
+
+            //페이지 번호
+            let startPage = Math.max(1, pageResult.cPage - 5);
+            let endPage = Math.min(pageResult.totalPages, pageResult.cPage + 5);
+
+            pagination += `<div class="page-links">`;
+            for(let i = startPage; i <= endPage; i++) {
+                let activeClass = (pageResult.cPage === i) ? "active" : "";
+                pagination += `<button class="page-link ${activeClass}" data-page="${i}">${i}</button>`;
+            }
+            pagination += `</div>`;
+
+            //다음 페이지 버튼
+            if(pageResult.hNext) {
+                pagination += `<button type="button" class="page-navi next" style="display: block" data-page="${pageResult.cPage + 1}">
+                    <img src="${paginationImages.next}">
+                </button>`;
+            }
+
+            //마지막 페이지 버튼
+            if(pageResult.cPage < pageResult.totalPages) {
+                pagination += `<button type="button" class="page-navi last" style="display: block" data-page="${pageResult.totalPages}">
+                    <img src="${paginationImages.last}">
+                </button>`;
+            }
+            $(".pagination").html(pagination);
+        }
+
+        //팝업호출
+        const fnQnaAnswerOpen = (gbn, noticeNo, replyYn, qnaDelYn) => {
+            if (adminYn !== 'Y') {
+                for (const list of qnaList) {
+                    if (noticeNo && list.noticeNo && noticeNo === list.noticeNo) {
+                        if (list.userEmail !== tmpToken.USER_ID) {
+                            pf.seinfoAlert.warning('[(#{seinfo.main.msg.00160})]'); // 권한이 불충분 합니다.
+                            return;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            modifyMode = gbn;
+            replyMode = replyYn;
+            qnaDelMode = qnaDelYn;
+            questionDetail = {};
+            qnaDetail = {};
+
+            if(gbn === 'R' || gbn === 'RU') { //[R]입력모드 : 문의하기, [RU] 수정모드
+                //질문등록자 설정
+                $('#modalQnaRegUsrNm').val(tmpToken.USER_NM);
+                $('#modalQnaTitle').val('');
+                $('#modalQnaContents').val('');
+
+                //질문등록일 설정 : 날짜포맷
+                let todayFormat = pf.date.getFormat(new Date(), 'yyyy-MM-DD');
+                $("#modalQnaRegDt").val(todayFormat);
+
+
+                //질문팝업 삭제버튼 처리
+                if(gbn === 'R') { //[R] 신규문의
+                    $('#modalQnaBtnDel').css('display', 'none');
+                }else {
+                    if(qnaDelYn === 'Y') { //질문삭제 건은 삭제 숨김
+                        $('#modalQnaBtnDel').css('display', 'none');
+                        return; //질문삭제 : 팝업호출 하지않기.
+                    }else {
+                        $('#modalQnaBtnDel').css('display', 'block');
+                    }
+                    fnGetQuestionDetail(noticeNo, gbn); //조회 : QnA 상세내역 (질문)
+                }
+
+                //협력사인 경우 저장 및 내용 활성 / 관리자인 경우 내용 비활성 저장 숨김
+                if(adminYn === 'N') {
+                    if(qnaDelYn === 'Y') { //질문삭제 건은 저장 숨김
+                        $('#modalQnaBtnOk').css('display', 'none');
+                        $('#modalQnaTitle').css('display', true);
+                        $('#modalQnaContents').css('display', true);
+                    } else {
+                        $('#modalQnaBtnOk').css('display', 'block');
+                        $('#modalQnaTitle').css('display', false);
+                        $('#modalQnaContents').css('display', false);
+                    }
+                }else {
+                    $('#modalQnaTitle').attr('readonly', true);
+                    $('#modalQnaContents').attr('readonly', true);
+                }
+
+                //답글이 있는 경우 답변하기 버튼 비활성
+                if(replyYn === "Y") {
+                    $('#modalQnaBtnRe').css('display', 'none');
+                } else {
+                    $('#modalQnaBtnRe').css('display', 'block');
+                }
+
+                $('#modalQnaRegister').show();
+            } else if(gbn === 'A') { //[A] 입력모드 : 답변하기
+                if(adminYn === 'N') {
+                    pf.seinfoAlert.warning('[(#{seinfo.board.msg.00050})]'); //권한이 없습니다.
+                    return;
+                }
+
+                fnGetAnswerDetail(noticeNo, gbn); //조회 : QnA 상세내역 (질문 + 답변)
+
+                let todayFormat = pf.date.getFormat(new Date(), 'yyyy-MM-DD');
+                $("#modalAnsModDt").val(todayFormat);
+                $('#modalAnswerContent').attr('readonly', false);
+
+                $('#modalAnswerRegister').show();
+            }else if(gbn === 'AU') {
+                fnGetAnswerDetail(noticeNo, gbn);
+
+                $('#modalAnswerRegister').show();
+            }
+        }
+
+        function fnInputSetPlaceholder() {
+            //qanList
+            $("#keyword").attr("placeholder", "[(#{seinfo.main.msg.00150})]") //검색어를 입력하세요.
+
+            //popupQnaRegForm
+            $("#modalQnaTitle").attr("placeholder", "[(#{seinfo.main.msg.00130})]") //제목을 입력하세요.
+            $("#modalQnaContents").attr("placeholder", "[(#{seinfo.main.msg.00140})]") //내용을 입력하세요.
+
+            //popupAnswerRegForm
+            $("#modalQuestionTitle").attr("placeholder", "[(#{seinfo.main.msg.00130})]") //제목을 입력하세요.
+            $("#modalQuestionContents").attr("placeholder", "[(#{seinfo.main.msg.00140})]") //내용을 입력하세요.
+            $("#modalAnswerContent").attr("placeholder", "[(#{seinfo.main.msg.00140})]") //내용을 입력하세요.
+        }
+
+        $(() => {
+
+            //버튼처리
+            if(adminYn == 'Y'){ //내부 > 관리자인 경우 (문의하기, 질문팝업 삭제, 저장) 버튼 삭제
+                $('#regInputBtn').remove();
+                $('#modalQnaBtnDel').remove();
+                $('#modalQnaBtnOk').remove();
+            } else { //외부 > 협력사인 경우 (질문팝업 답변하기, 답변팝업 삭제, 저장) 버튼삭제
+                $('#modalQnaBtnRe').remove();
+                $('#modalAnswerBtnDel').remove();
+                $('#modalAnswerBtnOk').remove();
+            }
+
+            fnInputSetPlaceholder();
+            loadQnaList();
+
+            //클릭 이벤트 (페이지 이동)
+            $(document).on("click", ".pagination button", function (e) {
+                page = $(this).data("page");
+                reloadQnaList();
+            });
+
+            //엔터키 이벤트 추가_시작(####)
+            $("#keyword").on("keyup", function (key) {
+                if(key.keyCode==13) {
+                    reloadQnaList();
+                }
+            });
+        });
+    </script>
+
+    <script th:replace="~{seinfo/board/popupQnaRegForm :: popup01Js}"></script>
+    <script th:replace="~{seinfo/board/popupAnswerRegForm :: popup01Js}"></script>
+</th:block>
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+  <title></title>
+  <th:block layout:fragment="html_css">
+    <!-- 주석처리 - 검색 API 용 -->
+    <!--<th:block th:replace="seinfo/member/popupAddressSearch :: popup01CSS"></th:block>-->
+  </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+  <div th:replace="~{seinfo/layout/include/frame/navCategory :: menuMid620}"></div>
+
+  <main>
+    <div class="subpage-content">
+      <h2>[(#{seinfo.menu.mid.00620})]</h2> <!--회원정보수정-->
+      <div class="edit-profile-area">
+        <section>
+          <strong class="comm-title">[(#{seinfo.member.label.00310})]</strong><!--회원정보-->
+          <div class="table-row-container">
+            <table>
+              <colgroup>
+                <col width="250px" />
+                <col />
+              </colgroup>
+              <tbody>
+                <tr>
+                  <th class="comment">[(#{seinfo.member.label.00110})] <!--회원아이디-->
+                    <span>[(#{seinfo.member.label.00120})]</span> <!--이메일주소-->
+                  </th>
+                  <td>
+                    <p id="userEmail"></p>
+                  </td>
+                </tr>
+                <tr>
+                  <th><i class="required">*</i>[(#{seinfo.main.label.00160})]</th> <!--비밀번호-->
+                  <td>
+                    <div class="input-area">
+                      <input type="password" id="userPwd" autocomplete="off">
+                    </div>
+                  </td>
+                </tr>
+<!--                <tr>-->
+<!--                  <th>비밀번호 확인</th>-->
+<!--                  <td>-->
+<!--                    <div class="input-area">-->
+<!--                      <input type="password" placeholder="비밀번호를 입력하세요" value="00000000">-->
+<!--                    </div>-->
+<!--                  </td>-->
+<!--                </tr>-->
+                <tr>
+                  <th><i class="required">*</i>[(#{seinfo.member.label.00150})]</th> <!--회원 성명-->
+                  <td>
+                    <div class="input-area">
+                      <input id="userNm" type="text">
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th><i class="required">*</i>[(#{seinfo.member.label.00160})]</th> <!--핸드폰번호-->
+                  <td>
+                    <div class="input-area">
+                      <input id="userPhone" type="text">
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>[(#{seinfo.member.label.00170})]</th> <!--사무실 전화번호-->
+                  <td>
+                    <div class="input-area">
+                      <input id="userOfficePhone" type="text">
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section>
+          <strong class="comm-title">[(#{seinfo.member.label.00320})]</strong> <!--회사정보-->
+          <div class="table-row-container">
+            <table>
+              <colgroup>
+                <col width="250px" />
+                <col />
+              </colgroup>
+              <tbody>
+                <tr>
+                  <th>[(#{seinfo.member.label.00010})]</th> <!--사업자등록번호-->
+                  <td>
+                    <input id="companyNo" type="text" readonly>
+                  </td>
+                </tr>
+                <tr>
+                  <th>[(#{seinfo.member.label.00040})]</th> <!--대표자성명-->
+                  <td>
+                    <div class="input-area">
+                      <input id="ceoNm" type="text" readonly>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>[(#{seinfo.member.label.00100})]</th> <!--개시일-->
+                  <td>
+                    <div class="input-area">
+                      <input type="text" id="companyD" name="companyD" readonly>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>[(#{seinfo.member.label.00020})]</th> <!--회사명-->
+                  <td>
+                    <div class="input-area">
+                      <input id="companyNm" type="text" maxlength="100" readonly>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>[(#{seinfo.member.label.00030})]</th> <!--회사주소-->
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 10px">
+                      <input type="text" id="companyAddress" name="companyAddress" readonly>
+                      <button class="secondary-md-btn" type="button" onclick="fnAddressSearch()" style="width: 120px;">
+                        [(#{seinfo.adr.label.00010})] <!--검색하기-->
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>[(#{seinfo.member.label.00031})]</th> <!--회사주소상세-->
+                  <td>
+                    <div class="input-area">
+                      <input id="companyAddressDetail" type="text" name="companyAddressDetail" maxlength="100">
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>[(#{seinfo.member.label.00050})]</th> <!--대표자 연락처-->
+                  <td>
+                    <div class="input-area">
+                      <input id="ceoPhone" type="text" name="ceoPhone">
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>[(#{seinfo.member.label.00060})]</th> <!--대표자 이메일-->
+                  <td>
+                    <div class="input-area">
+                      <input id="ceoEmail" type="text">
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>[(#{seinfo.member.label.00070})]</th> <!--회사 URL-->
+                  <td>
+                    <div class="input-area">
+                      <input id="companyUrl" type="text" maxlength="200">
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th class="comment">[(#{seinfo.member.label.00080})] <!--회사 소개-->
+                    <span>[(#{seinfo.member.label.00090})]</span> <!--200자 내외-->
+                  </th>
+                  <td>
+                    <div class="textarea-area">
+                      <textarea id="companyDescription" maxlength="200"></textarea>
+                      <div class="char-counter" id="charCounter"><i>0</i>200</div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <div class="button-area">
+          <button type="button" onclick="fnPopupPwdChange()" class="primary-md-btn">[(#{seinfo.main.label.00310})]</button> <!--비밀번호 변경-->
+          <button id="nextForm" type="button" class="primary-md-btn">[(#{seinfo.com.btn.00120})]</button>
+          <!--수정하기-->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div th:replace="~{seinfo/member/popupPassChange :: popup01View}"></div>
+</th:block>
+
+<th:block layout:fragment="html_js">
+  <script th:replace="~{seinfo/member/popupPassChange :: popup01Js}"></script>
+  <script type="text/javascript" th:inline="javascript">
+    //필드 변수 선언
+    let memberInfo = {};
+
+    //placeholder 설정
+    function fnInputSetPlaceholder() {
+      $("#userPwd").attr("placeholder", "[(#{seinfo.main.label.00160})]"+"[(#{seinfo.com.msg.00160})]"); //비밀번호를 입력하세요.
+      $("#userNm").attr("placeholder", "[(#{seinfo.member.label.00150})]"+"[(#{seinfo.com.msg.00161})]"); // 비밀번호 확인을 입력하세요.
+      $("#userPhone").attr("placeholder", "[(#{seinfo.member.label.00160})]"+"[(#{seinfo.com.msg.00160})]"); //회원 성명을 입력하세요.
+      $("#userOfficePhone").attr("placeholder", "[(#{seinfo.member.label.00170})]"+"[(#{seinfo.com.msg.00160})]"); //사무실 전화번호를 입력하세요.
+
+      $("#companyNm").attr("placeholder", "[(#{seinfo.member.label.00020})]"+"[(#{seinfo.com.msg.00161})]"); //회사명을 입력하세요.
+      $("#companyAddress").attr("placeholder", "[(#{seinfo.member.label.00030})]"+"[(#{seinfo.com.msg.00160})]"); //회사주소를 입력하세요.
+      $("#companyAddressDetail").attr("placeholder", "[(#{seinfo.member.label.00031})]"+"[(#{seinfo.com.msg.00160})]"); //회사주소 상세를 입력하세요
+      $("#ceoNm").attr("placeholder", "[(#{seinfo.member.label.00040})]"+"[(#{seinfo.com.msg.00161})]"); // 이름을 입력하세요
+      $("#ceoPhone").attr("placeholder", "[(#{seinfo.member.label.00050})]"+"[(#{seinfo.com.msg.00160})]"); //연락처를 입력하세요
+      $("#ceoEmail").attr("placeholder", "[(#{seinfo.member.label.00060})]"+"[(#{seinfo.com.msg.00161})]"); //이메일을 입력하세요
+      $("#companyUrl").attr("placeholder", "[(#{seinfo.member.label.00070})]"+"[(#{seinfo.com.msg.00161})]"); // 회사URL을 입력하세요
+      $("#companyDescription").attr("placeholder", "[(#{seinfo.member.label.00080})]"+"[(#{seinfo.com.msg.00160})]"); //회사소개를 입력하세요
+      $("#companyD").attr("placeholder", "[(#{seinfo.calendar.msg.00010})]"); // 날짜를 선택하세요.
+    }
+
+    //회원정보 불러오기
+    function fnAjaxSelMember() {
+      pf.seinfo.ajax({
+        method: 'get',
+        url: '/member/myInfo/getMemberInfo',
+        data: {}
+      }, (rData) => {
+        if(rData.process_code === "00") { //성공
+          const response = rData.data;
+          memberInfo = {
+            userUid: response.userUid,
+            userEmail: response.userEmail,
+            userNm: response.userNm,
+            userPhone: response.userPhone,
+            userOfficePhone: response.userOfficePhone,
+            companyNo: response.companyNo,
+            companyNm: pf.seinfoComUtil.unEscape(response.companyNm),
+            companyAddress: response.companyAddress,
+            companyAddressDetail: pf.seinfoComUtil.unEscape(response.companyAddressDetail),
+            companyD: response.companyD,
+            ceoNm: response.ceoNm,
+            ceoPhone: response.ceoPhone,
+            ceoEmail: response.ceoEmail,
+            companyUrl: pf.seinfoComUtil.unEscape(response.companyUrl),
+            companyInfo: pf.seinfoComUtil.unEscape(response.companyInfo),
+          };
+
+          fnBindDataToForm(memberInfo);
+        }else {
+          pf.seinfoAlert.warning(rData.data.message, () => {
+            location.href = pf.seinfo.fnGetMovePage("divMid110") + '?prevPage=divMid620'; //로그인 페이지 > 회원정보수정
+          });
+        }
+      });
+    }
+
+    //들어온 데이터들을 폼에 바인드
+    function fnBindDataToForm(memberInfo) {
+      $('#userEmail').text(memberInfo.userEmail);
+      $('#userNm').val(memberInfo.userNm);
+      $('#userPhone').val(memberInfo.userPhone);
+      $('#userOfficePhone').val(memberInfo.userOfficePhone);
+      $('#companyNo').val(memberInfo.companyNo);
+      $('#companyNm').val(memberInfo.companyNm);
+      $('#companyD').val(memberInfo.companyD);
+      $('#companyAddress').val(memberInfo.companyAddress);
+      $('#companyAddressDetail').val(memberInfo.companyAddressDetail);
+      $('#ceoNm').val(memberInfo.ceoNm);
+      $('#ceoPhone').val(memberInfo.ceoPhone);
+      $('#ceoEmail').val(memberInfo.ceoEmail);
+      $('#companyUrl').val(memberInfo.companyUrl);
+      $('#companyDescription').val(memberInfo.companyInfo);
+    }
+
+    function fnNextForm() {
+      const formData = {
+        userUid: memberInfo.userUid,
+        userEmail: memberInfo.userEmail,
+        userNm: $('#userNm').val(),
+        userPhone: $('#userPhone').val(),
+        userOfficePhone: $('#userOfficePhone').val(),
+        companyNo: memberInfo.companyNo,
+        companyNm: $('#companyNm').val(),
+        companyAddress: $('#companyAddress').val(),
+        companyAddressDetail: $('#companyAddressDetail').val(),
+        companyD: $('#companyD').val(),
+        ceoNm: $('#ceoNm').val(),
+        ceoPhone: $('#ceoPhone').val(),
+        ceoEmail: $('#ceoEmail').val(),
+        companyUrl: $('#companyUrl').val(),
+        companyInfo: $('#companyDescription').val()
+      }
+
+      const changedValues = {};
+      let result = false;
+      for (const key in memberInfo) {
+        if (memberInfo[key] !== formData[key]) {
+          changedValues[key] = formData[key];
+        }
+      }
+
+      if(Object.keys(changedValues).length > 0) {
+        fnAjaxUpdMember(formData); //회원정보 수정
+        result = true;
+      }
+
+      if(!result) {
+        pf.seinfoAlert.warning('[(#{seinfo.member.msg.00150})]'); //변경된 내용이 없습니다.
+        return null;
+      }
+    }
+
+    //회원정보 수정
+    function fnAjaxUpdMember(formData) {
+
+      let userPwd = $('#userPwd').val();
+
+      var msg1 = '[(#{seinfo.main.label.00160})] ' + '[(#{seinfo.com.msg.00120})]'; //비밀번호 : 필수입력값입니다.
+
+      if(!userPwd) {
+        pf.seinfoAlert.focus(0, msg1, $('#userPwd'));
+      }
+
+      formData.userPwd = userPwd;
+
+      //회원 성명 검증
+      const userNm = formData.userNm;
+      var msg1 = '[(#{seinfo.member.label.00150})] ' + '[(#{seinfo.com.msg.00120})]'; //회원 성명 : 필수입력값 입니다.
+      var msg2 = '[(#{seinfo.member.label.00150})] ' + '[(#{seinfo.member.msg.00080})]'; //회원 성명 : 최소 2글자 이상이여야합니다.
+      var msg3 = '[(#{seinfo.member.label.00150})] ' + '[(#{seinfo.com.msg.00130})]'; //회원 성명 : 형식이 올바르지 않습니다.
+      var msg4 = '[(#{seinfo.member.label.00150})] ' + '[(#{seinfo.com.msg.00100})]'; //회원 성명 : 입력길이가 한도를 초과하였습니다.
+      if(!pf.seinfoComUtil.validateName(userNm, msg1, msg2, msg3, msg4, $('#userNm'), 98)) {
+        return false;
+      }
+
+      //핸드폰번호 검증
+      const userPhone = formData.userPhone;
+      var msg1 = '[(#{seinfo.member.label.00160})] ' + '[(#{seinfo.com.msg.00120})]'; //회원 성명 : 필수입력값 입니다.
+      var msg2 = '[(#{seinfo.member.label.00160})] ' + '[(#{seinfo.com.msg.00130})]'; //회원 성명 : 형식이 올바르지 않습니다.
+      var msg3 = '[(#{seinfo.member.label.00160})] ' + '[(#{seinfo.com.msg.00140})]'; //회원 성명 : 유효하지 않습니다.
+      if(!pf.seinfoComUtil.validatePhoneNo(userPhone, msg1, msg2, msg3, $('#userPhone'))) {
+        return false;
+      }
+
+      //사무실 전화번호 검증
+      const userOfficePhone = formData.userOfficePhone;
+      if(userOfficePhone) {
+        var msg1 = ''; //빈값 : 필수입력 제외.
+        var msg2 = '[(#{seinfo.member.label.00170})] ' + '[(#{seinfo.com.msg.00130})]'; //핸드폰 번호 : 형식이 올바르지 않습니다.
+        var msg3 = '[(#{seinfo.member.label.00170})] ' + '[(#{seinfo.com.msg.00140})]'; //핸드폰 번호 : 유효하지 않습니다.
+        if(!pf.seinfoComUtil.validatePhoneNo(userOfficePhone, msg1, msg2, msg3, $('#userOfficePhone'))) {
+          return false;
+        }
+      }
+
+      //사업자 번호 변경
+      let companyNo = memberInfo.companyNo;
+      let newCompanyNo = companyNo.replace(/-/g, '');
+      formData.companyNo = newCompanyNo;
+
+      //개시일
+      const companyD = formData.companyD;
+      var msg1 = '[(#{seinfo.member.label.00100})] ' + '[(#{seinfo.com.msg.00120})]'; //개시일 : 필수입력값 입니다.
+      var msg2 = '[(#{seinfo.calendar.label.00020})] ' + '[(#{seinfo.com.msg.00130})]'; //날짜 형식이 올바르지 않습니다.
+      var msg3 = '[(#{seinfo.calendar.label.00020})] ' + '[(#{seinfo.com.msg.00140})]'; //날짜 : 유효하지 않습니다.
+      if(!pf.seinfoComUtil.validateDate(companyD, msg1, msg2, msg3, $('#companyD'))) {
+        return false;
+      }
+
+      //회사명 : 숫자, 한글, 영문, 특수문자 모두 허용
+      const companyNm = formData.companyNm;
+      var msg1 = '[(#{seinfo.member.label.00020})] ' + '[(#{seinfo.com.msg.00120})]'; //회사명 : 필수입력값 입니다.
+      if(!companyNm) {
+        pf.seinfoAlert.focus(0,msg1,$('#companyNm'));
+        return false;
+      }
+
+      //회사주소
+      const companyAddress = formData.companyAddress;
+      var msg1 = '[(#{seinfo.member.label.00030})] ' + '[(#{seinfo.com.msg.00120})]'; //회사 주소 : 필수입력값 입니다.
+      var msg2 = '[(#{seinfo.member.label.00030})] ' + '[(#{seinfo.com.msg.00140})]'; //회사 주소 : 유효하지 않습니다.
+      if(!pf.seinfoComUtil.validateAddress(companyAddress, msg1, msg2, $('#companyAddress'))) {
+        return false;
+      }
+
+      //대표자 연락처
+      const ceoPhone = formData.ceoPhone;
+      if(ceoPhone){
+        var msg1 = ''; //빈값 : 필수입력 제외.
+        var msg2 = '[(#{seinfo.member.label.00050})] ' + '[(#{seinfo.com.msg.00130})]'; //대표자 연락처 : 형식이 올바르지 않습니다.
+        var msg3 = '[(#{seinfo.member.label.00050})] ' + '[(#{seinfo.com.msg.00140})]'; //대표자 연락처 : 유효하지 않습니다.
+        if(!pf.seinfoComUtil.validatePhoneNo(ceoPhone, msg1, msg2, $('#ceoPhone'))) {
+          return false;
+        }
+      }
+
+      //대표자 이메일 : 필수 입력값 제외, 입력시 검증처리
+      const ceoEmail = formData.ceoEmail;
+      if(ceoEmail) {
+        var msg1 = '[(#{seinfo.member.label.00060})] ' + '[(#{seinfo.com.msg.00120})]'; //대표자 이메일 : 필수입력값 입니다.
+        var msg2 = '[(#{seinfo.member.label.00060})] ' + '[(#{seinfo.com.msg.00130})]'; //대표자 이메일 : 형식이 올바르지 않습니다.
+        if (!pf.seinfoComUtil.validateEmail(ceoEmail, msg1, msg2, $('#ceoEmail'))) {
+          return false;
+        }
+      }
+
+      pf.seinfo.ajax({
+        method: 'PUT',
+        url: '/member/myInfo/myInfoUpd',
+        data: formData
+      }, (rData) => {
+        if(rData.process_code === "00") { //성공
+           pf.seinfoAlert.success('[(#{seinfo.member.msg.00160})]', () => {
+             fnAjaxSelMember();
+           }); //회원정보가 변경되었습니다.
+          $('#userPwd').val('');
+        }else {
+          pf.seinfoAlert.warning(rData.data.message);
+        }
+      });
+    }
+
+    function fnPopupPwdChange() {
+      $('#popupUserPwd').val('');
+      $('#popupUserTmpPwd').val('');
+      $('#popupUserTmpPwdConf').val('');
+      $('#modalPassChange').show();
+      $('#popupUserPwd').focus();
+    }
+
+    function fnAddressSearch() {
+        let tnWidth = 570;
+        let tnHeight = 420;
+
+        let xPos = window.top.outerWidth / 2 + window.top.screenX - (tnWidth / 2);
+        let yPos = window.top.outerHeight / 2 + window.top.screenY - (tnHeight / 2);
+
+        let rtnLinKUrl = '/anyone/member/regMember/AddressPopup';
+
+        window.open(rtnLinKUrl, 'reportViewer', "width=", tnWidth + " ," + "height=" + tnHeight + ", " + "left=" + xPos + ", " + "top=" + yPos + ", scrollbars=yes, resizable=yes")
+    }
+
+    function jusoCallBack(zipNo, roadAddrPart1, roadAddrPart2, jibunAddr, addrDetail) {
+      $("#companyAddress").val(roadAddrPart1);
+      $("#companyAddressDetail").val(addrDetail);
+      $("#companyAddressDetail").focus();
+    }
+
+    $(() => {
+      //회원정보 불러오기
+      fnAjaxSelMember();
+
+      //회원 성명
+      pf.seinfoComUtil.autoVaildator('#userNm', 98);
+      //휴대폰 번호 형식 자동 생성
+      pf.seinfoComUtil.formatSetPhoneNo('#userPhone');
+      //사무실 전화번호 형식 자동생성
+      pf.seinfoComUtil.formatSetPhoneNo('#userOfficePhone');
+      //대표자연락처 형식 자동생성
+      pf.seinfoComUtil.formatSetPhoneNo('#ceoPhone');
+      //개시일 날짜 형식 자동생성
+      pf.seinfoComUtil.formatSetDate('#companyD')
+
+      //placeholder 설정
+      fnInputSetPlaceholder();
+
+      //수정하기 버튼 동작
+      $('#nextForm').on('click', function (e) {
+        e.preventDefault();
+        fnNextForm();
+      });
+    });
+
+  </script>
+</th:block>
+
+</html>

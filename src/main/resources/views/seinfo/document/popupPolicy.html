@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block th:fragment="popup01View">
+    <div class="modal" id="modalPolicy">
+        <div class="modal-overlay">
+            <div class="modal-content">
+                <button class="close-modal-btn" id="modalPolicyBtnCls">
+                    <img th:src="@{/static/seinfo/img/icon-modal-close.svg}" alt="[(#{seinfo.com.btn.00040})]"> <!-- 닫기 -->
+                </button>
+                <div class="modal-body">
+                    <div class="agreement-content-modal">
+                        <strong>[(#{seinfo.member.label.00007})]</strong> <!--개인 정보 수집·이용 동의서 -->
+                    </div>
+
+                    <section class="agreement-text" id="modalPolicySec">
+                        <div>임시 페이지~~~~~~~~~~~~~
+                            <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+
+                            <p class="terms-checkbox-area" style="justify-content: end;">
+                                <span class="check">
+                                    <input type="checkbox" id="modalPolicyChkAll" name="modalPolicyChkAll">
+                                    <label for="modalPolicyChkAll" class="label">[(#{seinfo.com.btn.00050})]</label>
+                                </span>
+                            </p>
+                        </div>
+                    </section>
+
+                    <div class="modal-btn-wrap">
+                        <button class="primary-md-btn" id="modalPolicyBtnOk" disabled>
+                            <span>[(#{seinfo.com.btn.00060})]</span> <!-- 위 내용을 확인하였으며, 회원의 개인정보 처리에 동의합니다. -->
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="popup01Js">
+    <script type="text/javascript" th:inline="javascript">
+
+    </script>
+</th:block>

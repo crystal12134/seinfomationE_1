@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block th:fragment="popup01View">
+    <div class="modal" id="modalModRequest">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button id="modalBtnCls" class="close-modal-btn">
+                <img th:src="@{/static/seinfo/img/icon-modal-close.svg}" alt='[(#{seinfo.com.btn.00040})]'> <!--닫기-->
+            </button>
+            <div class="modal-body">
+                <div class="detail-header-area">
+                    <div class="title">
+                        <strong>[(#{seinfo.admin.label.00120})]</strong> <!--수정요청-->
+                    </div>
+                </div>
+                <div class="detail-body-area" style="margin-top: 10px; !important;">
+                    <div class="table-row-container" style="width: 750px; !important;">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th>[(#{seinfo.admin.label.00130})]</th> <!-- 수정요청사유 -->
+                                    <td>
+                                        <div class="textarea-area">
+                                            <textarea id="drawContents" ></textarea>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="button-area" style="margin-top: 20px;">
+                        <button class="primary-xsm-btn" style="width: 100px" onclick="sendModRequest()">수정요청</button>
+                        <button class="primary-outline-xsm-btn" style="width: 100px" onclick="fnCloseModRequestPopup()">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="popup01Js">
+    <script type="text/javascript" th:inline="javascript">
+        function fnCloseModRequestPopup() {
+            $("#modalModRequest").hide();
+        }
+
+        function sendModRequest() {
+            const drawContents = $("#drawContents").val();
+
+            if(pf.zzzUtil.isEmpty(drawContents)) {
+                pf.seinfoAlert.warning("[(#{seinfo.admin.msg.00020})]");
+            }
+
+            const paramData = {
+                proposalNo : ppsDetail.proposalNo,
+                drawContents : drawContents,
+            }
+
+            pf.seinfo.ajax({
+                url: contextPath + '/admin/modRequest',
+                method: 'POST',
+                data: paramData
+            }, (rData) => {
+                if(rData.process_code === '00') {
+                    pf.seinfoAlert.success('수정요청 되었습니다.', () => {
+                        $('#drawContents').val('');
+                        reloadHistoryList();
+                        getProposalDetail(ppsDetail.proposalNo);
+                        $('#modalModRequest').css('display', 'none');
+                    });
+                }else {
+                    pf.seinfoAlert.warning(rData.process_msg);
+                }
+            });
+        }
+    </script>
+</th:block>
+
+</html>

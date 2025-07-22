@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block th:fragment="fileUpload">
+    <!-- 1. 첨부파일 : 신규, 수정, 조회 (업로드, 삭제, 다운로드) >>> fileTusJs -->
+    <div class="file-upload-wrap" style="display: none;" id="file-upload-id">
+        <div class="file-upload-area file-drop-area">
+        <!-- 첨부할 파일을 드래그 하거나, 파일 선택 버튼을 직접 선택해주세요. -->
+        <!--첨부파일은 PDF만 업로드 가능합니다. 암호화가 있을 경우 비 암호화된 PDF로 첨부해주세요.-->
+        <p>[(#{seinfo.file.label.00014})]</p>
+        <p style="color: #bd4353;">[(#{seinfo.file.label.00012})] [(#{seinfo.file.label.00013})]</p>
+        <input type="file" id="file-input" multiple hidden onchange="fileUpDown.handleFileSelect(event.target.files)" />
+
+        <!-- 파일 선택 -->
+        <button type="button" class="file-upload-btn primary-md-btn" onclick="$('#file-input').click()">[(#{seinfo.file.label.00015})]</button>
+        </div>
+        <div class="file-total">
+            <!-- 0개 / 개 (최대) -->
+            <strong class="file-count"><i></i>[(#{seinfo.file.label.00016})]
+                <span id="maxFileCnt"></span>[(#{seinfo.file.label.00040})]
+            </strong>
+
+            <!--  전체 다운로드 -->
+            <div class="file-control-area"></div>
+            <button type="button" class="down-all" style="display: none; transform: translateX(-15px);" onclick="fileUpDown.startTusDownAll()">
+                <img th:src="@{/static/seinfo/img/icon-download-blue.svg}" alt="[(#{seinfo.file.label.00034})]"> <!-- 다운로드 -->
+                <span>[(#{seinfo.file.label.00035})]</span>
+            </button>
+
+            <!-- 전체 파일 삭제 -->
+            <button type="button" class="remove-all" style="transform: translateX(-15px);">
+                <img th:src="@{/static/seinfo/img/icon-upload-close-red.svg}" alt="[(#{seinfo.file.label.00063})]"> <!-- 파일삭제 -->
+                <span>[(#{seinfo.file.label.00018})]</span>
+            </button>
+        </div>
+
+        <!-- 파일 list -->
+        <ul class="upload-list file-list"></ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="fileDownload">
+    <!-- 2. 첨부파일 : 조회 (다운로드) >>> fileTusJs -->
+    <div class="file-download-area" style="display: none;" id="file-download-id">
+        <div class="file-control-area" style="justify-content: space-between;">
+            <div class="inner">
+                <span><i>[(#{seinfo.file.label.00010})]</i></span> <!-- 파일 리스트 -->
+                <strong class="file-count"><i></i></strong> <!-- 0개 -->
+            </div>
+
+            <!-- 전체 다운로드 -->
+            <button type="button" class="down-all" style="display: none; transform: translateX(-15px);" onclick="fileUpDown.startTusDownAll()">
+                <img th:src="@{/static/seinfo/img/icon-download-blue.svg}" alt="[(#{seinfo.file.label.00034})]"> <!-- 다운로드 -->
+                <span>[(#{seinfo.file.label.00035})]</span>
+            </button>
+        </div>
+
+        <div class="inner">
+            <ul class="download-list file-list"></ul>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="popupFileUpload">
+    <!-- 3. 첨부파일 : 신규, 수정, 조회 (업로드, 삭제, 다운로드) >>> fileTusJs -->
+    <div class="file-upload-ver02 modal-file-scroll" id="file-upload-popup">
+        <!-- 첨부할 파일을 드래그 하거나, 파일 선택 버튼을 직접 선택해주세요. -->
+        <!--첨부파일은 PDF만 업로드 가능합니다. 암호화가 있을 경우 비 암호화된 PDF로 첨부해주세요.-->
+        <p style="color: #bd4353;">[(#{seinfo.file.label.00012})] <br/> [(#{seinfo.file.label.00013})]</p>
+
+        <div class="inner">
+            <!-- 첨부할 파일을 드래그 하거나, 파일 선택 버튼을 직접 선택해주세요. -->
+            <input type="text" id="popupFileInput" class="file-name file-drop-area" placeholder="" readonly>
+
+            <!-- 파일 선택 -->
+            <input type="file" id="file-input" multiple hidden onchange="fileUpDown.handleFileSelect(event.target.files)" />
+            <button type="button" class="file-upload-btn primary-md-btn" onclick="$('#file-input').click()">[(#{seinfo.file.label.00015})]</button>
+        </div>
+
+        <div class="file-total">
+            <!-- 0개 / 개 (최대) -->
+            <strong class="file-count"><i></i>[(#{seinfo.file.label.00016})]
+                <span id="maxFileCnt"></span>[(#{seinfo.file.label.00040})]
+            </strong>
+
+            <!--  전체 다운로드 -->
+            <div class="file-control-area"></div>
+            <button type="button" class="down-all" style="display: none; transform: translateX(-15px);" onclick="fileUpDown.startTusDownAll()">
+                <img th:src="@{/static/seinfo/img/icon-download-blue.svg}" alt="[(#{seinfo.file.label.00034})]"> <!-- 다운로드 -->
+                <span>[(#{seinfo.file.label.00035})]</span>
+            </button>
+
+            <!-- 전체 파일 삭제 -->
+            <button type="button" class="remove-all" style="transform: translateX(-15px);">
+                <img th:src="@{/static/seinfo/img/icon-upload-close-red.svg}" alt="[(#{seinfo.file.label.00063})]"> <!-- 파일삭제 -->
+                <span>[(#{seinfo.file.label.00018})]</span>
+            </button>
+        </div>
+
+        <!-- 파일 list -->
+        <ul class="upload-list file-list"></ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="popupFileDownload01">
+    <!-- 4-1. 팝업화면 첨부파일 : 조회 (다운로드) >>> fileTusJs -->
+    <div class="file-upload-ver02 modal-file-scroll" style="display: none;" id="file-download-popup">
+        <div class="file-total" style="margin-top: 0">
+            <div class="inner">
+                <span><i>[(#{seinfo.file.label.00010})]</i></span> <!-- 파일 리스트 -->
+                <strong class="file-count"><i></i></strong> <!-- 0개 -->
+            </div>
+
+            <!-- 전체 다운로드 -->
+            <button type="button" class="down-all" style="display: none; transform: translateX(-15px);" onclick="fileUpDown.startTusDownAll()">
+                <img th:src="@{/static/seinfo/img/icon-download-blue.svg}" alt="[(#{seinfo.file.label.00034})]"> <!-- 다운로드 -->
+                <span>[(#{seinfo.file.label.00035
+                    })]</span>
+            </button>
+        </div>
+
+        <div class="file-download-area" style="display: none;" id="file-download-list">
+            <div class="inner">
+                <ul class="download-list file-list" style="margin-top: 0px"></ul>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="popupFileDownload02">
+    <!-- 4-2. 팝업화면 첨부파일 : 조회 (다운로드) >>> fileTusJs -->
+    <div class="file-upload-ver02">
+        <div class="file-total" style="margin-top: 0">
+            <div class="inner">
+                <span><i>[(#{seinfo.file.label.00010})]</i></span> <!-- 파일 리스트 -->
+                <strong class="file-count"><i></i></strong> <!-- 0개 -->
+            </div>
+
+            <!-- 전체 다운로드 -->
+            <button type="button" class="down-all" style="display: none; transform: translateX(-15px);" onclick="onlyFileDown.startTusDown(downloadSetting.fileGrpId, '', 'ALL')">
+                <img th:src="@{/static/seinfo/img/icon-download-blue.svg}" alt="[(#{seinfo.file.label.00034})]"> <!-- 다운로드 -->
+                <span>[(#{seinfo.file.label.00035})]</span>
+            </button>
+        </div>
+
+        <div class="file-download-area" style="display: none;" id="file-download-list">
+            <div class="inner">
+                <ul class="download-list file-list" style="margin-top: 0px"></ul>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="fileTusJs">
+    <script type="text/javascript" th:inline="javascript">
+        // 다운로드 버튼별 이미지
+        const downloadButton = {
+            attachImg : /*[[ @{/static/seinfo/img/icon-clip.svg} ]]*/ '',
+            downloadImg : /*[[ @{/static/seinfo/img/icon-download.svg} ]]*/ ''
+        }
+
+        // 첨부파일 key값 설정
+        let keyFileInfo = {};
+        function uploadKeySetting(pUploadKey) {
+            keyFileInfo = pUploadKey;
+        }
+
+        // 업로드 셋팅
+        let uploadSetting = {};
+
+        // 파일 업로드, 다운로드
+        const fileUpDown = {
+            filesArray: [],
+            deleteArray: [],
+            initialFileIds: [],
+            tmpUploadArray: [],
+            uploadInit: function () {
+                this.filesArray = [];
+                this.tmpUploadArray = [];
+                $(".upload-list").empty();
+                this.updateFileCount();
+            },
+            downloadInit: function () {
+                uploadSetting = {};
+                $('.download-list').empty();
+                this.updateFileCount();
+            },
+
+            // 하나의 팝업화면에서 업로드, 다운로드 함께 처리할 때 처리ㅏ
+            fnSetMode : function (pMode) {
+                if(pMode === 'U') {
+                    $('#file-upload-popup').css('display', 'block');
+                    $('#file-download-popup').css('display', 'none');
+                    fileUpDown.initWrite();
+                } else if (pMode === 'R') { // 다운로드만
+                    $('#file-upload-popup').css('display', 'none');
+                    $('#file-download-popup').css('display', 'block');
+                } else { // 'N' : 첨부파일 clear
+                    fileUpDown.uploadInit();
+                    $('#file-upload-popup').css('display', 'none');
+                    $('#file-download-popup').css('display', 'block');
+                }
+            },
+
+            updateFileCount: function () {
+                $(".file-count i").text(`${this.filesArray.length}[(#{seinfo.file.label.00017})]`); // 개
+
+                // 전체다운 : 파일서버에 업로드 완료된 건이 존재할때만.
+                const countFilePaths = this.filesArray.filter(f => f.fileData)
+                    .map(f => ({ fileGrpId : uploadSetting.fileGrpId, fileId: f.fileData.fileId, mfilePath: f.fileData.mfilePath }));
+                if(countFilePaths.length === 0) {
+                    $(".down-all").css('display', 'none');
+                } else {
+                    $(".down-all").css('display', 'block');
+                }
+            },
+            getFileExtension : function (fileName) {
+                return fileName.split('.').pop().toUpperCase();
+            },
+
+            // 첨부파일 편집모드 설정
+            initWrite : function () {
+                this.bindUploadEvents();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/tus/mfileInfo',
+                    contentType: 'application/json',
+                    data: JSON.stringify({mfileInfoId: keyFileInfo.cdKey}),
+                    success: function (rData) {
+                        if(!rData.data) {
+                            pf.seinfoAlert.warning('[(#{seinfo.file.msg.00120})]'); // 첨부 마스터 데이터가 없거나, fileInfoId 값이 잘 못 되었습니다.
+                        }
+                        if(!uploadSetting.fileGrpId) { // 첨부파일 등록이 없으면
+                            const formatDate = new Date();
+                            const year = (formatDate.getFullYear() + '').substring(2, 4);
+                            const month = (formatDate.getMonth() + 1) >= 10? (formatDate.getMonth() + 1) : '0' + (formatDate.getMonth() + 1);
+                            const date = (formatDate.getDate() >= 10? (formatDate.getDate()) : '0' + (formatDate.getDate()));
+                            const hours = (formatDate.getHours() >= 10? (formatDate.getHours()) : '0' + (formatDate.getHours()));
+                            const minutes = (formatDate.getMinutes() >= 10? (formatDate.getMinutes()) : '0' + (formatDate.getMinutes()));
+                            const seconds = (formatDate.getSeconds() >= 10? (formatDate.getSeconds()) : '0' + (formatDate.getSeconds()));
+                            const finFormatDate = `${year}${month}${date}${hours}${minutes}${seconds}`;
+                            uploadSetting.fileGrpId = `${keyFileInfo.grpKey}-${finFormatDate}-${pf.code.uuid()}`;
+                        }
+                        uploadSetting.fileCnt = rData.data.mfileMaxCnt;
+                        uploadSetting.fileExt = rData.data.mfileExt;
+                        uploadSetting.fileMaxSize = rData.data.mfileMaxSize;
+                        uploadSetting.fileInfoId = rData.data.mfileInfoId;
+                        $('#maxFileCnt').text(uploadSetting.fileCnt);
+                        fileUpDown.updateFileCount()
+                    },
+                    error: function (jqXHR) {
+                        const response = JSON.parse(jqXHR.responseText).message();
+                        const msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                        pf.seinfoAlert.warning('[(#{seinfo.file.msg.00190})] <br> '+msg); //[조회실패: 첨부파일] ...
+                    }
+                })
+            },
+            initEdit: function () {
+                if(!uploadSetting.fileGrpId) {
+                    this.initWrite();
+                    return null;
+                }
+                this.bindUploadEvents();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/tus/mfileGroupInfo',
+                    contentType: 'application/json',
+                    data: JSON.stringify({mfileGrpId: uploadSetting.fileGrpId}),
+                    success: (rData) => {
+                        if(rData.data?.fileList) {
+                            this.filesArray = rData.data.fileList.map(file => ({key: file.fileId, keyName: file.fileNm, fileData: file}));
+                            this.initialFiledIds = rData.data.fileList.map(file => file.fileId);
+                            this.filesArray.forEach(({fileData}) => {
+                                const item = $(`
+                                    <li class="file-item-existing" data-file-id="${fileData.fileId}">
+                                        <div class="download-text">
+                                            <img src="${downloadButton.attachImg}">
+                                                <span class="file-name">${fileData.fileNm} (${this.getFileExtension(fileData.fileNm)})</span>
+                                            </div>
+                                            <div class="file-control-area">
+                                                <div class="download">
+                                                    <button onclick="fileUpDown.startTusDown('${uploadSetting.fileGrpId}', '${fileData.fileId}')">
+                                                        <img src="${downloadButton.downloadImg}" alt="[(#{seinfo.file.label.00034})]">
+                                                        <span>[(#{seinfo.file.label.00034})]</span> <!-- 다운로드 -->
+                                                    </button>
+                                                </div>
+                                                <button type="button" class="file-delete">
+                                                    <img src="/static/seinfo/img/icon-upload-close-red.svg" alt="[(#{seinfo.file.label.00063})]"> <!-- 파일삭제 이미지-->
+                                                </button>
+                                            </div>
+                                        </li>
+                                  `);
+                                  item.find('.file-delete').on('click', () => { this.removeFile(fileData.fileId, item); });
+                                  $(".upload-list").append(item);
+                                });
+                                fileUpDown.updateFileCount();
+
+                            const fileInfo = rData.data.fileInfo;
+                            if(fileInfo) {
+                                uploadSetting.fileCnt = fileInfo.mfileMaxCnt;
+                                uploadSetting.fileExt = fileInfo.mfileExt;
+                                uploadSetting.fileMaxSize = fileInfo.mfileInfoId;
+                                $("#maxFileCnt").text(uploadSetting.fileCnt);
+                            }else if (!uploadSetting.fileInfoId) { // 첨부파일 정보 없으면
+                                this.initWrite();
+                            }
+                          }
+                    },
+                    error: function (jqXHR) {
+                        const response = JSON.parse(jqXHR.responseText).message();
+                        const msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                        pf.seinfoAlert.warning('[(#{seinfo.file.msg.00190})] <br> '+msg); //[조회실패: 첨부파일] ...
+                    }
+                });
+            },
+            initView: function () {
+                $('#file-upload-id').css('display', 'none');
+                $('#file-download-id').css('display', 'block');
+                console.log(uploadSetting);
+                $.ajax({
+                    type: 'POST',
+                    url: '/tus/mfileGroupInfo',
+                    contentType: 'application/json',
+                    data: JSON.stringify({mfileGrpId: uploadSetting.fileGrpId}),
+                    success: (rData) => {
+                        if(rData?.data?.fileList?.length > 0) {
+                            this.initialFleedIds = rData.data.fileList.map(file => file.fileId);
+                            rData.data.fileList.forEach(file => {
+                                const listItem = $(`
+                                    <li>
+                                        <div class="download-text">
+                                            <img src="${downloadButton.attachImg}">
+                                                <span class="file-name">${file.fileNm}</span>
+                                            </div>
+                                            <div class="download">
+                                                <button onclick="fileUpDown.startTusDown('${uploadSetting.fileGrpId}', '${file.fileId}')">
+                                                    <img src="${downloadButton.downloadImg}" alt="[(#{seinfo.file.label.00034})]">
+                                                    <span>[(#{seinfo.file.label.00034})]</span> <!-- 다운로드 -->
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                  `);
+                                $(".download-list").append(listItem);
+                            });
+                            $('#file-download-list').css('display', 'block');
+                            $('.down-all').css('display', 'block');
+                            $('.file-count i').text(`${this.initialFleedIds.length}[(#{seinfo.file.label.00017})]`) // 개
+                        } else {
+                            $('#file-download-list').css('display', 'none');
+                            $('.down-all').css('display', 'none');
+                            $(".file-count i").text(`0[(#{seinfo.file.label.00017})]`); // 개
+                        }
+                    },
+                    error: function (jqXHR) {
+                        const response = JSON.parse(jqXHR.responseText).message();
+                        const msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                        pf.seinfoAlert.warning('[(#{seinfo.file.msg.00190})] <br> '+msg);
+                    }
+                })
+            },
+            bindUploadEvents: function () {
+                $('#file-upload-id').css('display', 'block');
+                $('#file-download-id').css('display', 'none');
+                $('.remove-all').off('click').on('click', () => this.removeAllFiles());
+                $(".file-drop-area")
+                    .off('dragover').on('dragover', (e) => this.handleDragOver(e))
+                    .off('dragleave').on('dragleave', (e) => this.handleDragLeave(e))
+                    .off('drop').on('drop', (e) => this.handleDrop(e));
+            },
+            handleDragOver: function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $('.file-drop-area').addClass('drag-over');
+            },
+            handleDragLeave: function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $('.file-drop-area').removeClass('drag-over');
+            },
+            handleDrop: function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(".file-drop-area").removeClass('drag-over');
+                this.handleFileSelect(e.originalEvent.dataTransfer.files);
+            },
+            handleFileSelect: function (files) {
+                Array.from(files).forEach(file => {
+                    if(this.filesArray.length >= uploadSetting.fileCnt) {
+                        //최대 파일 등록 갯수는 {}개 입니다.
+                        pf.seinfoAlert('[(#{seinfo.file.msg.00130})]'+' '+uploadSetting.fileCnt+'[(#{seinfo.file.msg.00140})]');
+                        return null;
+                    }
+
+                    const ext = file.name.split('.').pop().toLowerCase();
+                    if (!uploadSetting.fileExt.includes(ext)) {
+                        //허용되지 않는 파일 확장자 입니다. <br> [확장자 : ...
+                        pf.seinfoAlert('[(#{seinfo.file.msg.00150})]'+' '+this.getFileExtension(ext) + ']');
+                        return null;
+                    }
+
+                    if(file.size > parseInt(uploadSetting.fileMaxSize)) {
+                        //파일 크기가 최대 제한을 초과했습니다. [파일명 :
+                        pf.seinfoAlert('[(#{seinfo.file.msg.00160})]'+' '+file.name + ']');
+                        return null;
+                    }
+
+                    const findDup = this.filesArray.find(f => f.keyName === file.name);
+                    if(findDup) {
+                        // 이미 등록된 파일입니다. [파일명 : ...
+                        pf.seinfoAlert('[(#{seinfo.file.msg.00165})]'+' '+file.name + ']');
+                        return null;
+                    }
+
+                    const fileKey = file.name + '_' + file.size;
+                    if(!this.filesArray.some(f => f.key === fileKey)) {
+                        const formatDate = new Date();
+                        const year = (formatDate.getFullYear() + '').substring(2, 4);
+                        const month = (formatDate.getMonth() + 1) >= 10? (formatDate.getMonth() + 1) : '0' + (formatDate.getMonth() + 1);
+                        const date = (formatDate.getDate() >= 10? (formatDate.getDate()) : '0' + (formatDate.getDate()));
+                        const hours = (formatDate.getHours() >= 10? (formatDate.getHours()) : '0' + (formatDate.getHours()));
+                        const minutes = (formatDate.getMinutes() >= 10? (formatDate.getMinutes()) : '0' + (formatDate.getMinutes()));
+                        const seconds = (formatDate.getSeconds() >= 10? (formatDate.getSeconds()) : '0' + (formatDate.getSeconds()));
+                        const finFormatDate = `${year}${month}${date}${hours}${minutes}${seconds}`;
+                        const fileUuid = `${keyFileInfo.grpKey}-${finFormatDate}-${pf.code.uuid()}`;
+
+                        this.filesArray.push({key: fileKey, keyName: file.name, file, fileUuid});
+                        this.addFileToList(file, fileKey);
+                    }
+                });
+                this.updateFileCount();
+                $('#file-input').val('');
+            },
+            addFileToList: function (file, fileKey) {
+                const listItem = $(`
+                    <li class="file-item" data-key="${fileKey}">
+                        <span class="file-name">${file.name} (${this.getFileExtension(file.name)})</span>
+                        <button type="button" class="file-delete">
+                            <img style="height: 5px;" src="/static/seinfo/img/icon-upload-close-red.svg" alt="[(#{seinfo.file.label.00063})]"> <!-- 파일삭제 이미지 -->
+                            <span>[(#{seinfo.file.label.00033})]</span> <!-- 파일 삭제 -->
+                        </button>
+                    </li>
+                `)
+
+                listItem.find('.file-delete').on('click', () => this.removeFile(fileKey, listItem));
+                $(".upload-list").append(listItem);
+            },
+            removeFile: function (fileKey, listItem) {
+                const existingFile = this.filesArray.find(f => f.key === fileKey && f.fileData);
+                if(existingFile) {
+                    this.deleteArray.push({ fileGrpId: uploadSetting.fileGrpId
+                        , fileId: existingFile.fileData.fileId
+                        , mfilePath: existingFile.fileData.mfilePath });
+                }
+                this.filesArray = this.filesArray.filter(f => f.key !== fileKey);
+                listItem.remove();
+                this.updateFileCount();
+            },
+            removeAllFiles: function () {
+                const existingFilesPaths = this.filesArray.filter(f => f.fileData)
+                    .map(f => ({ fileGrpId : uploadSetting.fileGrpId, fileId: f.fileData.fileId, mfilePath: f.fileData.mfilePath }));
+                if(existingFilesPaths.length > 0) {
+                    this.deleteArray.push(...existingFilesPaths);
+                }
+                fileUpDown.uploadInit();
+            },
+            isFileChanged: function () {
+              const currentFileIds = this.filesArray.filter(f => f.fileData).map(f => f.fileData.fileId);
+              const initialSet = new Set(this.initialFiledIds || []);
+              const currentSet = new Set(currentFileIds);
+
+              if (initialSet.size !== currentSet.size) return true;
+
+              for(const id of initialSet) {
+                if (!currentSet.has(id)) return true;
+              }
+
+              return this.filesArray.some(f => f.file);
+            },
+            startTusDelete: function (callback) {
+                // 삭제할 파일이 없으면 바로 콜백 호출
+                if(this.deleteArray.length === 0) {
+                    fileUpDown.callbackTusDelete(callback);
+                    return null;
+                }
+
+                pf.seinfo.ajax({ userType:keyFileInfo.userType, url: contextPath+'/tus/delete', method:'post', data: this.deleteArray}, (rData) => {
+                   if(rData.process_code === "00"){
+                       fileUpDown.callbackTusDelete(callback);
+                   } else {
+                       fileUpDown.callbackTusDelete(callback, '[(#{seinfo.file.msg.00191})] (File delete fail) <br>' + rData.data.message);
+                   }
+                });
+            },
+            callbackTusDelete: function (callback, errMsgTusDel) {
+                this.deleteArray = [];
+                if(typeof callback === 'function') {
+                    callback(errMsgTusDel);
+                }
+            },
+            startTusUpload: function (callback) {
+                const uploadPromises = this.filesArray.filter(({file}) => file).map(({file, fileUuid}) => {
+                    return new Promise((resolve, reject) => {
+                       const upload = new tus.Upload(file, {
+                            endpoint: '/upload',
+                            retryDelays: [0, 1000, 3000, 5000],
+                            metadata: {
+                                fileId: fileUuid,
+                                filename: file.name,
+                                filetype: file.type,
+                                filesize: file.size.toString(),
+                                fileWork: keyFileInfo.workKey,
+                                fileGrpId: uploadSetting.fileGrpId,
+                                fileInfoId: keyFileInfo.cdKey
+                            },
+                            onError: (error) => {
+                                //[저장실패] 업로드 중 오류가 발생하였습니다.
+                                pf.seinfoAlert.warning('[(#{seinfo.file.msg.00191})] <br> [(#{seinfo.file.msg.00170})] <br> [파일명 : '+ file.name + ']');
+                                const errMsg = ">>>업로드 실패::" + file.name + ":: " + error;
+                                reject(error);
+                            },
+                           onSuccess: () => {
+                                this.tmpUploadArray.push({ fileGrpId: uploadSetting.fileGrpId, fileId: fileUuid });
+                                resolve(">>> 업로드 완료");
+                           }
+                       });
+                       upload.start();
+                    });
+                });
+
+                Promise.all(uploadPromises)
+                    .then((okMsg) => {
+                        fileUpDown.callbackTusUpload(callback, true);
+                    })
+                    .catch((errMsg) => {
+                        fileUpDown.callbackTusUpload(callback, false);
+                    });
+            },
+            callbackTusUpload: function (callback, resultVal) {
+                if(typeof callback === 'function') {
+                    callback(resultVal);
+                }
+            },
+            startTusDown: function (fileGrpId, fileId) {
+                pf.seinfoFile.tus.download(fileGrpId, fileId, keyFileInfo.userType);
+                return null;
+            },
+            startTusDownAll: function () {
+                pf.seinfoFile.tus.downloadAll(uploadSetting.fileGrpId, keyFileInfo.userType);
+            }
+        };
+
+        // 콜백 첨부파일 저장
+        function fileUpDownSave(parentCallback) {
+            fileUpDown.tmpUploadArray = [];
+            event.preventDefault();
+
+            if(fileUpDown.filesArray.length > 0 || fileUpDown.isFileChanged()) {
+                fileUpDown.startTusDelete((errMsgTusDel) => {
+                   if(errMsgTusDel) {
+                       pf.seinfoAlert.warning(errMsgTusDel);
+                       callbackFileUpDownSave(parentCallback, false);
+                   } else {
+                       fileUpDown.startTusUpload((pResultVal) => {
+                           callbackFileUpDownSave(parentCallback, pResultVal);
+                       });
+                   }
+                });
+            }else {
+                callbackFileUpDownSave(parentCallback, true);
+            }
+        }
+
+        // 콜백-첨부파일 저장
+        function callbackFileUpDownSave(parentCallback, resultVal) {
+            if(typeof parentCallback === 'function') {
+                parentCallback(resultVal);
+            }
+        }
+
+        function fileUpDownErr() {
+            event.preventDefault();
+
+            if(fileUpDown.tmpUploadArray.length ===0) return null;
+
+            // 물리적 파일삭제 요청으로 아래구문 처리
+            pf.seinfo.ajax({ userType:keyFileInfo.userType, url: contextPath+'/tus/delete', method:'post', data: fileUpDown.tmpUploadArray}, (rData) => {
+               fileUpDown.uploadInit();
+               fileUpDown.initEdit();
+            });
+        }
+    </script>
+</th:block>
+
+<th:block th:fragment="popupFileDownloadJs">
+    <script type="text/javascript" th:inline="javascript">
+        const popup_downloadBottom = {
+            attachImg : /*[[ @{/static/seinfo/img/icon-clip.svg} ]]*/ '',
+            downloadImg : /*[[ @{/static/seinfo/img/icon-download.svg} ]]*/ ''
+        }
+        // 다운로드 셋팅
+        let downloadSetting = {};
+
+        const onlyFileDown = {
+            initialFileIds: [],
+            downloadInit: function () {
+                downloadSetting = {};
+                $('.download-list').empty();
+                this.updateFileCount(0);
+            },
+            updateFileCount: function (pLen) {
+                $('.file-count i').text(pLen + `[(#{seinfo.file.label.00017})]`) //개
+                if (pLen === 0) {
+                    $('.down-all').css('display', 'none');
+                } else {
+                    $('.down-all').css('display', 'block');
+                }
+            },
+            initView: function () {
+                let sUrl = '/anyone/noticeList/mfileGroupInfo'; // 외부(토큰 미체크)
+                if(downloadSetting.userType === "ADMIN") {sUrl = '/tus/mfileGroupInfo'} //내부(토큰 체크)
+
+                $.ajax({
+                    type: 'POST',
+                    url: sUrl,
+                    contentType: 'application/json',
+                    data: JSON.stringify({mfileGrpId: downloadSetting.fileGrpId}),
+                    success: (rData) => {
+                        if (rData?.data?.fileList?.length > 0) {
+                            this.initialFleedIds = rData.data.fileList.map(file => file.fileId);
+                            $('#file-download-list').css('display', 'block');
+
+                            rData.data.fileList.forEach(file => {
+                                const listItem = $(`
+                                    <li>
+                                        <div class="download-text">
+                                            <img src="${popup_downloadBottom.attachImg}">
+                                               <strong>${file.fileNm}</strong>
+                                            </div>
+                                            <div class="download">
+                                                <button onclick="onlyFileDown.startTusDown('${downloadSetting.fileGrpId}', '${file.fileId}', 'ONE')">
+                                                    <img src="${popup_downloadBottom.downloadImg}" alt="[(#{seinfo.file.label.00034})]">
+                                                    <span>[(#{seinfo.file.label.00034})]</span> <!-- 다운로드 -->
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                  `);
+                                $(".download-list").append(listItem);
+                            });
+                            onlyFileDown.updateFileCount(this.initialFleedIds.length);
+                        } else {
+                            $('#file-download-list').css('display', 'none');
+                            onlyFileDown.updateFileCount(0);
+                        }
+                    },
+                    error: function (jqXHR) {
+                        const response = JSON.parse(jqXHR.responseText).message();
+                        const msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                        pf.seinfoAlert.warning('[(#{seinfo.file.msg.00190})] <br> ' + msg);
+                    }
+                });
+            },
+            startTusDown: function (fileGrpId, fileId, flag) {
+                let paramData = {};
+                if(flag === "ALL") {
+                    paramData['mfileGrpId'] = fileGrpId;
+                    paramData['type'] = 'zip';
+                }else {
+                    if(!fileId) {
+                        pf.seinfoAlert.warning('다운로드할 파일이 없습니다.');
+                        return null;
+                    }
+                    paramData['mfileGrpId'] = fileGrpId;
+                    paramData['mfileId'] = fileId;
+                }
+
+                if(!fileGrpId) {
+                    pf.seinfoAlert.warning('다운로드할 파일의 그룹정보가 없습니다.');
+                    return null;
+                }
+
+                const rtnVal = pf.seinfo.validateToken(downloadSetting.menuId, downloadSetting.userType);
+                if (!rtnVal) return null;
+
+                let sUrl = '/anyone/noticeList/mfilePermit'; // 외부(토큰 미체크)
+                if (downloadSetting.userType === "ADMIN") { sUrl = '/tus/mfilePermit'; } // 내부(토큰 체크)
+
+                $.ajax({
+                    type: 'POST',
+                    url: contextPath + sUrl,
+                    contentType: 'application/json',
+                    data: JSON.stringify(paramData),
+                    success : function (rData) {
+                        if(rData.process_code === "00") {
+                            if(downloadSetting.userType === "ADMIN") {
+                                location.href = `${contextPath}/private/filedownload?mfileDownId=${rData.data.mfileDownId}`;
+                            }else {
+                                location.href = `${contextPath}/anyone/noticeList/filedownload?mfileDownId=${rData.data.mfileDownId}`;
+                            }
+                        }else {
+                            pf.seinfoAlert.warning(rData.data.message);
+                        }
+                    },
+                    error: function (jqXHR) {
+                        const response = JSON.parse(jqXHR.responseText).message();
+                        const msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                        pf.seinfoAlert.warning('[(#{seinfo.file.msg.00190})] <br> ' + msg);
+                    }
+                });
+            }
+        };
+    </script>
+</th:block>
+</html>

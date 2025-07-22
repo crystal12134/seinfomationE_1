@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<header>
+    <div class="top-menu">
+        <h1 class="logo">
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divTop000}"></div>
+            </li>
+        </h1>
+
+        <div class="header-wrap">
+            <nav id="gnb">
+                <ul class="gnb-nav">
+                    <li class="depth1 nav1">
+                        <a href="#" class="depth1-link">[(#{seinfo.menu.top.00310})]</a> <!-- 소개 -->
+                        <div class="depth2-nav-area">
+                            <ul class="depth2-nav">
+                                <li>
+                                    <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid310}"></div>
+                                </li>
+                                <li>
+                                    <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid320}"></div>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="depth1 nav2">
+                        <a href="#" class="depth1-link">[(#{seinfo.menu.top.00410})]</a> <!-- 기술제안 -->
+                        <div class="depth2-nav-area">
+                            <ul class="depth2-nav">
+                                <li>
+                                    <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid410}"></div>
+                                </li>
+                                <li>
+                                    <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid420}"></div>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="depth1 nav3">
+                        <a href="#" class="depth1-link">[(#{seinfo.menu.top.00510})]</a> <!-- 커뮤니티 -->
+                        <div class="depth2-nav-area">
+                            <ul class="depth2-nav">
+                                <li>
+                                    <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid510}"></div>
+                                </li>
+                                <li>
+                                    <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid520}"></div>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="depth1 nav4">
+                        <a href="#" class="depth1-link">[(#{seinfo.menu.top.00610})]</a> <!-- 마이페이지 -->
+                        <div class="depth2-nav-area">
+                            <ul class="depth2-nav">
+                                <li>
+                                    <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid610}"></div>
+                                </li>
+                                <li>
+                                    <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid620}"></div>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+                <div class="navi-layer"></div>
+            </nav>
+        </div>
+
+        <div class="top-quick">
+            <ul>
+                <li class="withToken" style="display:none">
+                    <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid112}"></div>
+                </li>
+                <li class="withToken" style="display:none">
+                    <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid111}"></div>
+                </li>
+                <li class="withToken" id="admin" style="display:none">
+                    <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid113}"></div>
+                </li>
+                <li class="withOutToken" style="display:none">
+                    <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid110}"></div>
+                </li>
+                <li class="withOutToken" style="display:none">
+                    <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid210}"></div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</header>
+
+<div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMidJS}"></div>
+
+<script type="text/javascript" th:inline="javascript">
+    $(function () {
+        if(pf.token()) {
+            $(".withToken").css({"display": "block"});
+            $(".withOutToken").css({"display": "none"});
+        } else {
+            $(".withToken").css({"display": "none"});
+            $(".withOutToken").css({"display": "block"});
+        }
+
+        const token = pf.token();
+        if (token && token.USER_TYPE === 'ADMIN') {
+            $("#admin").css({"display": "block"});
+        } else {
+            $("#admin").css({"display": "none"});
+        }
+    });
+</script>
+</html>

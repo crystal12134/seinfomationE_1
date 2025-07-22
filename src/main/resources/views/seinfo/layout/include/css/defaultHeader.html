@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+    <head th:fragment="defaultHeader">
+        <title></title>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+        <!-- 페이지별 기본 헤더 -->
+        <th:block layout:fragment="html_head"></th:block>
+
+        <!-- favicon -->
+        <link rel="shortcut icon" th:href="@{/static/seinfo/img/favicon.ico}">
+
+        <script type="text/javascript" th:src="@{/static/seinfo/js/jquery-3.7.1.min.js}"></script>
+        <script type="text/javascript" th:src="@{/static/seinfo/js/jquery-ui.js}"></script>
+        <script type="text/javascript" th:src="@{/static/seinfo/js/fullpage.min.js}"></script>
+        <script type="text/javascript" th:src="@{/static/seinfo/js/ui.js}"></script>
+
+        <link rel="stylesheet" type="text/css" th:href="@{/static/seinfo/css/bootstrap.min.css}">
+        <link rel="stylesheet" type="text/css" th:href="@{/static/seinfo/css/select2.min.css}">
+        <link rel="stylesheet" type="text/css" th:href="@{/static/seinfo/css/tui-date-picker.min.css}">
+        <link rel="stylesheet" type="text/css" th:href="@{/static/seinfo/css/tui-pagination.css}">
+        <link rel="stylesheet" type="text/css" th:href="@{/static/seinfo/css/swiper-bundle.min.css}">
+        <link rel="stylesheet" type="text/css" th:href="@{/static/seinfo/css/fullPage.css}">
+        <link rel="stylesheet" type="text/css" th:href="@{/static/seinfo/css/jquery-ui.css}">
+        <link rel="stylesheet" type="text/css" th:href="@{/static/seinfo/css/seinfo.css}">
+        <link rel="stylesheet" type="text/css" th:href="@{/static/seinfo/css/global.css}">
+        <link rel="stylesheet" type="text/css" th:href="@{/static/seinfo/css/ui.css}">
+
+        <!-- 페이지별 기본 CSS -->
+        <th:block layout:fragment="html_css"></th:block>
+    </head>
+</html>

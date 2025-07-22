@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+        <style></style>
+    </th:block>
+</th:block>
+
+
+<th:block layout:fragment="html_body">
+    <main>
+        <div class="subpage-content">
+            <h2>[(#{seinfo.menu.mid.00120})]</h2><!아이디 / 비밀번호 찾기-->
+            <div class="pass-find-area">
+                <div class="pass-find-inner">
+                    <form autocomplete="off">
+                        <section>
+                            <article>
+                                <strong class="comm-title">아이디 찾기</strong><!--아이디 찾기-->
+                                <div class="pass-find-input">
+
+                                    <div class="input-group-area">
+                                        <div class="input-area">
+                                            <label for="usrNm" class="label">[(#{seinfo.main.label.00210})]</label><!--이름-->
+                                            <div class="input">
+                                                <input id="usrNm" type="text" autocomplete="off">
+                                            </div>
+                                        </div>
+                                        <div class="input-area">
+                                            <label for="usrPh" class="label">[(#{seinfo.main.label.00220})]</label><!--휴대폰-->
+                                            <div class="input">
+                                                <input id="usrPh" type="text" autocomplete="off">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="input-area">
+                                        <div class="input">
+                                            <input id ="searchedUserEmail" type="text" readonly>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="button-area">
+                                    <button id="idFindBtn" type="button" onclick="fnIdFind()"
+                                        class="primary-md-btn">[(#{seinfo.main.label.00230})]</button><!--아이디 찾기-->
+                                </div>
+                            </article>
+
+                            <article>
+                                <strong class="comm-title">[(#{seinfo.main.label.00240})]</strong><!--비밀번호 찾기-->
+                                <div class="pass-find-input">
+
+                                    <div class="input-area">
+                                        <label for="usrEm" class="label">[(#{seinfo.main.label.00150})]</label><!--아이디-->
+                                        <div class="input">
+                                            <input id="usrEm" type="text" autocomplete="off">
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="button-area">
+                                    <button id="pwdFindBtn"  type="button" onclick="fnPwdFind()"
+                                            class="primary-md-btn">[(#{seinfo.main.label.00240})]</button><!--비밀번호 찾기-->
+                                </div>
+                            </article>
+                        </section>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</th:block>
+
+<th:block layout:fragment="html_js">
+
+    <script type="text/javascript" th:inline="javascript">
+        function  fnIdFind() {
+            event.preventDefault();
+
+            // 회원 성명 검증
+            const userNm = $('#usrNm').val();
+            var msg1 = '[(#{seinfo.main.label.00210})] ' + ': [(#{seinfo.com.msg.00120})]';     // 이름 : 필수입력값 입니다.
+            var msg2 = '[(#{seinfo.main.label.00210})] ' + ': [(#{seinfo.member.msg.00080})]';  // 이름 : 최소 2글자 이상이어야 합니다.
+            var msg3 = '[(#{seinfo.main.label.00210})] ' + ': [(#{seinfo.com.msg.00130})]';     // 이름 : 형식이 올바르지 않습니다.
+            var msg4 = '[(#{seinfo.main.label.00210})] ' + ': [(#{seinfo.com.msg.00100})]';     // 이름 : 입력실이가 한도를 초과하였습니다.
+            if (!pf.seinfoComUtil.validateName(userNm, msg1, msg2, msg3, msg4, $('#usrNm'), 98)) {
+                return false;
+            }
+
+            // 핸드폰번호 검증
+            const userPhone = $('#usrPh').val();
+            var msg1 = '[(#{seinfo.main.label.00220})] ' + ': [(#{seinfo.com.msg.00120})]';  // 핸드폰 번호 : 필수입력값 입니다.
+            var msg2 = '[(#{seinfo.main.label.00220})] ' + ': [(#{seinfo.com.msg.00130})]';  // 핸드폰 번호 : 형식이 올바르지 않습니다.
+            var msg3 = '[(#{seinfo.main.label.00220})] ' + ': [(#{seinfo.com.msg.00140})]';  // 핸드폰 번호 : 유효하지 않습니다.
+            if (!pf.seinfoComUtil.validatePhone(userPhone, msg1, msg2, msg3, $('#userPhone'))) {  //??원본 validatePhoneNo
+                return false;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '/login/passFind/idFindProcess',
+                contentType: 'application/json',
+                data: JSON.stringify({userNm: userNm, userPhone: userPhone}),
+                success: function (rData) {
+                    if(rData.process_code === "00") { //?
+                        $("#email").css('display','block');
+                        $("#searchedUserEmail").val(rData.data.userEmail);  //?
+                    }else {
+                        pf.seinfoAlert.warning(rData.data.message);
+                    }
+                },
+                error: function () {
+                    let response = JSON.parse(jqXHR.responseText).message;
+                    let msg = pf.zzzUtil.strNvlChange(response, jqXHR.reponseJSON.process_msg);
+                    pf.seinfoAlert.warning(msg);
+              }
+            });
+        }
+
+        function fnPwdFind() {
+            event.preventDefault();
+
+            const userEmail = $('#usrEm').val();
+
+            var msg1 = '[(#{seinfo.main.msg.00030})]';  // 아이디를 입력하세요.
+            var msg2 = '[(#{seinfo.main.msg.00040})]';  // 아이디는 이메일 형식입니다.
+            if (!pf.seinfoComUtil.validateEmail(userEmail, msg1, msg2, $('userEmail'))) {
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '/login/passFind/pwdFindProcess',
+                contentType: 'application/json',
+                data: JSON.stringify({id: userEmail}),
+                success: function (rData) {
+                    if(rData.process_code === "00") {
+                         //consol.log(rData.data.tempPassword);
+                        pf.seinfoAlert.warning(rData.data.message); // 등록된 이메일로 비밀번호가 전송되었습니다.
+                    }else {
+                        pf.seinfoAlert.warning(rData.data.message);
+                    }
+                },
+                error: function (jqXHR) {
+                    let response = JSON.parse(jqXHR.responseText).message;
+                    let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                    pf.seinfoAlert.warning(msg);
+                }
+            });
+        }
+
+        function fnInputSetPlaceholder() {
+            $("#usrEm").attr("placeholder", "[(#{seinfo.main.label.00150})]" + "[(#{seinfo.com.msg.00160})]"); // 아이디를 입력하세요.
+            $("#usrNm").attr("placeholder", "[(#{seinfo.main.msg.00060})]");   // 이름을 입력하세요.
+            $("#usrPh").attr("placeholder", "[(#{seinfo.main.msg.00120})]");   // 휴대폰번호를 입력하세요.
+        }
+
+        $(() => {
+            fnInputSetPlaceholder();
+
+            pf.seinfoComUtil.autoVaildator('#usrNm', 98);
+            pf.seinfoComUtil.formatSetPhoneNo('#usrPh');
+        });
+    </script>
+</th:block>
+
+</html>

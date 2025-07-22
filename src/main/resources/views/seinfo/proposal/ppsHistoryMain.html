@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+        <style></style>
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <div th:replace="~{seinfo/layout/include/frame/navCategory :: menuMid420}"></div>
+    <main>
+        <div class="subpage-content">
+            <h2>[(#{seinfo.menu.mid.00430})]</h2><!--제안이력상세-->
+
+            <div class="pps-history-area">
+                <section>
+                    <div class="process">
+                        <!-- 진행상태 -->
+                        <ul id="progressList">
+                            <li id="progress1">
+                                <div th:replace="~{seinfo/proposal/divHistoryStep :: stepBody01}"></div>
+                                <div class="text-area">
+                                    <strong>[(#{seinfo.pps.label.00210})]</strong><!--회원등록-->
+                                    <span id="memberRegistD"></span> <!-- 회원등록 날짜 -->
+                                </div>
+                            </li>
+                            <li id="progress2">
+                                <div th:replace="~{seinfo/proposal/divHistoryStep :: stepBody02}"></div>
+                                <div class="text-area">
+                                    <strong>[(#{seinfo.pps.label.00211})]</strong><!--기술제안-->
+                                    <span id="sendD"></span> <!--기술제안 날짜-->
+                                </div>
+                            </li>
+                            <li id="progress3">
+                                <div th:replace="~{seinfo/proposal/divHistoryStep :: stepBody03}"></div>
+                                <div class="text-area">
+                                    <strong id="skipResult">[(#{seinfo.pps.label.00212})]</strong><!--평가제외-->
+                                    <span id="chiefManagerD" style="display: none;"></span><!-- 접수 날짜-->
+                                    <span id="assessSkipD"  style="display: none;"></span><!-- 평가제외 날짜-->
+                                    <button type="button" id="popupSkipResultBtn" onclick="btnAction.popupSkipResult()" class="primary-xsm-btn"
+                                            style="display: none;" disabled>[(#{seinfo.pps.label.00213})]</button><!--결과확인-->
+                                </div>
+                            </li>
+                            <li id="progress4">
+                                <div th:replace="~{seinfo/proposal/divHistoryStep :: stepBody04}"></div>
+                                <div class="text-area">
+                                    <strong>[(#{seinfo.pps.label.00214})]</strong><!--검토-->
+                                    <span id="assessApprD"></span>
+                                </div>
+                            </li>
+                            <li id="progress5">
+                                <div th:replace="~{seinfo/proposal/divHistoryStep :: stepBody05}"></div>
+                                <div class="text-area">
+                                    <strong>[(#{seinfo.pps.label.00215})]</strong><!--결과안내-->
+                                    <span id="lastResultD"></span> <!-- 결과안내 날짜-->
+                                    <button type="button" id="popupLastResultBtn" onclick="btnAction.popupLastResult()"
+                                            class="primary-xsm-btn" style="display: none;" disabled>[(#{seinfo.pps.label.00213})]</button><!--결과확인-->
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="pps-history-list">
+                        <strong class="comm-title">[(#{seinfo.pps.label.00217})]</strong><!--수정/추가 요청-->
+                        <div class="table-normal-container">
+                            <table id="ppsDetailList">
+                                <colgroup>
+                                    <col />
+                                    <col />
+                                    <col />
+                                    <col />
+                                    <col />
+                                    <col />
+                                    <col style="width:120px;" />
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th class="text-center">[(#{seinfo.pps.label.00120})]</th><!--번호-->
+                                    <th class="text-center">[(#{seinfo.pps.label.00221})]</th><!--구분-->
+                                    <th class="text-center" width="25%">[(#{seinfo.pps.label.00222})]</th><!--요청제목-->
+                                    <th class="text-center" width="210px">[(#{seinfo.pps.label.00223})]</th><!--요청자-->
+                                    <th class="text-center">[(#{seinfo.pps.label.00224})]</th><!--요청일-->
+                                    <th class="text-center">[(#{seinfo.pps.label.00225})]</th><!--요청기한-->
+                                    <!--<th class="text-center">[(#{seinfo.pps.label.00226})]</th> --> <!--비밀유지서약서-->
+                                    <!--비밀유지서약서&폐기확인서 [(#{seinfo.pps.label.00226})]<br>[(#{seinfo.pps.label.00227})] -->
+                                    <th class="text-center">[(#{seinfo.pps.label.00228})]</th><!--답변등록-->
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class="text-center"></td>
+                                    <td class="text-center"></td>
+                                    <td class="text-left"></td>
+                                    <td class="text-center"></td>
+                                    <td class="text-center"></td>
+                                    <td class="text-center"></td>
+                                    <td class="text-center"></td>
+                                    <!--<td class="text-center"></td>-->
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                <div class="button-area">
+                    <!--목록으로-->
+                    <button type="button" onclick="btnAction.btnGoToList()" class="primary-md-btn">
+                        [(#{seinfo.com.btn.00150})]
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div th:replace="~{seinfo/proposal/popupSkip :: popup01View}"></div>
+    <div th:replace="~{seinfo/proposal/popupResult :: popup01View}"></div>
+    <div th:replace="~{seinfo/proposal/popupQuestion :: popup01View}"></div>
+
+</th:block>
+
+<th:block layout:fragment="html_js">
+
+    <script th:replace="~{seinfo/proposal/popupResult :: popup01Js}"></script>
+    <!--<script th:replace="~{seinfo/proposal/popupAnswer :: popup01Js}"></script> -->
+    <script type="text/javascript" th:inline="javascript">
+        //공통코드
+        pf.code.getList('RTPC002'); //요청구분
+        const requestYn = pf.code.setList["RTPC002"];
+        pf.code.getList('RTPC005'); //평가결과
+        const lastResult = pf.code.setList["RTPC005"];
+
+        let processMap = /*[[${processMap != null ? processMap : '{}'}]]*/ {};
+        let ppsDetailList = /*[[${ppsDetailList != null ? ppsDetailList : '[]'}]]*/[];
+        const page = /*[[${page != null ? page : ''}]]*/ '';
+        const message = /*[[${message != null ? message : ''}]]*/ '';
+
+        //  ppsDetail 처리 함수
+        function loadPpsDetail() {
+
+            ppsDetailList = pf.seinfoComUtil.fnTransCommonCode(requestYn, ppsDetailList, 'requestYn', 'requestType');
+            processMap = pf.seinfoComUtil.fnTransCommonCode(lastResult, processMap, 'lastResult', 'lastResultKo');
+            ppsDetailList.forEach(item => {
+                item.newDrawTitle = item.drawTitle; //pf.seinfoComUtil.sliceText(item.drawTitle, 18);
+                if(!item.assessorname)  item.assessorname ='';
+            });
+
+            fnSetProgressStatus();
+            fnSetButtonStatus();
+            fnSetGridDetailData();
+            renderTableData();
+        }
+
+        // 모달 표시 함수
+        function showModal(modalId, contentMap) {
+            $(`#${modalId}`).show();
+            for (let key in contentMap) {
+                $(`#${key}`).text(contentMap[key]);
+            }
+        }
+
+        // 진행 상태 업데이트 함수
+        function fnSetProgressStatus() {
+            let activeProgress = parseInt(processMap.progress);
+            $('#progressList li').each(function () {
+                let progress = parseInt(this.id.replace("progress", ""));
+                if (progress < activeProgress) {
+                    $(this).addClass('clear');
+                } else if (progress === activeProgress) {
+                    $(this).addClass('active');
+                }
+            });
+        }
+
+        // 버튼 상태 업데이트 함수
+        function fnSetButtonStatus() {
+            if (processMap.assessSkipYn === 'Y') {
+                $('#skipResult').text('평가제외');
+                $("#popupSkipResultBtn").removeAttr("disabled").show();
+            }
+
+            if (processMap.lastResultYn === 'Y') {
+                $("#popupLastResultBtn").removeAttr("disabled").show();
+            }
+        }
+
+        // 상세 데이터 업데이트 함수
+        function fnSetGridDetailData() {
+            $('#memberRegistD').text(processMap.memberRegistD);
+            $('#sendD').text(processMap.sendD);
+            if(processMap.assessSkipYn === 'Y'){
+                $('#assessSkipD').css('display','block');
+                $('#assessSkipD').text(processMap.assessSkipD);
+            }else {
+                $('#chiefManagerD').css('display','block');
+                $('#chiefManagerD').text(processMap.chiefManagerD);
+            }
+            $('#assessApprD').text(processMap.assessApprD);
+            $('#lastResultD').text(processMap.lastResultD);
+        }
+
+        // 테이블 데이터 렌더링 함수
+        function renderTableData() {
+            let tbody = $('#ppsDetailList tbody');
+            tbody.empty();
+
+            // 조회된 데이터가 없습니다.
+            if (ppsDetailList == null || ppsDetailList <= 0) {
+                let row = `
+            <tr>
+                <td colspan="8" class="text-center">[(#{seinfo.pps.label.00180})]</td>
+            </tr>
+            `;
+                tbody.append(row);
+
+            } else {
+                $.each(ppsDetailList, function (index, item) {
+                    // 그리드 > 답변등록 : 버튼처리
+                    let actionButton = `<div style="width: 100px; margin: 0 auto"> `;
+                    if (item.requestYn === 'M' && item.modRequestYn === 'N') { //버튼:제안서 수정
+                        actionButton += `
+                    <button type="button" class="primary-xsm-btn"
+                        onclick="btnAction.modifyPpsBtn('${item.proposalNo}', '${item.requestSeq}')">
+                            [(#{seinfo.pps.label.00240})]
+                    </button>`;
+                    } else if (item.requestYn === 'A' && item.addRequestYn === 'N') { //버튼:추가자료 작성
+                        actionButton += `
+                    <button type="button" class="primary-xsm-btn"
+                            onclick="btnAction.answerBtn(${index})">
+                            [(#{seinfo.pps.label.00241})]
+                    </button>`;
+                    } else if (item.requestYn === 'M' && item.modRequestYn === 'Y') { //버튼:제안서 확인
+                        actionButton += `
+                    <div class="clear">
+                        <button type="button" onclick="btnAction.readPpsBtn('${item.proposalNo}', '${item.requestSeq}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
+                                <path d="M4.87109 9.99989L9.91495 14.861L16.6766 4.44434" stroke="#2DC0F0" stroke-width="1.6" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </div>`;
+                    } else {  //버튼:추가자료 확인
+                        actionButton += `
+                    <div class="clear">
+                        <button type="button" onclick="btnAction.readAnswerBtn('${item.proposalNo}','${item.requestSeq}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
+                                <path d="M4.87109 9.99989L9.91495 14.861L16.6766 4.44434" stroke="#2DC0F0" stroke-width="1.6" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </div>`;
+                    }
+                    actionButton += ` </div>`;
+
+                    let row = `
+    <tr>
+        <td class="text-center">${item.rnum}</td>
+        <td class="text-center">${item.requestType}</td>
+        <td class="text-left">
+            <button type="button" class="popupQuestionBtn"
+                style="width:350px; margin-left:10px; text-align:left; word-break:break-all; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;"
+                data-request-type="${item.requestType}"
+                data-draw-title="${item.drawTitle}"
+                data-draw-contents="${item.drawContents}"
+                data-request-due-d="${item.requestDueD}"
+                data-assessor-name="${item.assessorname}"
+                data-reg-dt="${item.regDt}">
+                ${item.newDrawTitle}
+            </button>
+        </td>
+        <td class="text-center">
+            <div style="width:170px; margin-left:20px; word-break:break-all; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+                ${item.assessorname}
+            </div>
+        </td>
+        <td class="text-center">${item.regDt}</td>
+        <td class="text-center">${item.requestDueD}</td>
+        <td class="text-center">${actionButton}</td>
+    </tr>`;
+                    tbody.append(row);
+                });
+            }
+
+            $('#ppsDetailList').off('click', '.popupQuestionBtn').on('click', '.popupQuestionBtn', function (e) {
+                e.preventDefault();
+                let data = $(this).data();
+
+                showModal('modalQuestion', {
+                    'requestType': data.requestType,
+                    'drawTitle': data.drawTitle,
+                    'drawContents': data.drawContents,
+                    'requestDueD': data.requestDueD,
+                    'assessorName': data.assessorName,
+                    'regDt': data.regDt
+                });
+            });
+        }
+
+        const btnAction = {
+            fnMakeParam: function (proposalNo, requestSeq) {
+                let arrLinkparam = [];
+                arrLinkparam.push('&proposalNo=' + proposalNo);
+                arrLinkparam.push('&requestSeq=' + requestSeq);
+                arrLinkparam.push('&historyMainYn=Y');
+
+                return pf.zzzUtil.getEncryptParam(arrLinkparam.join(''));
+            },
+            modifyPpsBtn: function (proposalNo, requestSeq) {
+                location.href = '/proposal/ppsRegForm?paramData=' + this.fnMakeParam(proposalNo, requestSeq);
+            },
+            readPpsBtn: function (proposalNo, requestSeq) {
+                location.href = '/proposal/ppsRegForm?paramData=' + this.fnMakeParam(proposalNo, requestSeq);
+            },
+            answerBtn: function (index) {
+                writeContInfo.proposalNo    = ppsDetailList[index].proposalNo;
+                writeContInfo.requestSeq    = ppsDetailList[index].requestSeq;
+                writeContInfo.assessorTeam  = ppsDetailList[index].assessorTeam;
+                writeContInfo.drawTitle     = ppsDetailList[index].drawTitle;
+                writeContInfo.index         = index;
+                modalFnWriteAnswerCont();
+            },
+            readAnswerBtn: function (proposalNo, requestSeq) {
+                modalFnGetAnswer(proposalNo, requestSeq);
+                $('#modalAnswer').show();
+            },
+            popupSkipResult : function() {
+                showModal('modalSkip', {'assessSkipRes': pf.seinfoComUtil.unEscape(processMap.assessSkipRes)});
+            },
+
+            popupLastResult : function() {
+                fnInitPopupReuslt();
+
+                showModal('modalResult', {
+                    'lastResultKo': processMap.lastResultKo,
+                    'lastResultCont': pf.seinfoComUtil.unEscape(processMap.lastResultCont)
+                });
+            },
+            btnGoToList : function(){
+                location.href = `/proposal/ppsHistoryList?page=${page}`;
+            }
+
+        }
+
+        $(() => {
+            // 로그인 경고
+            if (message.trim().length > 0) {
+                pf.seinfoAlert(message, () => {
+                    location.href = pf.seinfo.fnGetMovePage("divMid110"); // 로그인 페이지
+                });
+                return;
+            }
+
+            loadPpsDetail();
+        });
+    </script>
+</th:block>
+
+

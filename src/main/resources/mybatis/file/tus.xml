@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.seinfo.protoA.component.file.mapper.TusMapper">
+
+	<select id="selectMfileGroup" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.protoA.component.file.mapper.selectMfileGroup */
+			 mfile_group_id, reg_dt, reg_user_id, mfile_info_id
+		FROM seinfo_mfile_group
+		WHERE mfile_group_id = #{mfileGrpId}
+	</select>
+
+	<select id="selectMfileGroupCnt" parameterType="camelmap" resultType="int">
+		SELECT  /* com.seinfo.protoA.util.token.TokenMapper.selectMfileGroupCnt */
+			count(*)
+		FROM seinfo_mfile_group
+		where mfile_group_id = #{mfileGrpId}
+	</select>
+
+	<insert id="insertMfileGroup" parameterType="camelmap">
+		INSERT INTO  /* com.seinfo.protoA.util.token.TokenMapper.insertMifleGroup */
+			seinfo_mfile_group
+		(
+			mfile_group_id, mfile_info_id, reg_dt, reg_user_id
+		) VALUES (
+			 #{mfileGrpId}
+			,#{mfileInfoId}
+			,now()
+			,#{regUserId}
+		) ON DUPLICATE KEY UPDATE
+		    reg_dt = now()
+	</insert>
+
+	<select id="selectMfileInfoByFileGroupId" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.protoA.component.file.mapper.selectMfileInfoByFileGroupId */
+			b.mfile_info_id
+			,b.mfile_info_title
+			,b.mfile_info_method
+			,b.mfile_info_desc
+			,b.mfile_max_cnt
+		    ,b.mfile_max_size
+			,b.mfile_max_size AS file_max_size
+			,b.mfile_ext
+		FROM seinfo_mfile_group a, seinfo_mfile_info b
+		WHERE a.mfile_info_id = b.mfile_info_id
+		  AND a.mfile_group_id = #{mfileGrpId}
+	</select>
+
+	<select id="selectMfileInfo" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.protoA.component.file.mapper.selectMfileInfo */
+			 mfile_info_id
+		    , mfile_info_title
+		    , mfile_info_method
+		    , mfile_info_desc
+		    , mfile_max_cnt
+		    , mfile_max_size
+		    , mfile_ext
+		FROM seinfo_mfile_info
+		WHERE mfile_info_id = #{mfileInfoId}
+	</select>
+
+	<select id="selectMfileListCnt" parameterType="camelmap" resultType="int">
+		SELECT /* com.seinfo.protoA.component.file.mapper.selectMfileListCnt */
+			 count(*)
+		FROM seinfo_mfile_list
+		WHERE mfile_group_id = #{mfileGrpId}
+	</select>
+
+	<insert id="insertMfileList" parameterType="camelmap">
+		INSERT INTO  /* com.seinfo.protoA.util.token.TokenMapper.insertMfileList */
+			seinfo_mfile_list
+		(
+			mfile_id, mfile_nm, mfile_path, mfile_type, mfile_status, mfile_size, mfile_group_id, reg_dt, reg_user_id
+		) VALUES (
+			 #{mfileId}
+			,#{mfileNm}
+			,#{mfilePath}
+			,#{mfileType}
+			,#{mfileStatus}
+			,#{mfileSize}
+			,#{mfileGrpId}
+			,now()
+			,#{regUserId}
+		)
+	</insert>
+
+	<update id="updateMfileList" parameterType="camelmap">
+		UPDATE /* com.seinfo.protoA.util.token.TokenMapper.updateMfileList */
+			 seinfo_mfile_list
+		  SET
+		     mfile_status = #{mfileStatus}
+			,mod_dt = #{modDt}
+			,mod_user_id = #{modUserId}
+		WHERE
+		    mfile_id = #{mfileId}
+	</update>
+
+	<select id="selectMfileList" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.protoA.component.file.mapper.selectMfileList */
+			mfile_id, mfile_nm, mfile_path, mfile_type, mfile_status, mfile_group_id
+		FROM seinfo_mfile_list
+		<where>
+			<if test="mfileGrpId != null">
+				AND mfile_group_id = #{mfileGrpId}
+			</if>
+			<if test="mfileId != null">
+				AND mfile_id = #{mfileId}
+			</if>
+			<if test="mfileStatus != null">
+				AND mfile_status = #{mfileStatus}
+			</if>
+		</where>
+		<if test="limit != null">
+			LIMIT 0, 5
+		</if>
+	</select>
+
+	<select id="selectMfileListClient" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.protoA.component.file.mapper.selectMfileListClient */
+			 mfile_id as file_id
+			,mfile_nm as file_nm
+			,mfile_size as file_size
+			,mfile_path as mfile_path
+		FROM seinfo_mfile_list
+		WHERE mfile_group_id = #{mfileGrpId}
+	</select>
+
+	<select id="selectMfilePath" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.protoA.component.file.mapper.selectMfilePath */
+			mfile_path
+		FROM seinfo_mfile_list
+		WHERE mfile_group_id = #{mfileGrpId}
+		and mfile_id = #{fileId}
+	</select>
+
+	<update id="updateMfileDown" parameterType="camelmap">
+		UPDATE /* com.seinfo.protoA.util.token.TokenMapper.updateMfileDown */
+			seinfo_mfile_down
+		SET
+			mfile_down_yn = 'Y'
+			,mfile_down_dt = now()
+		WHERE mfile_down_id = #{mfileDownId}
+		  AND reg_user_id = #{regUserId}
+		  AND mfile_down_yn = 'N'
+	</update>
+
+	<insert id="insertMfileDown" parameterType="camelmap">
+		INSERT INTO  /* com.seinfo.protoA.util.token.TokenMapper.insertMifleGroup */
+			seinfo_mfile_down
+		(
+			mfile_down_id
+			, mfile_down_yn
+			, mfile_down_type
+			, mfile_down_path
+			, mfile_id
+		    , mfile_group_id
+			, mfile_nm
+			, reg_dt
+			, reg_user_id
+		) VALUES (
+			#{mfileDownId}
+			, 'N'
+			, #{mfileDownType}
+			, #{mfileDownPath}
+			, #{mfileId}
+			, #{mfileGroupId}
+			, #{mfileNm}
+			, now()
+			, #{regUserId}
+		)
+	</insert>
+
+	<select id="selectMfileDown" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.protoA.component.file.mapper.selectMfileDown */
+			 mfile_down_id
+		     , mfile_down_yn
+		     , mfile_down_dt
+		     , mfile_down_type
+		     , mfile_down_path
+		     , mfile_nm
+		     , reg_user_id
+		     , mfile_id
+		     , mfile_group_id
+		FROM seinfo_mfile_down
+		WHERE mfile_down_id = #{mfileDownId}
+		  AND reg_user_id = #{regUserId}
+		  AND mfile_down_yn = 'N'
+	</select>
+
+	<select id="selectMfileListPath" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.protoA.component.file.mapper.selectMfileListPath */
+			 mfile_path
+			 , mfile_nm
+		FROM seinfo_mfile_list
+		WHERE mfile_group_id = (
+		    	SELECT mfile_group_id
+		    	  FROM seinfo_mfile_down
+		    	 WHERE mfile_down_id = #{mfileDownId}
+			)
+	</select>
+
+	<delete id="deleteMfileList" parameterType="camelmap">
+		DELETE FROM seinfo_mfile_list /* com.seinfo.protoA.component.file.mapper.deleteMfileList */
+		 WHERE mfile_id = #{mfileId}
+	</delete>
+
+	<delete id="deleteMfileGroup" parameterType="camelmap">
+		DELETE FROM seinfo_mfile_group /* com.seinfo.protoA.component.file.mapper.deleteMfileList */
+		WHERE mfile_group_id = #{mfileGrpId}
+	</delete>
+
+</mapper>

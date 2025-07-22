@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block th:fragment="menuMid010"> <!-- 메인페이지 bottom -->
+    <div class="category-nav">
+        <ul>
+            <li class="active">
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid010}"></div> <!-- 개인정보처리방침 -->
+            </li>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid020}"></div> <!-- 이용약관 -->
+            </li>
+        </ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="menuMid020"> <!-- 메인페이지 bottom -->
+    <div class="category-nav">
+        <ul>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid010}"></div> <!-- 개인정보처리방침 -->
+            </li>
+            <li class="active">
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid020}"></div> <!-- 이용약관 -->
+            </li>
+        </ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="menuMid310"> <!-- 소개 -->
+    <div class="category-nav">
+        <ul>
+            <li class="active">
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid310}"></div> <!-- R&D 주요업무 -->
+            </li>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid320}"></div> <!-- 미래모빌리티 -->
+            </li>
+        </ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="menuMid320"> <!-- 소개 -->
+    <div class="category-nav">
+        <ul>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid310}"></div> <!-- R&D 주요업무 -->
+            </li>
+            <li class="active">
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid320}"></div> <!-- 미래모빌리티 -->
+            </li>
+        </ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="menuMid410"> <!-- 기술제안 -->
+    <div class="category-nav">
+        <ul>
+            <li class="active">
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid410}"></div> <!-- 제안서 작성 -->
+            </li>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid420}"></div> <!-- 제안이력조회 -->
+            </li>
+        </ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="menuMid420"> <!-- 기술제안 -->
+    <div class="category-nav">
+        <ul>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid410}"></div> <!-- 제안서 작성 -->
+            </li>
+            <li class="active">
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid420}"></div> <!-- 제안이력조회 -->
+            </li>
+        </ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="menuMid510"> <!-- 커뮤니티 -->
+    <div class="category-nav">
+        <ul>
+            <li class="active">
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid510}"></div> <!-- 공지사항 -->
+            </li>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid520}"></div> <!-- FAQ -->
+            </li>
+        </ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="menuMid520"> <!-- 커뮤니티 -->
+    <div class="category-nav">
+        <ul>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid510}"></div> <!-- 공지사항 -->
+            </li>
+            <li class="active">
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid520}"></div> <!-- FAQ -->
+            </li>
+        </ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="menuMid610"> <!-- 마이페이지 -->
+    <div class="category-nav">
+        <ul>
+            <li class="active">
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid610}"></div> <!-- 1:1문의 -->
+            </li>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid620}"></div> <!-- 회원정보보기 -->
+            </li>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid630}"></div> <!-- 탈퇴하기 -->
+            </li>
+        </ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="menuMid620"> <!-- 마이페이지 -->
+    <div class="category-nav">
+        <ul>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid610}"></div> <!-- 1:1문의 -->
+            </li>
+            <li class="active">
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid620}"></div> <!-- 회원정보보기 -->
+            </li>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid630}"></div> <!-- 탈퇴하기 -->
+            </li>
+        </ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="menuMid630"> <!-- 마이페이지 -->
+    <div class="category-nav">
+        <ul>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid610}"></div> <!-- 1:1문의 -->
+            </li>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid620}"></div> <!-- 회원정보보기 -->
+            </li>
+            <li class="active">
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid630}"></div> <!-- 탈퇴하기 -->
+            </li>
+        </ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="menuMid710"> <!-- 관리자 페이지 -->
+    <div class="category-nav">
+        <ul>
+            <li class="active">
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid710}"></div> <!-- 제안이력조회(관리자) -->
+            </li>
+        </ul>
+    </div>
+</th:block>
+
+</html>

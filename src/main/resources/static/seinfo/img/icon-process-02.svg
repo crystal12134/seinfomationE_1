@@ -1,0 +1,37 @@
+<svg width="70" height="70" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_90_475)">
+<mask id="mask0_90_475" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="70" height="70">
+<path d="M70 0H0V70H70V0Z" fill="white"/>
+</mask>
+<g mask="url(#mask0_90_475)">
+<mask id="mask1_90_475" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="70" height="70">
+<path d="M0 7.62939e-06H70V70H0V7.62939e-06Z" fill="white"/>
+</mask>
+<g mask="url(#mask1_90_475)">
+<path d="M10.5273 59.4727V67.9492H51.543V10.5273H43.0664" stroke="black" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M43.0664 2.05078H15.7227L2.05078 15.7227V59.4727H43.0664V2.05078Z" stroke="black" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M2.05078 15.7227H15.7227V2.05078" stroke="black" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+<path d="M21.875 15.7227H36.9141" stroke="black" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M8.20312 23.9258H36.9141" stroke="black" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M8.20312 32.1289H36.9141" stroke="black" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M8.20312 40.332H36.9141" stroke="black" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M8.20312 48.5352H27.3437" stroke="black" stroke-width="2" stroke-miterlimit="10"/>
+<mask id="mask2_90_475" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="70" height="70">
+<path d="M0 7.62939e-06H70V70H0V7.62939e-06Z" fill="white"/>
+</mask>
+<g mask="url(#mask2_90_475)">
+<path d="M63.8477 64.9414L67.9492 51.2695V12.9883H59.7461" stroke="#2DC0F0" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M59.7461 12.9883V51.2695L63.8477 64.9414" stroke="#2DC0F0" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M67.9492 12.9883H59.7461V2.05078H67.9492V12.9883Z" stroke="#2DC0F0" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M63.8477 64.9414V70" stroke="#2DC0F0" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M59.7461 51.2695H67.9492" stroke="#2DC0F0" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_90_475">
+<rect width="70" height="70" fill="white"/>
+</clipPath>
+</defs>
+</svg>

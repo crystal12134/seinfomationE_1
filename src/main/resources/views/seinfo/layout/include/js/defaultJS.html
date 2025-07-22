@@ -1,0 +1,34 @@
+<div th:fragment="defaultJS">
+
+  <script th:src="@{/static/seinfo/js/bootstrap.min.js}"></script>
+  <script th:src="@{/static/seinfo/js/jquery.blockUI.js}"></script>
+  <script th:src="@{/static/seinfo/js/moment.min.js}"></script>
+  <script th:src="@{/static/seinfo/js/moment-timezone.js}"></script>
+  <script th:src="@{/static/seinfo/js/select2/select2.min.js}"></script>
+  <script th:src="@{/static/seinfo/js/select2/ko.js}"></script>
+  <script th:src="@{/static/seinfo/js/swiper-bundle.min.js}"></script>
+  <script th:src="@{/static/seinfo/js/bootbox.all.min.js}"></script>
+  <script th:Src="@{/static/seinfo/js/tus.min.js}"></script>
+  <script th:src="@{/static/seinfo/js/ckeditor/ckeditor.min.js}"></script>
+  <script th:src="@{/static/seinfo/js/ckeditor/ko.min.js}"></script>
+
+  <!-- CORE Common Javascript LIB -->
+  <script type="text/javascript" th:inline="javascript">
+      let pf  = {};
+
+      // Context
+      let contextPath = /* [[@{/}]] */ '';
+      contextPath = contextPath.slice(0, contextPath.length-1);
+
+      $.getDocHeight = () => Math.max($(document).height(), document.documentElement.clientHeight) -10;
+  </script>
+
+  <script th:src="@{/static/seinfo/js/lib/pf.seinfoSystem.js}"></script>
+  <script th:src="@{/static/seinfo/js/lib/pf.util.js}"></script>
+  <script th:src="@{/static/seinfo/js/lib/pf.zzzUtil.js}"></script>
+  <script th:src="@{/static/seinfo/js/lib/pf.seinfoComUtil.js}"></script>
+  <script th:src="@{/static/seinfo/js/lib/pf.seinfoAlert.js}"></script>
+  <script th:src="@{/static/seinfo/js/lib/pf.seinfoFile.js}"></script>
+
+  <th:block layout:fragment="html_js"></th:block>
+</div>

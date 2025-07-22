@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.seinfo.protoA.component.board.mapper.FaqMapper">
+
+	<select id="selectFaqList" parameterType="camelmap" resultType="camelmap">
+		SELECT
+		    ROW_NUMBER() OVER (ORDER BY faq_no ASC) as rnum
+			,faq_type
+			,faq_no
+			,faq_question
+			,faq_answer
+			,inquire_cnt
+			,reg_dt
+		FROM seinfo_faq
+		<where>
+			<if test='faqType != null and faqType != "all"'>
+				faq_type = #{faqType}
+			</if>
+		</where>
+		LIMIT #{pageSize} OFFSET #{startRow}
+	</select>
+
+	<select id="getFqaListCount" parameterType="camelmap" resultType="int">
+		SELECT
+		    COUNT(*)
+		FROM seinfo_faq
+		<where>
+			<if test='faqType != null and faqType != "all"'>
+				faq_Type = #{faqType}
+			</if>
+		</where>
+	</select>
+
+	<insert id="insertFqa" parameterType="camelmap">
+		<selectKey keyProperty="faqNo" order="BEFORE" resultType="int">
+			SELECT IFNULL(
+			       (SELECT CAST(faq_no AS UNSIGNED) + 1
+			          FROM seinfo_faq
+			          WHERE faq_type =#{faqType}
+			          ORDER BY faq_no DESC
+			          LIMIT 1
+			        ), 1)
+		</selectKey>
+
+		INSERT INTO
+			seinfo_faq
+        	( 	  faq_type
+				, faq_no
+				, faq_question
+				, faq_answer
+				, inquire_cnt
+				, reg_dt
+				, reg_user_id
+				, mod_dt
+				, mod_user_id
+        	)VALUES
+        	(	  #{faq_type}
+				, #{faq_no}
+				, #{faq_question}
+				, #{faq_answer}
+				, 0
+				, now()
+				, #{userEmail}
+				, now()
+				, #{userEmail}
+			)
+	</insert>
+
+	<update id="updateInquireCnt" parameterType="camelmap">
+		UPDATE
+			seinfo_faq
+		   SET inquire_cnt = inquire_cnt+1
+		 WHERE faq_type = #{faqType}
+		   AND faq_no = #{faqNo}
+	</update>
+
+	<select id="selectFaqRnum" parameterType="camelmap" resultType="int">
+		SELECT rnum
+		FROM (
+		    SELECT
+		        faq_no,
+		        ROW_NUMBER() OVER (ORDER BY faq_no ASC) AS rnum
+		    FROM seinfo_faq
+		    <where>
+				<if test="faqType != null and faqType != 'all'">
+					faq_type = #{faqType}
+				</if>
+			</where>
+			 )sub
+		WHERE faq_no = #{faqNo}
+	</select>
+
+</mapper>

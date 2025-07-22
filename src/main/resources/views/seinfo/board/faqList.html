@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+        <style></style>
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <div th:replace="~{seinfo/layout/include/frame/navCategory :: menuMid520}"></div>
+
+    <main>
+        <div class="subpage-content">
+            <h2>[(#{seinfo.board.label.00110})]</h2>
+            <div class="faq-list-area">
+                <section>
+                    <div class="tabs">
+                        <div class="tab-menu-wrap tab-menu-ver1">
+                            <ul id="tabMenu" class="tab-menu">
+
+                            </ul>
+                        </div>
+                        <div class="tab-content">
+                            <div id="tab1" class="tab-pane active">
+                            </div>
+                            <div id="tab2" class="tab-pane">
+                            </div>
+                            <div id="tab3" class="tab-pane">
+                            </div>
+                            <div id="tab4" class="tab-pane">
+                            </div>
+                            <div id="tab5" class="tab-pane">
+                            </div>
+                            <div id="tab6" class="tab-pane">
+                            </div>
+                            <div id="tab7" class="tab-pane">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+                <div class="pagination"></div>
+        </div> <!-- 원본 faqList.html 에는 이 부분이 없는데... 이거 subtage-content 닫는 div 임-->
+    </main>
+</th:block>
+
+<th:block layout:fragment="html_js">
+    <script type="text/javascript" th:inline="javascript">
+        const paginationImages ={
+            first: /*[[ @{/static/seinfo/img/icon-pagination-first.svg} ]]*/ '',
+            prev: /*[[ @{/static/seinfo/img/icon-pagination-prev.svg} ]]*/ '',
+            next: /*[[ @{/static/seinfo/img/icon-pagination-next.svg} ]]*/ '',
+            last: /*[[ @{/static/seinfo/img/icon-pagination-last.svg} ]]*/ '',
+            readArrow: /*[[ @{/static/seinfo/img/icon-faq-arrow.svg} ]]*/ ''
+        };
+        let faqNo = /*[[${faqNo != null ? faqNo : ''}]]*/ '';
+        let page = /*[[${page != null ? page : ''}]]*/ '';
+        let faqType = /*[[${faqType != null ? faqType : ''}]]*/ '';
+        let pageResult = /*[[${pageResult != null ? pageResult : '{}'}]]*/ {};
+        let faqList = /*[[${faqList != null ? faqList : '[]'}]]*/ [];
+
+        //공통코드 가져오기
+        pf.code.getList('RTPC013')
+        const faqTypeCode = pf.code.setList["RTPC013"];
+
+        //탭 생성
+        function renderFaqTabs() {
+            let tabMenu = $('#tabMenu');
+            tabMenu.empty();
+
+            const firstTab = `<li data-tab="all">[(#{seinfo.board.label.00120})]</li>`;
+            tabMenu.append(firstTab);
+
+            faqTypeCode.forEach((item) => {
+                const tabItem = `<li data-tab="${item.value}">${item.name}</li>`;
+                tabMenu.append(tabItem);
+            });
+        }
+
+        // 탭 클릭 이벤트 설정
+        function initTabEvent() {
+            $("#tabMenu").on("click","li", function () {
+                const selectedType = $(this).data("tab");
+                location.href = `/board/faqList?page=1&faqType=${selectedType}`;
+            });
+        }
+
+        // 현재 탭을 활성화 처리
+        function activateCurrentTab() {
+            const $currentTab = $(`#tabMenu li[data-tab="${faqType}"]`);
+            $currentTab.addClass("active");
+
+            const tabIndex = $currentTab.index() + 1;
+            $(".tab-pane").removeClass("active");
+            $(`#tab${tabIndex}`).addClass("active");
+        }
+
+        // FAQ 데이터 렌더링
+        function renderTabData() {
+            faqList = pf.seinfoComUtil.fnTransCommonCode(faqTypeCode, faqList, 'faqType', 'faqTypeKo');
+
+            const activeTabPane = $(".tab-content .tab-pane.active");
+            activeTabPane.empty();
+
+            $.each(faqList, function (index, list) {
+                const row = `
+                    <div class="faq-list">
+                        <ul>
+                            <li>
+                                <div class="faq-item">
+                                    <div class="faq-title-wrap">
+                                        <input type="hidden" name="faqNo" value="${list.faqNo}" />
+                                        <input type="hidden" name="faqType" value="${list.faqType}" />
+                                        <div class="faq-title-area">
+                                            <div class="faq-category">
+                                                <i>Q</i>
+                                                <strong>${list.faqTypeKo}</strong>
+                                            </div>
+                                            <strong class="faq-title">${list.faqQuestion}</strong>
+                                        </div>
+                                        <button>
+                                            <img src="${paginationImages.readArrow}" alt="">
+                                            <span class="sr-only">[(#{seinfo.board.label.00130})]</span>
+                                        </button>
+                                    </div>
+                                    <div class="faq-answer" style="display:none">
+                                        <p>${list.faqAnswer}</p>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                `;
+                activeTabPane.append(row);
+            });
+            fnfaqAccordion();
+        }
+
+        // 페이징 랜더링
+        function renderPagination() {
+            let pagination = "";
+
+            if(pageResult.cPage > 1) {
+                pagination += `<button type="button" class="page-navi first" data-page="1">
+                    <img src="${paginationImages.first}">
+                </button>`;
+            }
+
+            if(pageResult.hPrev) {
+                pagination += `<button type="button" class="page-navi prev" data-page="${pageResult.cPage - 1}">
+                    <img src="${paginationImages.prev}">
+                </button>`;
+            }
+
+            let startPage = Math.max(1, pageResult.cPage -5);
+            let endPage = Math.min(pageResult.totalPages, pageResult.cPage +5);
+            pagination += `<div class="page-links">`;
+            for (let i = startPage; i <= endPage; i++) {
+                const activeClass = (pageResult.cPage === i) ? "active" : "";
+                pagination += `<button class="page-link ${activeClass}" data-page="${i}">${i}</button>`;
+            }
+            pagination += `</div>`;
+
+            if(pageResult.hNext) {
+                pagination += `<button type="button" class="page-navi next" data-page="${pageResult.cPage + 1}">
+                     <img src="${paginationImages.next}">
+                </button>`;
+            }
+
+            if(pageResult.cPage < pageResult.totalPages) {
+                pagination += `<button type="button" class="page-navi last" data-page="${pageResult.totalPages}">
+                     <img src="${paginationImages.last}">
+                </button>`;
+            }
+            $(".pagination").html(pagination);
+        }
+
+        // 아코디언 이벤트
+        function fnfaqAccordion() {
+            $(".faq-item").off("click").on("click", function () {
+                const $this = $(this);
+                const $answer = $this.find(".faq-answer");
+
+                if($this.hasClass("open")) {
+                    $this.removeClass("open");
+                    $answer.stop(true, true).slideUp(300);
+                }else {
+                    $this.addClass("open");
+                    $answer.stop(true, true).slideDown(300);
+                }
+            });
+
+            $(".faq-item").each(function (){
+                const $answer = $(this).find(".faq-answer");
+                if ($(this).hasClass("open")) {
+                    $answer.show();
+                }else {
+                    $answer.hide();
+                }
+            })
+        }
+
+        // 조회수 증가
+        function fnUpInquireCnt(faqNo, faqType) {
+            pf.seinfo.ajax({
+                method: 'PUT',
+                url: '/board/updateInquireCnt',
+                data: {faqNo: faqNo, faqType: faqType},
+                chkToken: 'N'
+            }, (rData) => {
+                if(rData.process_code !== '00') { //실패
+                    //[조회 오류] ...
+                    pf.seinfoAlert.warning('[(#{seinfo.com.msg.00170})] <br> ' + rData.data.message);
+                }
+            });
+        }
+
+        //페이지네이션 클릭 이벤트
+        function initPaginationEvent() {
+            $(document).on("click", ".pagination button", function () {
+                let page = $(this).data("page");
+                location.href = `/board/faqList?page=${page}&faqType=${faqType}`;
+            });
+        }
+
+        function fnOpenFaqByFaqNo(faqNo) {
+            const $target = $(".faq-item").filter(function () {
+                return $(this).find('input[name="faqNo"]').val() === faqNo;
+            });
+
+            if($target.length > 0 && !$target.hasClass("open")) {
+                $target.addClass("open");
+                const $answer = $target.find(".faq-answer");
+                $answer.stop(true, true).slideDown(300);
+            }
+        }
+
+        // 실행 시작
+        $(() => {
+            renderFaqTabs();
+            activateCurrentTab();
+            renderTabData();
+            renderPagination();
+            initTabEvent();
+            initPaginationEvent();
+
+            if(faqNo) {
+                fnOpenFaqByFaqNo(faqNo);
+            }
+        });
+    </script>
+</th:block>
+</html>

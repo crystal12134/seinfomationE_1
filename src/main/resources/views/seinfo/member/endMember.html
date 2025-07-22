@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+        <style></style>
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <main>
+        <div class="subpage-content">
+            <h2>[(#{seinfo.menu.top.00210})]</h2> <!--회원가입 4.가입완료-->
+            <div class="join-area">
+                <!--진행상태-->
+                <div th:replace="~{seinfo/member/divProgress :: progress04}"></div>
+
+                <th:block th:if="${message == null}">
+                    <!--가입완료-->
+                    <div class="join-clear">
+                        <strong>[(#{seinfo.member.msg.00130})]</strong> <!--회원가입이 완료되었습니다.-->
+                    </div>
+
+                    <div class="button-area">
+                        <a th:href="|@{/login/login}|">
+                            <button class="primary-md-btn">[(#{seinfo.com.btn.00090})]</button> <!--로그인하러 가기-->
+                        </a>
+                    </div>
+                </th:block>
+
+                <th:block th:if="${message != null}"></th:block>
+            </div>
+        </div>
+    </main>
+</th:block>
+
+<th:block layout:fragment="html_js">
+    <script type="text/javascript" th:inline="javascript">
+        const message = /*[[${message != null ? message : ''}]]*/ '';
+        const joinStep = /*[[${joinStep != null ? joinStep : ''}]]*/ '';
+
+        $(() => {
+            if (!pf.seinfoComUtil.doNotMovePage()) return; //뒤로가기(←), 앞으로가기(→) 로 접근금지
+
+            if (message.trim().length > 0) {
+                pf.seinfoAlert.warning(message, () => {
+                    if (parseInt(joinStep) === 2) {
+                        location.href = '/anyone/member/regMember';
+                    } else if (parseInt(joinStep) === 3) {
+                        location.href = '/anyone/member/usrMember';
+                    } else {
+                        location.href = '/anyone/member/joinMember';
+                    }
+                });
+            }
+        });
+    </script>
+</th:block>
+
+</html>
+
+
+

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.seinfo.protoA.component.main.mapper.MainMapper">
+
+	<select id="selectNoticeList" resultType="camelmap">
+		    SELECT /* com.seinfo.protoA.component.main.mapper.MainMapper.selectNoticeList */
+				 notice_no
+		       , notice_title
+		       , DATE_FORMAT(reg_dt, '%Y-%m-%d') as reg_dt
+		    FROM seinfo_notice
+		   WHERE notice_type = 'N'
+		   ORDER BY notice_no DESC
+		  LIMIT 5
+	</select>
+
+    <select id="selectFaqList" resultType="camelmap">
+        SELECT /* com.seinfo.protoA.component.main.mapper.MainMapper.selectUsrInfo */
+			 	faq_type
+              , faq_no
+    		  , faq_question
+              , CASE WHEN CHAR_LENGTH(faq_answer) > 110 THEN LEFT(faq_answer, 110)||'...'
+        			 ELSE faq_answer
+        	    END AS faq_answer
+            FROM seinfo_faq
+        	ORDER BY faq_no ASC
+        	LIMIT 2
+    </select>
+
+</mapper>

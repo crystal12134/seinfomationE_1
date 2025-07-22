@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block th:fragment="popup01View">
+    <div class="modal comm-modal" id="modalQuestion">
+        <div class="modal-overlay"></div>
+        <div class="modal-content" style="max-width: 900px !important;">
+            <div class="modal-body">
+                <div class="">
+                    <strong class="comm-modal-title">[(#{seinfo.pps.label.00300})]</strong><!--요청사항 조회-->
+                    <section>
+                        <div class="table-row-container">
+                            <table>
+                                <colgroup>
+                                    <col width="160px" />
+                                    <col />
+                                </colgroup>
+                                <tbody>
+                                <tr>
+                                    <th>[(#{seinfo.pps.label.00310})]</th><!--요청 구분-->
+                                    <td><p id="requestType"></p></td><!--제안서 수정 요청-->
+                                </tr>
+                                <tr>
+                                    <th>[(#{seinfo.board.label.00015})]</th><!--제목-->
+                                    <td>
+                                        <p id="drawTitle"></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>[(#{seinfo.pps.label.00330})]</th><!--상세 내용-->
+                                    <td>
+                                        <!--<p id="drawContents"></p> --br 처리안됨 -->
+                                        <div class="textarea-area" >
+                                            <textarea id="drawContents" readonly></textarea>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>[(#{seinfo.pps.label.00340})]</th><!--회신기한-->
+                                    <td>
+                                        <p id="requestDueD"></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>[(#{seinfo.pps.label.00350})]</th><!--작성자-->
+                                    <td>
+                                        <p id="assessorName"></p>
+                                    </td><!--차제설계1팀 홍길동 책임-->
+                                </tr>
+                                <tr>
+                                    <th>[(#{seinfo.pps.label.00360})]</th><!--작성일-->
+                                    <td>
+                                        <p id="regDt"></p>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                    <div class="button-area">
+                        <!--<button class="comm-close-modal-btn secondary-md-btn">취소</button>-->
+                        <button class="comm-close-modal-btn primary-md-btn">[(#{seinfo.com.btn.00040})]</button><!--닫기-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="popup01Js">
+    <script type="text/javascript" th:inline="javascript">
+
+    </script>
+</th:block>
+
+</html>
+

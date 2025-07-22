@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.seinfo.protoA.component.board.mapper.NoticeMapper">
+
+	<select id="selectNoticeList" parameterType="camelmap" resultType="camelmap">
+		SELECT  ROW_NUMBER() over (ORDER BY notice_no ASC) rnum
+			   ,notice_type
+			   ,notice_no
+		       ,notice_title
+		       ,notice_contents
+		       ,inquire_cnt
+		       ,reg_user_id
+		       ,DATE_FORMAT(reg_dt, '%Y-%m-%d') AS reg_dt
+		 FROM seinfo_notice
+		WHERE notice_type = 'N'
+		<if test='keyword != null and keyword != ""'>
+			<if test='searchType == "tc"'>
+			AND (
+			    	   notice_title LIKE CONCAT('%', #{keyword}, '%')
+			    	OR notice_contents LIKE CONCAT('%', #{keyword}, '%')
+				)
+			</if>
+			<if test='searchType == "t"'>
+				AND (
+					   notice_title LIKE CONCAT('%', #{keyword}, '%')
+				)
+			</if>
+			<if test='searchType == "c"'>
+				AND (
+				       notice_contents LIKE CONCAT('%', #{keyword}, '%')
+				)
+			</if>
+		</if>
+		ORDER BY 1 DESC
+		LIMIT #{pageSize} OFFSET #{startRow}
+	</select>
+
+	<select id="getNoticeListCount" parameterType="camelmap" resultType="int">
+		select count(*)
+		  from seinfo_notice
+		 where notice_type = 'N'
+		<if test='keyword != null and keyword != ""'>
+			<if test='searchType == "tc"'>
+			and (
+			    	notice_title LIKE CONCAT('%', #{keyword}, '%')
+			  	 OR notice_contents LIKE CONCAT('%', #{keyword}, '%')
+				)
+			</if>
+			<if test='searchType == "t"'>
+				AND (
+				notice_title LIKE CONCAT('%', #{keyword}, '%')
+				)
+			</if>
+			<if test='searchType == "c"'>
+				AND (
+				notice_contents LIKE CONCAT('%', #{keyword}, '%')
+				)
+			</if>
+		</if>
+	</select>
+
+	<insert id="insertNotice" parameterType="map">
+		<selectKey keyProperty="noticeNo" order="BEFORE" resultType="string">
+			select concat(
+				'N_', date_format(now(), '%y%m'), '_',
+				LPAD(
+				   ifnull(
+						(select cast(substring(max(notice_no), 8, 4) as unsigned ) +1
+						   from seinfo_notice
+						  where notice_no like concat('N_', date_format(now(), '%y%m'), '_%')
+						),
+						1
+					), 4, '0'
+				)
+			)
+		</selectKey>
+
+		insert into seinfo_notice
+		(	 notice_type
+			,notice_no
+			,notice_title
+			,notice_contents
+			,inquire_cnt
+			,mfile_group_id
+			,reg_dt
+			,reg_user_id
+			,mod_dt
+			,mod_user_id
+		) value (
+			'N'
+			,#{noticeNo}
+			,left(#{noticeTitle}, 100)
+			,#{noticeContents}
+			,0
+			,#{fileGrpId}
+			,NOW()
+			,#{userId}
+			,NOW()
+			,#{userId}
+		)
+	</insert>
+
+	<update id="updateNotice" parameterType="camelmap">
+		update seinfo_notice
+		   set  notice_title 	= left(#{noticeTitle}, 100)
+			  , notice_contents = #{noticeContents}
+			  , mfile_group_id	= #{fileGrpId}
+			  , mod_dt 			= now()
+			  , mod_user_id		= #{userId}
+		 where notice_no = #{noticeNo}
+		   and notice_type = 'N'
+	</update>
+
+	<select id="selectNoticeDetail" parameterType="camelmap" resultType="camelmap">
+		select a.notice_type
+			  ,a.notice_no
+			  ,a.notice_title
+			  ,a.notice_contents
+			  ,a.inquire_cnt
+			  ,a.mfile_group_id
+			  ,date_format(a.reg_dt, '%Y-%m-%d %H:%i:%s') as reg_dt
+			  ,a.reg_user_id
+			  ,a.mod_dt
+			  ,a.mod_user_id
+			  ,(
+			      select notice_no
+			        from seinfo_notice
+			       where notice_no &lt; a.notice_no
+			         and notice_type = 'N'
+			    order by notice_no desc limit 1
+			   ) as prev_notice_no
+			  ,(
+			      select notice_title
+			        from seinfo_notice
+			       where notice_no &lt; a.notice_no
+			         and notice_type = 'N'
+			    order by notice_no desc limit 1
+			   ) as prev_notice_title
+			  ,(
+			      select notice_no
+			        from seinfo_notice
+			       where notice_no &gt; a.notice_no
+			         and notice_type = 'N' and notice_type = 'N'
+			    order by notice_no asc limit 1
+			   ) as next_notice_no
+			  ,(
+			      select notice_title
+			        from seinfo_notice
+			       where notice_no &gt; a.notice_no
+			         and notice_type = 'N'
+			    order by notice_no asc limit 1
+			   ) as next_notice_title
+		 from seinfo_notice a
+		where notice_no = #{noticeNo}
+		  and notice_type = 'N'
+	</select>
+
+	<update id="updateInquireCnt" parameterType="camelmap">
+		update seinfo_notice
+		   set inquire_cnt = #{inquireCnt}
+		 where notice_no = #{noticeNo}
+		   and notice_type = 'N'
+	</update>
+
+	<select id="selectNoticeFileGrpId" parameterType="camelmap" resultType="camelmap">
+		select mfile_group_id as mfile_grp_id
+		  from seinfo_notice
+		 where notice_no = #{noticeNo}
+		   and notice_type = 'N'
+	</select>
+
+	<delete id="deleteNotice" parameterType="camelmap">
+		delete
+		  from seinfo_notice
+		 where notice_no = #{noticeNo}
+		   and notice_type = 'N'
+	</delete>
+
+
+</mapper>

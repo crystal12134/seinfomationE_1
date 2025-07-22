@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <main>
+        <div class="subpage-content">
+            <h2>[(#{seinfo.menu.top.00210})]</h2> <!--회원가입,2.사업자 인증-->
+            <div class="join-area">
+                <div th:replace="~{seinfo/member/divProgress :: progress02}"></div>
+
+                <th:block th:if="${message == null}">
+                    <form id="nextForm">
+                        <div class="reg-member">
+                            <div class="table-row-container">
+                                <table>
+                                    <colgroup>
+                                        <col width="250px" />
+                                        <col />
+                                    </colgroup>
+                                    <tbody>
+                                        <tr>
+                                            <th><i class="required" style="color:#ff0000;">*</i>[(#{seinfo.member.label.00010})]</th> <!--사업자 등록번호-->
+                                            <td>
+                                                <div class="input-wrap">
+                                                    <div class="input-area">
+                                                        <input type="text" id="companyNo" name="companyNo">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="required" style="color:#ff0000;">*</i>[(#{seinfo.member.label.00040})]</th> <!--대표자 설명-->
+                                            <td>
+                                                <div class="input-area">
+                                                    <input type="text" id="ceoNm" name="ceoNm">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="required" style="color:#ff0000;">*</i>[(#{seinfo.member.label.00100})]</th> <!--개시일-->
+                                            <td>
+                                                <div class="datepicker-wrap">
+                                                    <div class="input-area datepicker-area">
+                                                        <input type="text" id="companyD" name="companyD" size="10"
+                                                               maxlength="10">
+                                                        <img th:src="@{/static/seinfo/img/icon-datepicker.svg}"
+                                                             alt='[(#{seinfo.calendar.label.00010})]'> <!--달력-->
+                                                    </div>
+                                                    <span style="color:#bd4353; width: 100%;">
+                                                        [(#{seinfo.member.label.00101})]
+                                                        </span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="required" style="color:#ff0000;">*</i>[(#{seinfo.member.label.00020})]</th> <!--회사명-->
+                                            <td>
+                                                <div style="display: flex; height: 1vh;"></div>
+
+                                                <div style="display: flex; align-items: center; gap: 10px">
+                                                    <input type="text" id="companyNm" name="companyNm" maxlength="100">
+                                                    <!--사업자 인증-->
+                                                    <button class="secondary-md-btn" type="button" onclick="fnCompanyCheck()" style="width: 120px;">
+                                                        [(#{seinfo.com.btn.00070})]
+                                                    </button>
+                                                </div>
+
+                                                <div style="display: flex; align-items: center; gap: 10px; height: 8vh;">
+                                                    <label for="companyNm" style="color:#bd4353; width: 100%;">
+                                                        [(#{seinfo.member.label.00021})]
+                                                        [(#{seinfo.member.label.00022})]
+                                                        [(#{seinfo.member.label.00023})]
+                                                    </label>
+                                                    <p id="result" style="width: 120px; text-align: center; font-weight: bold;"></p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="required">*</i>[(#{seinfo.member.label.00030})]</th> <!--회사주소-->
+                                            <td>
+                                                <div style="display: flex; align-items: center; gap: 10px">
+                                                    <input type="text" id="companyAddress" name="companyAddress" readonly>
+                                                    <button class="secondary-md-btn" type="button" onclick="fnAddressSearch()" style="width: 120px;">
+                                                        [(#{seinfo.adr.label.00010})] <!-- 검색하기 -->
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>[(#{seinfo.member.label.00031})]</th> <!--회사주소 상세-->
+                                            <td>
+                                                <div class="input-area">
+                                                    <input type="text" id="companyAddressDetail" name="companyAddressDetail" maxlength="100">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>[(#{seinfo.member.label.00050})]</th> <!--대표자 연락처-->
+                                            <td>
+                                                <div class="input-area">
+                                                    <input type="text" id="ceoPhone" name="ceoPhone">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>[(#{seinfo.member.label.00060})]</th> <!--대표자 이메일-->
+                                            <td>
+                                                <div class="input-area">
+                                                    <input type="text" id="ceoEmail" name="ceoEmail">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>[(#{seinfo.member.label.00070})]</th> <!--회사 URL-->
+                                            <td>
+                                                <div class="input-area">
+                                                    <input type="text" id="companyUrl" name="companyUrl"  maxlength="200">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="comment">[(#{seinfo.member.label.00080})]
+                                                <span>([(#{seinfo.member.label.00090})])</span></th> <!--회사 소개 (200자 내외)-->
+                                            <td>
+                                                <div class="textarea-area">
+                                                    <textarea id="companyDescription" name="companyInfo" maxlength="200"></textarea>
+                                                    <div class="char-counter" id="charCounter"><i>0</i>/200</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="button-area" style="gap: 12px">
+                            <!-- (bck 2025.02.19) 추후에 하단에 버튼 2개를 나란히 둘수도 있어서... 소스 백업해둔다. ***(style="gap: 12px")***
+                            <button class="secondary-md-btn" type="button" id="companyCheckBtn2">[(#{lrtp.com.btn.00070})]</button> -->
+                            <!--사업자 인증-->
+                            <button class="primary-md-btn" type="submit" id="nextBtn">[(#{seinfo.com.btn.00030})]</button>
+                            <!--다음-->
+                        </div>
+                    </form>
+                </th:block>
+                <th:block th:if="${message != null}"></th:block>
+            </div>
+        </div>
+    </main>
+    <!-- 주석처리 - 검색 API 용 -->
+    <!--<div th:replace="lrtp/member/popupAddressSearch :: popup01View"></div>-->
+</th:block>
+
+<th:block layout:fragment="html_js"> <!--이 조각은 다른 HTML 파일에서 불러와서 사용가능-->
+    <script type="text/javascript" th:inline="javascript"> // ${}나 #{} 같은 표현식을 사용,이걸 쓰면 문자열에 자동으로 "따옴표"를 붙여주거나, 객체를 JSON처럼 변환
+        const message = /*[[${message != null ? message : ''}]]*/ '';
+
+        let biznumberStatus =false;
+        let confirmedCompanyNo ="";
+        let confirmedCompanyD ="";
+        let confirmedCeoNm ="";
+        let confirmedCompanyNm ="";
+
+        //input 컬럼에 대한 힌트제공, #{...}는 타임리프의 메시지 표현식,$는 제이쿼리
+        function fnInputSetPlaceHolder() {
+            $("#companyNo").attr("placeholder","[(#{seinfo.member.label.00010})]"+"[(#{seinfo.com.msg.00160})]"); // 사업자등록번호를 입력하세요. //attr()는 jQuery에서 HTML 요소의 속성(attribute)을 설정하거나 가져오는 메서드
+            $("#ceoNm").attr("placeholder","[(#{seinfo.member.label.00040})]"+"[(#{seinfo.com.msg.00161})]"); // 이름을 입력하세요. placeholder는 html에서 힌트속성
+            $("#companyD").attr("placeholder","[(#{seinfo.calendar.msg.00010})]");//날짜를 선택하세요. #companyD는 HTML에 있는 id="companyD는"인 요소를 가리키는 선택자
+            $("#companyNm").attr("placeholder","[(#{seinfo.member.label.00020})]"+"[(#{seinfo.com.msg.00161})]"); // 회사명을 입력하세요.
+            $("#companyAddress").attr("placeholder","[(#{seinfo.member.label.00030})]"+"[(#{seinfo.com.msg.00160})]"); // 회사주소를 입력하세요.
+            $("#companyAddressDetail").attr("placeholder","[(#{seinfo.member.label.00031})]"+"[(#{seinfo.com.msg.00160})]"); // 회사주소 상세를 입력하세요.
+            $("#ceoPhone").attr("placeholder","[(#{seinfo.member.label.00050})]"+"[(#{seinfo.com.msg.00160})]"); // 연락처를 입력하세요.
+            $("#ceoEmail").attr("placeholder","[(#{seinfo.member.label.00060})]"+"[(#{seinfo.com.msg.00161})]"); // 이메일을 입력하세요.
+            $("#companyUrl").attr("placeholder","[(#{seinfo.member.label.00070})]"+"[(#{seinfo.com.msg.00161})]"); // 회사URL을 입력하세요.
+            $("#companyDescription").attr("placeholder","[(#{seinfo.member.label.00080})]"+"[(#{seinfo.com.msg.00160})]"); // 회사소개를 입력하세요.
+        }
+
+        // 사업자 인증 필수입력값 검증
+        function fnValidateCompanyCheck() {
+            let companyNo = $('#companyNo').val().replace(/[^0-9]/g,""); // [^0-9] → 숫자 0~9를 제외한 문자들,g → 전체 문자열에 적용 (global)
+
+            if(companyNo.length !== 10) {
+                pf.seinfoAlert.focus(0,'[(#{seinfo.member.msg.00030})]', $('companyNo')); // 사업자번호는 10자리가 되어야 합니다.
+                return false;
+            }
+            console.log("2");
+            //대표자 성명
+            let ceoNm = $('#ceoNm').val(); // val()는 입력창 값 가져오거나 설정
+            var msg1 = '[(#{seinfo.member.label.00040})]' + ': [(#{seinfo.com.msg.00120})]';     // 대표자 성명  : 필수입력값 입니다.
+            var msg2 = '[(#{seinfo.member.label.00040})]' + ': [(#{seinfo.member.msg.00080})]'; // 대표자 성명  : 최소 2글자 이상이어야 합니다.
+            var msg3 = '[(#{seinfo.member.label.00040})]' + ': [(#{seinfo.com.msg.00120})]';    // 대표자 성명  : 형식이 올바르지 않습니다.
+            var msg4 = '[(#{seinfo.member.label.00040})]' + ': [(#{seinfo.com.msg.00120})]';    // 대표자 성명  : 입력길이가 한도를 초과 하였습니다.
+            if(!pf.seinfoComUtil.validateName(ceoNm, msg1, msg2, msg3, msg4, $('#ceoNm'),98)) {
+                console.log("3");
+            }
+
+            //개시일
+            let companyD = $('#companyD').val(); //jQuery는 내부적으로 문자열로 된 선택자(selector)를 받기 때문에, 홑따옴표든 쌍따옴표든 반드시 감싸야함
+            console.log(companyD);
+            var msg1 = '[(#{seinfo.member.label.00100})]' + ': [(#{seinfo.com.msg.00120})]'; // 개시일 : 필수 입력값 입니다.
+            var msg2 = '[(#{seinfo.calendar.label.00020})]' + ': [(#{seinfo.com.msg.00130})]'; // 개시일 : 형식이 올바르지 않습니다.
+            var msg3  = '[(#{seinfo.calendar.label.00020})]' + ': [(#{seinfo.com.msg.00140})]'; // 개시일 : 유효하지 않습니다.
+            if(!pf.seinfoComUtil.validateDate(companyD,msg1,msg2,msg3, $('#companyD'))) {
+                return false;
+            }
+
+            //회사명 : 숫자,한글,영문,특수문자 모두 허용 (upd 2025.04.28)
+            let companyNm = $('#companyNm').val();
+            var msg1 = '[(#{seinfo.member.label.00020})]' + ': [(#{seinfo.com.msg.00120})]'; // 회사명 필수 입력값 입니다.
+            if(!companyNm) {
+                pf.seinfoAlert.focus(0, msg1, $('#companyNm'));
+                return false;
+            }
+            return true;
+        }
+
+        // 그외 필수 입력값 검증
+        function fnValidateInput() {
+            // 회사주소
+            let companyAddress = $('#companyAddress').val();
+            var msg1 = '[(#{seinfo.member.label.00030})]' + ': [(#{seinfo.com.msg.00120})]'; // 회사주소 : 필수 입력값 입니다.
+            var msg2 = '[(#{seinfo.member.label.00030})] ' + ': [(#{seinfo.com.msg.00140})]'; // 회사주소 : 유효하지 않습니다.
+            if (!pf.seinfoComUtil.validateAddress(companyAddress, msg1, msg2, $('#companyAddress'))) {
+                return false;
+            }
+
+// 대표자 연락처
+            let ceoPhone = $('#ceoPhone').val();
+            if (ceoPhone) {
+                var msg1 = ''; // 빈값 : 필수입력 제외.
+                var msg2 = '[(#{seinfo.member.label.00050})] ' + ': [(#{seinfo.com.msg.00130})]'; // 대표자 연락처 : 형식이 올바르지 않습니다.
+                var msg3 = '[(#{seinfo.member.label.00050})] ' + ': [(#{seinfo.com.msg.00140})]'; // 대표자 연락처 : 유효하지 않습니다.
+                if (!pf.seinfoComUtil.validatePhoneNo(ceoPhone, msg1, msg2, msg3, $('#ceoPhone'))) {
+                    return false;
+                }
+            }
+
+// 대표자 이메일 : 필수입력값 제외 (upd 2025.04.28)
+            let ceoEmail = $('#ceoEmail').val();
+            if (ceoEmail) {
+                var msg1 = '[(#{seinfo.member.label.00060})] ' + ': [(#{seinfo.com.msg.00120})]'; // 대표자 이메일 : 필수입력값 입니다.
+                var msg2 = '[(#{seinfo.member.label.00060})] ' + ': [(#{seinfo.com.msg.00130})]'; // 대표자 이메일 : 형식이 올바르지 않습니다.
+                if (!pf.seinfoComUtil.validateEmail(ceoEmail, msg1, msg2, $('#ceoEmail'))) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // 사업자 인증 API 호출
+        function fnCompanyCheck() {
+            event.preventDefault(); // 이게 없으면 제출한뒤 밑에 조건들이 실행되어짐?
+
+            /* 재인증 받을 수 있으므로, 일단은 주석처리 (bck 2025.05.15)
+            if (bizNumberStatus) {
+                pf.lrtpAlert.success('[(#{lrtp.member.msg.00040})]'); // 이미 인증성공 되었습니다.
+                return;
+            } */
+
+            // 사업자 인증 필수입력값 검증
+            if (!fnValidateCompanyCheck()) {
+                return false;
+            }
+
+
+            const formData = {
+                companyNo: $('#companyNo').val().replace(/[^0-9]/g, ""),
+                ceoNm: $('#ceoNm').val(),
+                companyD: $('#companyD').val().replace(/[^0-9]/g, ""),
+                companyNm: $('#companyNm').val()
+            }
+
+            $.ajax({
+                type:"POST",
+                url:'/anyone/member/regMember/checkBizNumber',
+                contentType:'application/json',
+                data: JSON.stringify(formData),
+                success:function(rData) {
+                    if(rData.process_code === "00") { //rData 데이터 여기부분 어떻게 확인
+                        const response = rData.data;
+                        $("#result").text('[(#{seinfo.member.msg.00050})]'); // 인증완료
+                        $("#result").attr("class", "text-info"); //skyblue
+                        bizNumberStatus = true;
+                        confirmedCompanyNo = response.companyNo;
+                        confirmedCompanyD = response.companyD;
+                        confirmedCeoNm = response.ceoNm;
+                        confirmedCompanyNm = response.companyNm;
+
+                        if(response.duplicateYn === true){ // 사업자번호 중복시
+                            $('#companyAddress').val(response.companyAddress);
+                            $('#companyAddressDetail').val(response.companyAddressDetail);
+                            $('#ceoPhone').val(response.ceoPhone);
+                            $('#ceoEmail').val(response.ceoEmail);
+                            $('#companyUrl').val(response.companyUrl);
+                            $('#companyDescription').val(response.companyInfo);
+                        }
+
+                        pf.seinfoAlert.success(response.message, () => { // ()=>{ ... }는 "성공 알림창이 닫힌 다음에 실행할 함수
+                            setTimeout(function () {$("#companyAddressDetail").focus();}, 50); // 0.05초
+                        });
+
+                    }else {
+                        pf.seinfoAlert.warning(rData.data.message);
+                        $("#result").text('[(#{seinfo.member.msg.00060})]'); // 인증실패
+                        $("#result").attr("class", "text-danger"); //red
+                    }
+                },
+                error: function (jqXHR) {
+                    let response = JSON.parse(jqXHR.responseText).message; // jqXHR.responseText는 문자열이라서 JSON.parse로 다시 객체화
+                    let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg); // pf부분 찾아보기
+                    pf.seinfoAlert.warning(msg);
+                }
+            });
+        }
+
+        function fnNextForm() {
+            // 사업자등록번호
+            if (confirmedCompanyNo.trim().length > 0 && !bizNumberStatus) {
+                var msg = '[(#{seinfo.member.label.00010})], ' + '[(#{seinfo.member.label.00040})], ' + '[(#{seinfo.member.label.00100})], ' + '[(#{seinfo.member.label.00020})]'
+                    + ' [(#{seinfo.com.msg.00150})]'; // 사업자등록번호, 대표자 성명, 개시일, 회사명 변경시 재인증이 필요합니다.
+                pf.seinfoAlert.focus(0, msg, $('#companyCheckBtn'));
+                return false;
+            } else if (!bizNumberStatus) {
+                pf.seinfoAlert.focus(0, '[(#{seinfo.member.msg.00020})]', $('#companyNo')); // 사업자 인증이 필요합니다.
+                return false;
+            }
+
+            // 사업자 인증 필수입력값 검증
+            if (!fnValidateCompanyCheck()) {
+                return false;
+            }
+            // 그외 필수입력값 검증
+            if (!fnValidateInput()) {
+                return false;
+            }
+
+            const formData = {
+                companyNo: confirmedCompanyNo,
+                ceoNm: $('#ceoNm').val(),
+                companyD: $('#companyD').val().replace(/[^0-9]/g, ""),
+                companyNm: $('#companyNm').val(),
+                companyAddress: $('#companyAddress').val(),
+                companyAddressDetail : $('#companyAddressDetail').val(),
+                ceoPhone: $('#ceoPhone').val(),
+                ceoEmail: $('#ceoEmail').val(),
+                companyUrl: $('#companyUrl').val(),
+                companyInfo: $('#companyDescription').val()
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '/anyone/member/regMember/companyProcess',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function (rData) {
+                    if(rData.process_code === "00"){
+                        location.href = contextPath + '/anyone/member/usrMember';
+                    }else {
+                        pf.seinfoAlert.warning(rData.data.message);
+                    }
+                },
+                error: function (jqXHR) {
+                    let response = JSON.parse(jqXHR.responseText).message;
+                    let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                    pf.seinfoAlert.warning(msg);
+                }
+            });
+        }
+
+        // 사업자 인증 초기화
+        const fnCompanyCheckInit = () => {
+            let inputedCompanyNo = $('#companyNo').val().replace(/[^0-9]/g, "");
+            let inputedCeoNm = $('#ceoNm').val()
+            let inputedCompanyD = $('#companyD').val().replace(/[^0-9]/g, "");
+            let inputedCompanyNm = $('#companyNm').val()
+
+            if (inputedCompanyNo != confirmedCompanyNo) {
+                bizNumberStatus = false;
+            }
+            if (inputedCeoNm != confirmedCeoNm) {
+                bizNumberStatus = false;
+            }
+            if (inputedCompanyD != confirmedCompanyD) {
+                bizNumberStatus = false;
+            }
+            if (inputedCompanyNm != confirmedCompanyNm) {
+                bizNumberStatus = false;
+            }
+
+            if (!bizNumberStatus) {
+                $("#result").text('');
+                $("#result").attr("class", "text-wanning"); //black
+            }
+        }
+
+        function fnAddressSearch() {
+            let tnWidth = 570;
+            let tnHeight = 420;
+
+            let xPos = window.top.outerWidth / 2 + window.top.screenX - (tnWidth / 2);
+            let yPos = window.top.outerHeight / 2 + window.top.screenY - (tnHeight / 2);
+
+            let rtnLinkUrl = '/anyone/member/regMember/AddressPopup';
+
+            window.open(rtnLinkUrl, 'reportViewer', "width=" + tnWidth + ", " + "height=" + tnHeight + ", " + "left=" + xPos + ", " + "top=" + yPos + ", scrollbars=yes, resizable=yes");
+        }
+
+        function jusoCallBack(zipNo, roadAddrPart1, roadAddrPart2, jibunAddr, addrDetail){
+            $("#companyAddress").val(roadAddrPart1);
+            $("#companyAddressDetail").val(addrDetail);
+            $('#companyAddressDetail').focus();
+        }
+
+        function fnSetJoinStep() {
+            $.ajax({
+                type: "POST",
+                url: '/anyone/member/setJoinStep',
+                contentType: 'application/json',
+                data: JSON.stringify({joinStep : 2}),
+                success: function (rData) {
+                    if (rData.process_code !== "00") {
+                        pf.seinfoAlert.warning(rData.data.message);
+                    }
+                },
+                error: function (jqXHR) {
+                    let response = JSON.parse(jqXHR.responseText).message;
+                    let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                    pf.seinfoAlert.warning(msg);
+                }
+            });
+        }
+
+        $(() => {
+            if (!pf.seinfoComUtil.doNotMovePage()) return; //뒤로가기(←), 앞으로가기(→) 로 접근금지
+
+            if (message.trim().length > 0) {
+                pf.seinfoAlert.warning(message, () => {
+                    location.href = '/anyone/member/joinMember';
+                });
+                return;
+            }
+
+            fnSetJoinStep();
+
+            $('#companyNo').focus(); // autoFocus
+
+            // input 칼럼에 대한 힌트 설정
+            fnInputSetPlaceHolder();
+
+            // 대표자 성명
+            pf.seinfoComUtil.autoVaildator('#ceoNm', 98);
+            // 달력 (calendar) 호출
+            pf.seinfoComUtil.datePicker($('#companyD'));
+            // 사업자등록번호 형식 자동 생성
+            pf.seinfoComUtil.formatSetCompanyNo('#companyNo');
+            // 대표자 연락처 형식 자동 생성
+            pf.seinfoComUtil.formatSetPhoneNo('#ceoPhone');
+            // 개시일 날짜 형식 자동 생성
+            pf.seinfoComUtil.formatSetDate('#companyD');
+
+            // 사업자등록번호, 대표자성명, 개시일 입력 감지
+            $('#companyNo').on('input', function () {
+                fnCompanyCheckInit();
+            });
+            $('#ceoNm').on('input', function () {
+                fnCompanyCheckInit();
+            });
+            $('#companyD').on('input change', function () {
+                fnCompanyCheckInit();
+            });
+            $('#companyNm').on('input', function () {
+                fnCompanyCheckInit();
+            });
+
+            // 다음 버튼처리 : 다음 페이지이동 전 체크사항
+            $('#nextForm').on('submit', function (e) {
+                e.preventDefault();
+                fnNextForm();
+            });
+        });
+    </script>
+</th:block>
+</html>
+
+
+
+
+

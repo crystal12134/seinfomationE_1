@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.seinfo.protoA.component.board.mapper.QnaMapper">
+
+	<select id="selectQnaList" parameterType="camelmap" resultType="camelmap">
+
+		SELECT ROW_NUMBER() OVER (ORDER BY ntc.notice_no ASC) AS rnum
+			  , ntc.notice_no
+			  , ntc.notice_type
+		      , CASE WHEN CHAR_LENGTH(notice_title) > 50 THEN LEFT(notice_title, 50)||'...'
+					 ELSE notice_title
+				 END AS notice_title
+			  , DATE_FORMAT(ntc.notice_d, '%Y-%m-%d') AS notice_d
+			  , ntc.user_uid as notice_user_id
+			  , lvm.user_email
+			  , lvm.user_nm AS notice_user_nm
+			  , CASE WHEN ntc.answer_contents IS NOT NULL THEN DATE_FORMAT(ntc.answer_d, '%Y-%m-%d')
+				     ELSE ''
+				END AS answer_d
+			  , ntc.answer_user_id
+			  , CASE WHEN ntc.answer_contents IS NOT NULL THEN 'Y'
+			  		 ELSE 'N'
+				END AS reply_yn
+			  , CASE WHEN ntc.notice_title = '삭제 되었습니다.' THEN 'Y'
+				     ELSE 'N'
+				END AS qna_del_yn
+			  , (SELECT ad.user_nm FROM seinfo_vendor_manager ad WHERE ad.user_email = ntc.answer_user_id) AS answer_user_nm
+		 FROM seinfo_notice ntc
+		 LEFT OUTER JOIN seinfo_vendor_manager lvm
+			  ON lvm.user_uid = ntc.user_uid
+		WHERE ntc.notice_type = 'Q'
+		<if test='userType != "ADMIN"'>
+			AND ntc.user_uid = (SELECT a.user_uid FROM seinfo_vendor_manager a WHERE a.user_email = #{userEmail}
+								  AND IFNULL(a.user_pwd_init_yn, 'N') != 'Y'
+							      AND a.bl_yn = 'N'
+							  )
+	    </if>
+	    <if test='keyword != null and keyword != ""'>
+			AND ( ntc.notice_title LIKE CONCAT('%', #{keyword}, '%')
+				 OR ntc.notice_contents LIKE CONCAT('%', #{keyword}, '%')
+				 OR ntc.answer_contents LIKE CONCAT('%', #{keyword}, '%')
+				)
+		</if>
+			ORDER BY 1 DESC
+			LIMIT #{pageSize} OFFSET #{startRow}
+	</select>
+
+	<select id="getQnaListCount" parameterType="camelmap" resultType="int">
+		SELECT COUNT(*)
+		  FROM seinfo_notice
+		 WHERE notice_type = 'Q'
+		<if test='userType != "ADMIN"'>
+			AND user_uid = (SELECT user_uid FROM seinfo_vendor_manager a WHERE a.user_email = #{userEmail}
+			              	and IFNULL(a.user_pwd_init_yn, 'N') != 'Y'
+							and a.bl_yn = 'N'
+			              )
+		</if>
+		<if test='keyword != null and keyword != ""'>
+			AND ( notice_title LIKE CONCAT('%', #{keyword}, '%')
+				 OR notice_contents LIKE CONCAT('%', #{keyword}, '%')
+				 OR answer_contents LIKE CONCAT('%', #{keyword}, '%')
+				)
+		</if>
+	</select>
+
+	<insert id="insertQna" parameterType="camelmap">
+		<selectKey keyProperty="noticeNo" order="BEFORE" resultType="string">
+			SELECT CONCAT('Q_', DATE_FORMAT(NOW(), '%y%m'), '_',
+			       LPAD(IFNULL( (SELECT CAST(SUBSTRING(MAX(notice_no), 8, 4) AS UNSIGNED) +1
+			                     FROM seinfo_notice
+			                     WHERE notice_no LIKE CONCAT('Q_', DATE_FORMAT(NOW(), '%y%m'), '_%')
+			                     ), 1), 4,'0'))
+		</selectKey>
+		INSERT
+		 INTO seinfo_notice
+			  (  notice_type
+		       , notice_no
+		       , user_uid
+		       , notice_d
+		       , notice_title
+		       , notice_contents
+		       , reg_dt
+		       , reg_user_id
+		       , mod_dt
+		       , mod_user_id
+			  )
+		VALUES
+		      (  'Q'
+			   , #{noticeNo}
+			   , (SELECT user_uid FROM seinfo_vendor_manager a WHERE a.user_email = #{userEmail}
+					 and IFNULL(a.user_pwd_init_yn, 'N') != 'Y'
+					 and a.bl_yn = 'N'
+				 )
+			   , DATE_FORMAT(now(), '%Y-%m-%d')
+		       , LEFT(#{noticeTitle}, 100)
+		       , LEFT(#{noticeContents}, 1000)
+		       , now()
+		       , #{userEmail}
+		       , now()
+		       , #{userEmail}
+			  )
+	</insert>
+
+	<update id="updateQna" parameterType="camelmap">
+		UPDATE seinfo_notice
+		   SET notice_title		= LEFT(#{noticeTitle}, 100)
+			 , notice_contents	= LEFT(#{noticeContents}, 100)
+			 , notice_d			= DATE_FORMAT(now(), '%Y-%m-%d')
+			 , mod_dt			= now()
+			 , mod_user_id		= #{userEmail}
+		 WHERE notice_no = #{noticeNo}
+		   AND reg_user_id = #{userEmail}
+	</update>
+
+	<delete id="updateQnaDel" parameterType="camelmap">
+		DELETE
+		  FROM seinfo_notice
+		 WHERE notice_no = #{noticeNo}
+		<if test='userType != "ADMIN"'>
+			AND reg_user_id = #{userEmail}
+		</if>
+	</delete>
+
+	<update id="updateAnswer" parameterType="camelmap">
+		UPDATE seinfo_notice
+		   SET answer_title		= LEFT(CONCAT('[RE] ', #{answerTitle}), 100)
+			 , answer_contents  = LEFT(#{answerContents}, 1000)
+			 , answer_d			= DATE_FORMAT(now(), '%Y-%m-%d')
+			 , answer_user_id   = #{userId}
+			 , mod_dt			= now()
+		     , mod_user_id		= #{userId}
+		WHERE notice_no = #{noticeNo}
+		<if test='answerUserId != null and answerUserId != ""'>
+			AND answer_user_id = #{answerUserId}
+		</if>
+	</update>
+
+	<delete id="updateAnswerDel" parameterType="camelmap">
+		UPDATE seinfo_notice
+		   SET answer_contents = NULL
+			 , answer_d = NULL
+			 , answer_user_id = NULL
+			 , mod_dt = now()
+			 , mod_user_id = #{userId}
+		WHERE notice_no = #{noticeNo}
+		  AND answer_user_id = #{userId}
+	</delete>
+
+	<select id="selectQnaDetail" parameterType="camelmap" resultType="camelmap">
+		SELECT a.notice_type
+		, a.notice_no
+		, a.notice_title
+		, a.notice_contents
+		, DATE_FORMAT(a.notice_d, '%Y-%m-%d') AS notice_d
+		, b.user_nm AS notice_user_nm /* 질문등록자 */
+		, b.user_email
+		, a.user_uid AS notice_user_id
+		, a.answer_title
+		, a.answer_contents
+		, DATE_FORMAT(a.answer_d, '%Y-%m-%d') AS answer_d
+		, a.answer_user_id
+		, c.user_nm AS answer_user_nm
+		FROM seinfo_notice a
+		JOIN seinfo_vendor_manager b
+		ON b.user_uid = a.user_uid
+		LEFT JOIN seinfo_vendor_manager c
+		ON c.user_email = a.answer_user_id
+		WHERE a.notice_no = #{noticeNo}
+		AND a.notice_type = 'Q'
+		<if test='userType != "ADMIN"'>
+			AND IFNULL(b.user_pwd_init_yn, 'N') != 'Y'
+			AND b.bl_yn = 'N'
+		</if>
+	</select>
+
+</mapper>

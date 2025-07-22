@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<script type="text/javascript" th:src="@{/static/seinfo/js/jquery-3.7.1.min.js}"></script>
+
+<script type="text/javascript" th:inline="javascript">
+    const domain = /*[[${domain != null ? domain : ''}]]*/ '';
+    const confmKey =  /*[[${confmKey != null ? confmKey : ''}]]*/ '';
+    const addressUrl =  /*[[${addressUrl != null ? addressUrl : ''}]]*/ '';
+    const returnUrl =  /*[[${returnUrl != null ? returnUrl : ''}]]*/ '';
+
+    function init() {
+        var url = returnUrl + '/anyone/member/regMember/AddressPopup'; // 도로명주소 입력 후 호출될 주소
+        var resultType = "4"; // 도로명주소 검색결과 화면 출력유형
+        // 1: 도로명, 2: 도로명+지번+상세보기, 3: 도로명+상세보기, 4: 도로명+지번+상세보기
+        var inputYn = $("input[name=inputYn]").val();
+
+        if (inputYn !== "Y") {
+            document.form.confmKey.value = confmKey;
+            document.form.returnUrl.value = url;
+            document.form.resultType.value = resultType;
+            document.form.action = addressUrl;
+            document.form.submit();
+        } else {
+            opener.jusoCallBack(
+                $("input[name=zipNo]").val(),
+                $("input[name=roadAddrPart1]").val(),
+                $("input[name=roadAddrPart2]").val(),
+                $("input[name=jibunAddr]").val(),
+                $("input[name=addrDetail]").val()
+            );
+            window.close();
+        }
+    }
+</script>
+
+<body onload="init();">
+<form id="form" name="form" method="post">
+    <input type="hidden" id="confmKey" name="confmKey" value="" />
+    <input type="hidden" id="returnUrl" name="returnUrl" value="" />
+    <input type="hidden" id="resultType" name="resultType" value="" />
+
+    <input type="hidden" id="inputYn" name="inputYn" th:value="${inputYn}" />
+    <input type="hidden" id="zipNo" name="zipNo" th:value="${zipNo}" />
+    <input type="hidden" id="roadAddrPart1" name="roadAddrPart1" th:value="${roadAddrPart1}" />
+    <input type="hidden" id="roadAddrPart2" name="roadAddrPart2" th:value="${roadAddrPart2}" />
+    <input type="hidden" id="jibunAddr" name="jibunAddr" th:value="${jibunAddr}" />
+    <input type="hidden" id="addrDetail" name="addrDetail" th:value="${addrDetail}" />
+</form>
+</body>
+
+</html>
+

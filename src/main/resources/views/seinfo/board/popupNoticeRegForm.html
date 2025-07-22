@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block layout:fragment="popup01CkEdit">
+   <style></style>
+</th:block>
+
+<th:block th:fragment="popup01View">
+   <div class="modal comm-modal comm-scroll-modal" id="modalNoticeReg">
+       <div class="modal-content" style="max-width: 900px !important;">
+           <div class="modal-body">
+               <div class="contact-register-area">
+                   <strong class="comm-modal-title">[(#{seinfo.board.label.00010})]</strong><!--공지사항-->
+                   <section>
+                       <div class="table-row-container">
+                           <table>
+                               <colgroup>
+                                   <col style="width: 160px"/>
+                                   <col />
+                                   <col style="width: 160px"/>
+                                   <col />
+                               </colgroup>
+                               <tbody>
+                               <tr>
+                                   <th><i class="required">*</i>[(#{seinfo.board.label.00015})]</th><!--제목-->
+                                   <td colspan="3">
+                                       <div class="title-textarea-area">
+                                           <input id="modalNoticeTitle" type="text" maxlength="50">
+                                       </div>
+                                    </td>
+                               </tr>
+                               <tr>
+                                   <th><i class="required">*</i>[(#{seinfo.board.label.00016})]</th><!--내용-->
+                                   <td colspan="3">
+                                       <input type="hidden" id="noticeContents" name="noticeContents">
+                                       <div class="editorWrap" style="padding: 10px 0;">
+                                           <div id="popupNoticeReg" class="ck-editor-reg" style="height: 100%;">
+                                           </div>
+                                       </div>
+                                   </td>
+                               </tr>
+                               <tr>
+                                   <th><i class="required">*</i>[(#{seinfo.file.label.00011})]</th><!--파일첨부-->
+                                   <td colspan="3">
+                                       <!--3. 팝업화면 첨부파일 : 신규 (업로드) >>> fileTusJs-->
+                                       <div th:replace="~{seinfo/file/divFileTus :: popupFileUpload}"></div>
+                                   </td>
+                               </tr>
+                               </tbody>
+                           </table>
+                       </div>
+                   </section>
+                   <div class="button-area">
+                       <!--닫기-->
+                       <button id="modalNoticeBtnCls" class="comm-close-modal-btn secondary-md-btn">
+                           [(#{seinfo.com.btn.00040})]
+                       </button>
+
+                       <!--저장-->
+                       <button type="submit" id="modalnoticeBtnOk" class="primary-md-btn">
+                           [(#{seinfo.com.btn.00010})]
+                       </button>
+                   </div>
+               </div>
+           </div>
+       </div>
+   </div>
+</th:block>
+
+<th:block th:fragment="popup01Js">
+    <script th:replace="~{seinfo/file/divFileTus :: fileTusJs}"></script>
+    <script type="text/javascript" th:inline="javascript">
+
+    //첨부파일 설정 : uploadKeySetting / uploadSetting / fileUpDown / fileUpDownSave / fileUpDownErr
+    let uploadKey = {
+          cdKey: 'SEINFO002'
+        , grpKey: 'seinfo-grp-not'
+        , idKey: 'seinfo-not'
+        , workKey: 'not'
+        , userType: userType
+    }
+    uploadKeySetting(uploadKey);
+
+    //ckEditor 설정
+    const config = {
+        ckeditInstances: [],
+        lang: 'ko',
+        selectSystemId: '',
+        fileGroupId: '',
+        filesPrev: true,
+        uploadFileCnt: 0,
+        dataToServer: '',
+        boardFileYn: 'Y',
+        uploadFlg: true
+    };
+
+    //CKEditor 초기화
+    const ckedit_init = (target, data, readonly) => {
+        let selector = document.querySelector("#" + target);
+
+        //이미 존재하는 인스턴스 파괴
+        if(config.ckeditInstances[target]) {
+            config.ckeditInstances[target].destroy();
+            delete config.ckeditInstances[target];
+        }
+
+        ClassicEditor.create(selector, {
+            toolbar: {
+                items: [
+                    'heading', 'undo', 'redo',
+                    'bold', 'bulletedList', 'numberedList',
+                    'fontColor', 'fontSize', 'fontFamily', 'highlight',
+                    'link', 'imageUpload', 'blockQuote', 'insertTable'
+                ]
+            },
+            image: {
+                resizeUnit: 'px',
+                toolbar: ['imageTextAlternative', 'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:side'],
+                styles: ['full', 'alignLeft', 'alignCenter', 'alignRight', 'side']
+            },
+            language: 'ko',
+            fontFamily: {
+                options: [
+                    'default',
+                    'Arial',
+                    '궁서체',
+                    '맑은고딕',
+                    '바탕체',
+                    '현대산스 Head',
+                    '현대산스 Text',
+                    '현대하모니'
+                ],
+                supportAllValues: true
+            },
+            fontSize: {
+                options: [9, 11, 13, 'default', 17, 19, 21, 24, 27, 32]
+            },
+            table: {
+                contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableCellProperties', 'tableProperties']
+            },
+            extraPlugins: [customUploadAdapterPlugin]
+        }).then(editor => {
+            editor.setData(data);
+            config.ckeditInstances[target] = editor; //인스턴스를 해당 타겟으로 저장
+
+            if(readonly) {
+                editor.enableReadOnlyMode(target);
+                editor.ui.view.editable.element.classList.add('editor-readonly');
+                $('.ck .ck-sticky-panel__content').css('display', 'none');
+            }
+        });
+    };
+
+    //CKEditor 업로드 플러그인 설정
+    function customUploadAdapterPlugin(editor) {
+        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+            return new uploadAdapter(loader, editor.t);
+        }
+    }
+
+    //수정모드 설정
+    let noticeModfiy = {};
+    function getNoticeDetailByAdmin(noticeNo, modifyYn) {
+        if(modifyYn !== 'Y') {
+            pf.seinfoAlert.warning('[(#{seinfo.main.msg.00160})]' + ' (modifyYn)'); //권한이 불충분합니다.
+            return;
+        }
+        if(!modifyYn) {
+            pf.seinfoAlert.warning('[(#{seinfo.main.msg.00160})]' + ' (adminYn)'); //권한이 불충분합니다.
+            return;
+        }
+
+        //중복 로그인 차단 관련
+
+        $.ajax({
+            url: "/anyone/noticeList/getNoticeDetail",
+            type: "POST",
+            contentType: 'application/json',
+            data: JSON.stringify({noticeNo: noticeNo, modifyYn:modifyYn}),
+            success: function (response) {
+                noticeModfiy = response.noticeDetail;
+                noticeModfiy.modifyYn = modifyYn;
+
+                //첨부파일
+                uploadSetting.fileGrpId = noticeModfiy?.mfileGrpId || null;
+                fileUpDown.initEdit();
+
+                $('#modalNoticeTitle').val(pf.seinfoComUtil.unEscape(noticeModfiy.noticeTitle));
+                ckedit_init('popupNoticeReg', funcUnEscape(noticeModfiy.noticeContents), false);
+                $('#modalNoticeReg').css('display', 'block');
+            },
+            error: function (jqXHR){
+                let response = JSON.parse(jqXHR.responseText).message;
+                let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                pf.seinfoAlert.warning('[(#{seinfo.com.msg.00170})] <br> ' + msg); //[조회오류]...
+            }
+        });
+    }
+
+    //공지사항 등록 : 저장
+    function registNotice() {
+        if(pf.zzzUtil.isEmpty($("#modalNoticeTitle").val())) {
+            pf.seinfoAlert.focus(0, '[(#{seinfo.main.msg.00130})]', $('#modalNoticeTitle')); //제목을 입력하세요.
+            return;
+        }else if($('#modalNoticeTitle').val().length > 100) {
+            var msg = '[(#{seinfo.board.label.00015})]' + '[(#{seinfo.com.msg.00100})]'; //제목 : 입력길이가 한도를 초과하였습니다.
+            pf.seinfoAlert.focus(0, msg, $('#modalNoticeTitle'));
+            return;
+        }
+
+        $('#noticeContents').val(config.ckeditInstances['popupNoticeReg'].getData());
+        let noticeContents = $('#noticeContents').val();
+        if(pf.zzzUtil.isEmpty(noticeContents)) {
+            pf.seinfoAlert('[(#{seinfo.pps.msg.00020})]'); //제안 내용을 입력하세요.
+            return;
+        }
+
+        //저장전 체크
+        if(!adminYn) {
+            pf.seinfoAlert.warning('[(#{seinfo.main.msg.00160})]' + ' (adminYn)'); //권한이 불충분합니다.
+        }
+        if(noticeModfiy.noticeNo) {
+            if(noticeModfiy.modifyYn != 'Y') {
+                pf.seinfoAlert.warning('[(#{seinfo.main.msg.00160})]' + ' (modifyYn)'); //권한이 불충분합니다.
+                return;
+            }
+        }
+
+        ///저장순서 : 첨부파일 저장 > 업무저장
+        fileUpDownSave((resultVal) => {
+            if(!resultVal) {
+                fileUpDownErr();
+                return;
+            }
+
+            //업무저장 (공지사항 등록)
+            const formData = {
+                noticeNo : noticeModfiy.modifyYn == 'Y' ? noticeModfiy.noticeNo : null,
+                noticeTitle: $("#modalNoticeTitle").val(),
+                noticeContents: noticeContents,
+                fileGrpId: uploadSetting.fileGrpId,
+                userType: userType,
+                adminYn: adminYn ? "Y" : "N",
+                modifyYn: noticeModfiy.modifyYn
+            };
+
+            $.ajax({
+                type: "POST",
+                url: '/anyone/noticeList/registNotice',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function (response) {
+                    fnInit();
+
+                    //저장되었습니다.
+                    pf.seinfoAlert.success('[(#{seinfo.com.msg.00010})]', () => {
+                        $('#modalNoticeReg').css('display', 'none');
+                        reloadNoticeList(); //부모창 재조회
+                    });
+                },
+                error: function (jqXHR) {
+                    fnInit();
+
+                    let response = JSON.parse(jqXHR.responseText).message;
+                    let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                    //[저장오류]...
+                    pf.seinfoAlert.warning('[(#{seinfo.com.msg.00171})] <br> ' + msg, ()=>{
+                        $('#modalNoticeReg').css('display', 'none');
+                    });
+
+                    //저장오류시, 후속처리
+                    fileUpDownErr();
+                }
+            });
+        });
+    }
+
+    //초기화
+    function fnInit() {
+        $("#modalNoticeTitle").val('');
+        config.ckeditInstances['popupNoticeReg'].setData('');
+        noticeModfiy = {};
+
+        //첨부파일 초기화
+        fileUpDown.uploadInit();
+        uploadSetting.fileGrpId = "";
+
+        $('body').css('overflow', ''); //메인창 스크롤 초기화
+    }
+
+    $(() => {
+        $("#modalNoticeTitle").attr("placeholder", "[(#{seinfo.main.msg.00130})]"); //제목을 입력하세요.
+        $("#popupFileInput").attr("placeholder", "[(#{seinfo.file.label.00014})]"); //첨부할 파일을 드래그 하거나, 파일 선택 버튼을 직접 선택해주세요.
+
+        //버튼클릭 : 저장
+        $("#modalnoticeBtnOk").click('click', function (e) {
+            e.preventDefault;
+            if(!adminYn) {
+                pf.seinfoAlert.warning('[(#{seinfo.main.msg.00160})]') //권한이 불충분합니다.
+                return;
+            }
+            registNotice();
+        });
+
+        //버튼클릭 : 닫기
+        $('#modalNoticeBtnCls').on('click', function (e) {
+            e.preventDefault;
+            fnInit();
+        });
+    });
+
+    </script>
+</th:block>
+</html>

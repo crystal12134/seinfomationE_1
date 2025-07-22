@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block th:fragment="popup01View">
+    <div class="modal" id="modalProposalAssess">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button id="modalBtnCls" class="close-modal-btn">
+                <img th:src="@{/static/seinfo/img/icon-modal-close.svg}" alt='[(#{seinfo.com.btn.00040})]'> <!--닫기-->
+            </button>
+            <div class="modal-body">
+                <div class="detail-header-area">
+                    <div class="title">
+                        <strong>[(#{seinfo.admin.label.00120})]</strong> <!--수정요청-->
+                    </div>
+                </div>
+                <div class="detail-body-area" style="margin-top: 10px; !important;">
+                    <div class="table-row-container" style="width: 750px; !important;">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th>[(#{seinfo.admin.label.00160})]</th> <!-- 평가결과 -->
+                                    <td>
+                                        <div class="select-area">
+                                            <select id="assessResultSelector" class="form-select">
+                                                <option value="">선택</option>
+                                            </select>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>[(#{seinfo.admin.label.00130})]</th> <!-- 평가결과사유 -->
+                                    <td>
+                                        <div class="textarea-area">
+                                            <textarea id="assessContent" ></textarea>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="button-area" style="margin-top: 20px;">
+                        <button class="primary-xsm-btn" style="width: 100px" onclick="fnAssessResult()">평가확정</button>
+                        <button class="primary-outline-xsm-btn" style="width: 100px" onclick="fnCloseProposalAssessPopup()">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="popup01Js">
+    <script type="text/javascript" th:inline="javascript">
+        // 공통 코드
+        pf.code.getList('RTPC004');
+        const assessResult = pf.code.setList["RTPC004"];
+
+        function fnMakeSelector() {
+            const $select = $('#assessResultSelector');
+            $select.empty();
+            assessResult.forEach((item, index) => {
+                $select.append(`<option value="${item.value}">${item.name}</option>`);
+            });
+        }
+
+        function fnAssessResult() {
+            const assessContent = $("#assessContent").val();
+            const assessResult = $("#assessResultSelector").val();
+
+            if(pf.zzzUtil.isEmpty(assessResult)) {
+                pf.seinfoAlert.warning("[(#{seinfo.admin.msg.00030})]");
+                return null;
+            }
+
+            if(pf.zzzUtil.isEmpty(assessContent)) {
+                pf.seinfoAlert.warning("[(#{seinfo.admin.msg.00040})]");
+                return null;
+            }
+
+            let paramData = {
+                proposalNo : ppsDetail.proposalNo,
+            }
+
+            if (assessResult === 'R') {
+                paramData.assessSkipYn = 'Y';
+                paramData.assessSkipRes = assessContent;
+            }else if(assessResult === 'Y') {
+                paramData.lastResult = 'Y';
+                paramData.lastResultCont = assessContent;
+            }else {
+                paramData.lastResult = 'N';
+                paramData.lastResultCont = assessContent;
+            }
+
+            pf.seinfo.ajax({
+                url: contextPath + '/admin/updateLastResult',
+                method: 'POST',
+                data: paramData
+            }, (rData) => {
+                if(rData.process_code === '00') {
+                    pf.seinfoAlert.success('저장되었습니다.', () => {
+                        $('#assessResultSelector').val('');
+                        $('#assessContent').val('');
+                        reloadHistoryList();
+                        getProposalDetail(ppsDetail.proposalNo);
+                        $("#assessResult").val(ppsDetail.assessResult);
+                        $('#modalProposalAssess').css('display', 'none');
+                    });
+                }else {
+                    pf.seinfoAlert.warning(rData.process_msg);
+                }
+            });
+        }
+
+        function fnCloseProposalAssessPopup() {
+            $("#modalProposalAssess").css('display', 'none');
+        }
+    </script>
+</th:block>
+
+</html>

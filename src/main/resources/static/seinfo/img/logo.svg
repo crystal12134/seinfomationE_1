@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="175" height="45" xmlns="http://www.w3.org/2000/svg">
+<svg width="175" height="50" xmlns="http://www.w3.org/2000/svg">
   <rect width="100%" height="100%" fill="none"/>
-  <text x="10" y="37" font-family="Arial" font-size="44" fill="white" font-weight="bold">SE</text>
-  <text x="80" y="15" font-family="Arial" font-size="14" fill="white">Sustainable</text>
-  <text x="80" y="37" font-family="Arial" font-size="14" fill="white">Enterprise</text>
+  <text x="10" y="39" font-family="Arial" font-size="44" fill="white" font-weight="bold">SE</text>
+  <text x="80" y="17" font-family="Arial" font-size="14" fill="white">Sustainable</text>
+  <text x="80" y="39" font-family="Arial" font-size="14" fill="white">Enterprise</text>
 </svg>

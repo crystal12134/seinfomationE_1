@@ -60,8 +60,7 @@ public class MemberServiceImpl implements MemberService {
     private String serviceKey;
     // 인증번호 저장할 캐쉬 로드
     private final Cache<String, Map<String, Object>> verificationCache = Caffeine.newBuilder()
-            .expireAfterWrite(5, TimeUnit.MINUTES).maximumSize(10000).build(); // 캐시에 저장할 자료의 형식을 지정함.userEmail(문자열)을 키로 하고, Map 형태의 데이터 (예: 인증번호, 시간 등)를 값으로 저장
-                                                                                        // Caffeine 라이브러리로 새 캐시를 만듦,캐시에 저장된 항목은 쓰기(write) 된 후 5분이 지나면 자동 삭제,최대 10,000개까지만 저장 가능. 넘으면 오래된 것부터 삭제됨.
+            .expireAfterWrite(5, TimeUnit.MINUTES).maximumSize(10000).build();
 
     /**
      * 회원가입 정보 저장
@@ -74,24 +73,29 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void setMemberInfoAdd(MemberModel memberModel, CompanyModel companyModel) {
 
-        Map<String, Object> memberMap = new ObjectMapper().convertValue(memberModel, Map.class); // Jackson 라이브러리의 ObjectMapper 는 자바 객체(memberModel)를 다른형태로 바꾸기 위해 사용, Map<String, Object> 형식으로 바꾸기 위해서 사용, 즉, 자바 클래스 → JSON 형태의 자료구조(Map 등)로
-        Map<String, Object> companyMap = new ObjectMapper().convertValue(companyModel, Map.class); // 이렇게 Map방식으로 바꾸는 이유는 값 조작하기 쉽고 DB 바인딩이 쉬워서
+        Map<String, Object> memberMap = new ObjectMapper().convertValue(memberModel, Map.class);
+        Map<String, Object> companyMap = new ObjectMapper().convertValue(companyModel, Map.class);
 
         // 패스워드 암호화
         String password = memberModel.getUserPwd();
-        String encodedPassword = BCrypt.hashpw(password, BCrypt.gensalt()); // BCrypt는 외부 보안 라이브러리 , hashpw()와 gensalt()는 BCrypt 클래스의 정적 메서드, 단방향 해시 복호화 x
+        String encodedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
         // 사업자번호 암호화
         try {
-            String encodedCompanyNo = EncriptUtil.encryptAes256(companyModel.getCompanyNo()); // 사업자번호는 AES-256 대칭키 암호화(양방향) 사용→ 나중에 복호화 가능해야 하기 때문에 BCrypt가 아니라 AES 사용
-
+            String encodedCompanyNo = EncriptUtil.encryptAes256(companyModel.getCompanyNo());
             memberMap.put("companyNo", encodedCompanyNo);
             memberMap.replace("userPwd", encodedPassword);
             memberMap.put("regUserId", memberModel.getUserEmail());
             memberMap.put("modUserId", memberModel.getUserEmail());
-            memberMap.put("userRole", "USER");
 
-            companyMap.replace("companyNo", encodedCompanyNo); // put() 쓸 때 키가 없을 수도 있음 -> 새로 추가됨, replace()쓸때 키가 없으면 무시됨 (아무 일도 안 함)
+            // 회사 사업자 번호
+            if("2468101453".equals(companyModel.getCompanyNo())) {
+                memberMap.put("userRole", "EMPLOYEE");
+            }else {
+                memberMap.put("userRole", "USER");
+            }
+
+            companyMap.replace("companyNo", encodedCompanyNo);
             companyMap.put("regUserId", memberModel.getUserEmail());
             companyMap.put("modUserId", memberModel.getUserEmail());
 
@@ -117,10 +121,10 @@ public class MemberServiceImpl implements MemberService {
 
     @SuppressWarnings("unchecked")
     @Override
-    public ResponseEntity<?> checkBizNumberProcess(String companyNo, String ceoNm, String companyD, String companyNm) { // 사업자번호 유효성 검증"을 외부 API를 통해 수행하고, 그 결과를 사용자에게 전달하는 핵심 로직
+    public ResponseEntity<?> checkBizNumberProcess(String companyNo, String ceoNm, String companyD, String companyNm) {
         HashMap<String, Object> errorResult = new HashMap<>();
 
-        RestTemplate restTemplate = new RestTemplate(); // HTTP 요청을 보내고 응답을 받아오는 도구 , 다른방법으로는 WebClient
+        RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -135,14 +139,14 @@ public class MemberServiceImpl implements MemberService {
         businesses.add(bizInfo);
 
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("businesses", businesses); // Map에 담고 → List에 넣고 → 다시 Map에 묶어서 POST로 보낼 형태로 만듬. * 외부 API가 요구하는 JSON 형식 때문
+        requestBody.put("businesses", businesses);
 
         try {
-            String externalApiUrl = openApiUrl + serviceKey; // openApiUrl: 사업자등록 상태 확인용 정부 API 주소 , serviceKey: 인증키
+            String externalApiUrl = openApiUrl + serviceKey;
             URI uri = new URI(externalApiUrl);
 
-            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers); // requestBody(사업자정보),headers JSON 데이터타입 ,즉 외부 API로 요청을 보낼 때 "요청 본문(body)"과 "요청 헤더(headers)"를 묶어서 보낸다
-            ResponseEntity<String> response = restTemplate.postForEntity(uri, requestEntity, String.class); // RestTemplate을 사용해서 외부 공공데이터 API 호출,첫번쨰 인자 요청보낼주소,2번쨰인자 요청보낼 데이터타입,3번쨰인자 응답받을 타입
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(uri, requestEntity, String.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) { // 외부 API 요청의 응답 상태 코드가 200번대 확인
                 errorResult.put("message", "API 요청 실패. 상태 코드: " + response.getStatusCode());
@@ -150,24 +154,17 @@ public class MemberServiceImpl implements MemberService {
             }
 
             ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> responseMap = objectMapper.readValue(response.getBody(), new TypeReference<>() {}); // getBody()는 HTTP 응답의 "본문(body(문자열))" 내용을 꺼내는 메서드, body는 JSON 형식의 문자열(String) 을 가지고 있다, readValue(문자열, 어떤 타입으로 변환할지);
-                                                                                                                    // 자바에선 Map<String, Object> 같이 제네릭 타입은 일반적으로 한 줄로 지정하기 어렵다, new TypeReference<>()은 어떤 타입으로 바꿀지 알려줌 (Map<String, Object> 등
-                                                                                                                    // Java 객체(Model) → Map 바꿀때, Map.class OK, 단순 key-value 변환이므로 타입 정보까지 필요 없음
-                                                                                                                    // JSON(String) → Map으로 바꿀때 역직렬화, Map.class (x) TypeReference<>() 필요, 타입 정보(문자열,숫자,불리언 등)가 런타임에 사라지므로 정확한 타입 유지를 위해 TypeReference필요함
-                                                                                                                    // convertValue()는 이미 자바 객체가 들어있어서, ObjectMapper가 내부 필드를 그대로 복사해도 문제가 안 생김, 자바 객체 → 다른 자바 타입 변환할때 사용
-                                                                                                                    // readValue()는 JSON 문자열을 파싱해서 타입을 유추해야 하므로, 명확한 타입 정보 필요, JSON 문자열 → 자바 객체로 변환할떄 사용, 즉 TypeReference사용하면 알아서 타입 맞춰줌
+            Map<String, Object> responseMap = objectMapper.readValue(response.getBody(), new TypeReference<>() {});
             List<Map<String, Object>> dataList = objectMapper
-                    .convertValue(responseMap.getOrDefault("data", new ArrayList<>()), new TypeReference<>() {}); // getOrDefault는 Map에 key가 존재하면 그 값을 반환, 없으면 두 번째 인자로 준 **기본값(default 값)**을 반환
+                    .convertValue(responseMap.getOrDefault("data", new ArrayList<>()), new TypeReference<>() {});
 
-            if (dataList.isEmpty() || !Objects.equals(dataList.get(0).get("valid"), "01")) { // 리스트에서 첫 번째 Map을 꺼냄-> 그 Map 안에서 "valid"라는 키 꺼냄
-                                                                                                // Objects.equals은 a나 b 중 하나가 null이더라도 NPE가 발생하지 않게 안전하게 비교
+            if (dataList.isEmpty() || !Objects.equals(dataList.get(0).get("valid"), "01")) {
                 errorResult.put("message", "유효하지 않은 사업자등록번호입니다.");
                 return this.responseEntityUtil.getResponseEntity(CodeCoreResultList.RESULT_CODE_FAILED, "E001", errorResult);
             }
 
-            Map<String, Object> status = (Map<String, Object>) dataList.get(0).get("status"); //  API에서 받은 첫 번째 사업자 정보 JSON 객체,그 안에 있는 "status"라는 필드의 값 (이것도 Map 형태)
-                                                                                              // Map 안에서 key "status"에 해당하는 값을 꺼냄,그런데 Map.get()의 리턴 타입은 Object이다.
-            String bSttCd = status.get("b_stt_cd").toString(); // status는 Map<String, Object> 타입, 그래서 status.get("b_stt_cd")의 리턴값은 Object 타입 그래서 문자열로 바꿔줌
+            Map<String, Object> status = (Map<String, Object>) dataList.get(0).get("status");
+            String bSttCd = status.get("b_stt_cd").toString();
 
             if ("01".equals(bSttCd)) {
                 HashMap<String, Object> rtnResult = new HashMap<>();
@@ -178,9 +175,9 @@ public class MemberServiceImpl implements MemberService {
                 rtnResult.put("companyNm", companyNm);
 
                 String encodedCompanyNo = EncriptUtil.encryptAes256(companyNo);
-                Map<String, Object> companyMap = memberMapper.chkCompanyNoDuplicate(encodedCompanyNo); // 입력한 사업자번호가 이미 DB에 등록되어 있는지 확인 , 리턴값이 Map<String, Object>인 이유는 DB 결과(1건)를 맵 형태로 받아오기 때문
-                if(companyMap != null) { // 존재하면 그 회사 정보를 가져와서 응답 결과에 포함, 사용자가 다시 작성할 필요 없이 자동으로 채워주는 용도
-                    rtnResult.put("duplicateYn", true); // 이미 등록된 사업자라면, 중복이라고 표시, duplicateYn"을 true로 리턴하면 프론트에서는 “이미 등록된 사업자입니다” 같은 메시지 띄어줄수 있음
+                Map<String, Object> companyMap = memberMapper.chkCompanyNoDuplicate(encodedCompanyNo);
+                if(companyMap != null) {
+                    rtnResult.put("duplicateYn", true);
                     rtnResult.put("companyAddress", companyMap.get("companyAddress"));
                     rtnResult.put("companyAddressDetail", companyMap.get("companyAddressDetail"));
                     rtnResult.put("ceoPhone", companyMap.get("ceoPhone"));
@@ -225,13 +222,13 @@ public class MemberServiceImpl implements MemberService {
         }
 
         // 인증번호 생성
-        int length = 6; // 인증번호 길이
+        int length = 6;
         String chars = "0123456789";
         SecureRandom random = new SecureRandom();
         StringBuilder authNumber = new StringBuilder();
         for (int i = 0; i < length; i++) {
-            int index = random.nextInt(chars.length()); // 0~9 중 무작위 숫자 "1개"를 생성
-            authNumber.append(chars.charAt(index)); // charAt은 문자열에서 특정 위치에 있는 '한 글자'를 가져옴 , append() 메서드는 문자열을 이어붙이지만 새 객체를 생성하지 않음,특히 반복문 안에서 문자열 조립할 때는 거의 필수
+            int index = random.nextInt(chars.length());
+            authNumber.append(chars.charAt(index));
         }
 
         // 인증번호 저장
@@ -239,8 +236,8 @@ public class MemberServiceImpl implements MemberService {
 
         // 인증번호 메일발송
         try {
-            param.put("mailReceiver", userEmail+";"); // 세미콜론은 여러 명일 때 대비한 형식
-            param.put("authNumber", authNumber);// 메일 내용에 포함될 인증번호
+            param.put("mailReceiver", userEmail+";");
+            param.put("authNumber", authNumber);
             fnSendMail(param);
         } catch (Exception e) {
             log.error("emailCheckProcess >>> fnSendMail : {}", e.getMessage());
@@ -262,13 +259,12 @@ public class MemberServiceImpl implements MemberService {
     public ResponseEntity<?> extendTime(String userEmail) { // 인증시간 연장
         HashMap<String, Object> rtnResult = new HashMap<>();
         // (key, existingData) -> ...는 람다식
-        verificationCache.asMap().computeIfPresent(userEmail, (key, existingData) -> Map.of( // verificationCache은 사용자 이메일 → 인증번호 정보(Map) 형태로 저장된 캐시
-                                                                                                                    // verificationCache.asMap()은 Caffeine 캐시를 일반 Map처럼 다루게 함,.computeIfPresent(...)은 Map 인터페이스이고, 해당 키(userEmail)가 존재할 경우에만 value(existingData)값 수정                 // Map.of(...)은 불변 Map이기 때문에 data.put(...)으로 수정할 수 없습니다. 인증번호 유효 시간 연장 시 computeIfPresent()로 새 Map을 만들어 넣는 이유임
-                "authNumber", existingData.get("authNumber"), // 기존값 유지
-                "timestamp", System.currentTimeMillis() // timestamp 값을 현재 시각으로 업데이트
+        verificationCache.asMap().computeIfPresent(userEmail, (key, existingData) -> Map.of(
+                "authNumber", existingData.get("authNumber"),
+                "timestamp", System.currentTimeMillis()
         ));
 
-        rtnResult.put("message", "시간이 연장되었습니다."); // 키 이름은 상관 x
+        rtnResult.put("message", "시간이 연장되었습니다.");
         rtnResult.put("userEmail", userEmail);
         return this.responseEntityUtil.getResponseEntity(CodeCoreResultList.RESULT_CODE_SUCCESS, "S001", rtnResult);
     }

@@ -280,7 +280,7 @@ header .top-menu .header-wrap nav .gnb-nav .depth1 .depth2-nav-area .depth2-nav 
   -webkit-box-pack: center;
   -ms-flex-pack: center;
   justify-content: center;
-  gap: 24px;
+  gap: 16px;
   overflow: hidden;
   position: absolute;
   top: 100px;

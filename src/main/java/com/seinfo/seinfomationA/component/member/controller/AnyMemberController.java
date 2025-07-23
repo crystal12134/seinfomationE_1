@@ -39,20 +39,20 @@ public class AnyMemberController {
 	private final ResponseEntityUtil responseEntityUtil;
 	private final HttpSession session;
 
-	@Value("${seinfo.openApi.address.url}") // 값 주입,${...} 안에 있는 키를 설정 파일에서 찾아서 해당 변수 삽입,외부 설정 파일(application.properties)
+	@Value("${seinfo.openApi.address.url}")
 	private String addressUrl;
 
-	@Value("${seinfo.openApi.address.confmKey}") // API 호출 시 사용되는 인증키
+	@Value("${seinfo.openApi.address.confmKey}")
 	private String confmKey;
 
-	@Value("${server.domain}") //리다이렉션이나 외부 API 응답 시 사용
+	@Value("${server.domain}")
 	private String returnUrl;
 
 	/* 페이지 호출: 회원가입 - 이용약관*/
 	@GetMapping(value = "/joinMember")
 	public ModelAndView joinMemberPage() {
 
-		ModelAndView mv = new ModelAndView(); // 웹페이지 정보를 담는 객체 생성,어떤 화면(View)을 보여줄지와 화면에 전달할 데이터를 함께 담는 객체
+		ModelAndView mv = new ModelAndView();
 
 		session.setAttribute("joinStep", 1);
 		mv.setViewName("seinfo/member/joinMember");
@@ -67,10 +67,9 @@ public class AnyMemberController {
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("seinfo/member/regMember");
 
-		Integer step = (Integer) session.getAttribute("joinStep"); //session.getAttribute()는 Object 타입을 반환,그래서 int로 바로 받을 수 없고, 객체형인 Integer로 형변환,int는 기본형이라 null을 저장할 수 없음.
-		// 반면 Integer는 객체라서 null을 저장하거나 비교 가능.이 코드에서 step == null을 체크하는 부분→ 그래서 Integer가 필요
+		Integer step = (Integer) session.getAttribute("joinStep");
 		if(step == null || (step !=2 && step !=3)) {
-			mv.addObject("message", "비정상적인 경로로 접근하셨습니다.<br> 정상적인 경로를 통해 진행 바랍니다."); // addObject는 ModelAndView 포함된 메서드,addObject()는 값을 "얻어오는" 게 아니라 "세팅
+			mv.addObject("message", "비정상적인 경로로 접근하셨습니다.<br> 정상적인 경로를 통해 진행 바랍니다.");
 			return mv;
 		}
 
@@ -116,11 +115,11 @@ public class AnyMemberController {
 	/*사업자인증 API
 	 * @companyModel
 	 * return ResponseEntity*/
-	@PostMapping(value = "/regMember/checkBizNumber") // "사업자번호 확인" 버튼을 눌렀을 때 호출되는 메서드
-	public ResponseEntity<?> checkBizNumber(@RequestBody Map<String, Object> param) {// @RequestBody는 JSON 데이터를 param이라는 맵으로 받음
+	@PostMapping(value = "/regMember/checkBizNumber")
+	public ResponseEntity<?> checkBizNumber(@RequestBody Map<String, Object> param) {
 		Map<String, Object> errorResult = new HashMap<String, Object>();
 
-		String companyNo = Objects.toString(param.get("companyNo"),""); //일반적으로 obj.toString()을 직접 호출하면 → obj가 null일 경우 NullPointerException(NPE)이 발생, but 무조건 발생하는게 아니라 null에 대해 메서드 (toString(), equals(), 등)를 호출하면 위험
+		String companyNo = Objects.toString(param.get("companyNo"),"");
 		if(companyNo.isBlank()) {
 			errorResult.put("message", "사업자 번호가 비어 있습니다.");
 			return this.responseEntityUtil.getResponseEntity(CodeCoreResultList.RESULT_CODE_FAILED,"E001",errorResult);
@@ -153,24 +152,24 @@ public class AnyMemberController {
 	 * return ModelAndView*/
 
 	@GetMapping(value = "/regMember/AddressPopup")
-	public ModelAndView searchAddress() { // 주소 검색" 버튼을 클릭했을 때 호출
+	public ModelAndView searchAddress() {
 		ModelAndView mv = new ModelAndView();
 		mv.addObject("addressUrl", addressUrl);
-		mv.addObject("confmKey", confmKey); // API 인증키
-		mv.addObject("returnUrl", returnUrl); // 팝업 닫은 후 돌아올 URL
+		mv.addObject("confmKey", confmKey);
+		mv.addObject("returnUrl", returnUrl);
 		mv.setViewName("seinfo/member/popupAddress");
 
 		return mv;
 	}
 
 	@PostMapping(value = "/regMember/AddressPopup")
-	public ModelAndView searchAddressResult(HttpServletRequest request) { // 외부 주소 검색 팝업에서 주소를 선택하고 나서 우리 쪽 서버로 POST 요청이 들어올 때 호출되는 메서드
-																			// HttpServletRequest는 클라이언트(브라우저)가 서버에 보낸 모든 요청 정보를 담고 있는 자바 객체, HTML form에서 input name의 value 값들을 받아옴
+	public ModelAndView searchAddressResult(HttpServletRequest request) {
+
 		ModelAndView mv = new ModelAndView();
-		mv.setViewName("seinfo/member/popupAddress"); // 1. HTML에서 외부 주소 API를 JavaScript로 호출 ,2 사용자가 주소 선택하고 확인 → input 값들 채워짐, 3 form 제출 (POST 방식), 4.서버에서 컨트롤러가 해당 값들 받아옴
+		mv.setViewName("seinfo/member/popupAddress");
 
 		//폼에서 전송된 값들을 하나씩 꺼내는 방법
-		String inputYn = request.getParameter("inputYn"); //폼에서 전송된 값들을 하나씩 꺼내는 방법,<input name="키">에서 넘어온 값
+		String inputYn = request.getParameter("inputYn");
 		String zipNo = request.getParameter("zipNo");
 		String roadAddrPart1 = request.getParameter("roadAddrPart1");
 		String roadAddrPart2 = request.getParameter("roadAddrPart2");
@@ -189,18 +188,13 @@ public class AnyMemberController {
 
 	}
 
-	/*(from) 사업자인증 페이지에서 (to) 사용자 인증 페이지도 data 전송 // 이렇게 하면 **다음 단계(사용자 인증 페이지)**에서 이 정보를 다시 사용할 수 있다.
-	예를 들어 다음 페이지에서 회사명, 대표자명을 보여준다거나 내부 로직에서 참조할 때 사용
-	 * @param companyModel
-	 * @return redirectAttributes*/
-
 	@PostMapping(value = "/regMember/companyProcess", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> companyProcess(@RequestBody @Valid CompanyModel companyModel, BindingResult bindingResult) { // @RequestBody: 요청 바디(JSON)에 담긴 값을 CompanyModel 객체로 자동 매핑
-																														  // @Valid: 이 모델에 정의된 유효성 검사 조건을 자동으로 체크 (예: @NotBlank, @Size)
+	public ResponseEntity<?> companyProcess(@RequestBody @Valid CompanyModel companyModel, BindingResult bindingResult) {
+
 		Map<String, Object> errorResult = new HashMap<String,Object>();
 
-		if(bindingResult.hasErrors()) { // @Valid로 검증된 객체에 오류가 있는지 확인 , 필수값이 비어 있거나 형식이 틀렸을 때 → true(오류) 반환
-			FieldError fieldError = bindingResult.getFieldError(); // 오류 내용은 bindingResult.getFieldError(), getFieldError()메서드의 반환 타입이 FieldError이기떄문에 FieldError 객체 담는다
+		if(bindingResult.hasErrors()) {
+			FieldError fieldError = bindingResult.getFieldError();
 
 			if(fieldError != null) {
 				String errorMessage = fieldError.getDefaultMessage();
@@ -209,8 +203,8 @@ public class AnyMemberController {
 			}
 			return this.responseEntityUtil.getResponseEntity(CodeCoreResultList.RESULT_CODE_FAILED,"E001",errorResult);
 		}
-		session.setAttribute("joinStep", 3); // "joinStep"을 3으로 저장함으로서 3단계: 사용자 인증 페이지 진입 가능)
-		session.setAttribute("companyModel", companyModel); // 사용자가 입력한 사업자 정보(CompanyModel)를 세션에 저장 → 다음 단계 페이지에서 이 정보 활용 가능
+		session.setAttribute("joinStep", 3);
+		session.setAttribute("companyModel", companyModel);
 		return this.responseEntityUtil.getResponseEntity(CodeCoreResultList.RESULT_CODE_SUCCESS,"E001","정상적으로 처리 됐습니다.");
 	}
 
@@ -218,7 +212,7 @@ public class AnyMemberController {
 	 * @param userId
 	 * @return*/
 	@PostMapping("/usrMember/sendAuthMail")
-	public ResponseEntity<?> sendAuthMail(@RequestBody Map<String, Object> param) { // JSON 형태로 들어온 요청 데이터를 param이라는 Map으로 받음
+	public ResponseEntity<?> sendAuthMail(@RequestBody Map<String, Object> param) {
 		String userEmail = Objects.toString(param.get("userEmail"),"");
 		if(userEmail.isBlank()) {
 			return this.responseEntityUtil.getResponseEntity(CodeCoreResultList.RESULT_CODE_FAILED,"E001",Map.of("message","회원 아이디가 비어 있습니다."));
@@ -232,7 +226,7 @@ public class AnyMemberController {
 	 *@return */
 
 	@PostMapping("/usrMember/authNumberChk")
-	public ResponseEntity<?> authNumberChk(@RequestBody Map<String, Object> param) { //  "인증번호"를 입력하고 [확인] 버튼을 눌렀을 때 실행
+	public ResponseEntity<?> authNumberChk(@RequestBody Map<String, Object> param) {
 		String userEmail = Objects.toString(param.get("userEmail"),"");
 		String authNumber = Objects.toString(param.get("authNumber"),"");
 		if(authNumber.isBlank()) {
@@ -246,7 +240,7 @@ public class AnyMemberController {
 	 * @userId
 	 *@return */
 	@PostMapping("/usrMember/extendTime")
-	public ResponseEntity<?> extendTime(@RequestBody Map<String, Object> param) { // 인증시간 연장" 버튼을 눌렀을 때 실행
+	public ResponseEntity<?> extendTime(@RequestBody Map<String, Object> param) {
 		String userEmail = Objects.toString(param.get("userEmail"),"");
 		return memberService.extendTime(userEmail);
 	}
@@ -258,7 +252,7 @@ public class AnyMemberController {
 	@PostMapping(value = "/usrMember/addMemberInfo")
 	public ResponseEntity<?> memberInfoAdd(@RequestBody @Valid MemberModel memberModel, BindingResult bindingResult) throws Exception{
 		Map<String, String> errorResult = new HashMap<>();
-		CompanyModel companyModel = (CompanyModel) session.getAttribute("companyModel"); // 이전 단계(사업자 인증)에서 세션에 저장된 companyModel을 꺼냄
+		CompanyModel companyModel = (CompanyModel) session.getAttribute("companyModel");
 
 		if(bindingResult.hasErrors()) {
 			FieldError fieldError = bindingResult.getFieldError();
@@ -268,9 +262,8 @@ public class AnyMemberController {
 			return this.responseEntityUtil.getResponseEntity(CodeCoreResultList.RESULT_CODE_FAILED,"E001",errorResult);
 		}
 		try {
-			memberService.setMemberInfoAdd(memberModel, companyModel); // 사용자 정보 + 사업자 정보를 memberService에서 DB에 저장
-			session.removeAttribute("companyModel"); // 회원가입 완료 후에는 세션 정보삭제 근데 왜 이것만? , 이전 단계인 companyProcess()에서 중간 상태로 서버에 저장해둔 객체, 이전 사용자의 정보가 남아있을 위험
-															// memberModel은 세션에 저장된 적이 없으므로 제거대상 x
+			memberService.setMemberInfoAdd(memberModel, companyModel);
+			session.removeAttribute("companyModel");
 			session.setAttribute("joinStep", 4);
 
 			return this.responseEntityUtil.getResponseEntity(CodeCoreResultList.RESULT_CODE_SUCCESS,"S001","회원가입 성공");
@@ -291,7 +284,7 @@ public class AnyMemberController {
 	 * @throws Exception*/
 	@PostMapping(value = "/setJoinStep")
 	public ResponseEntity<?> setJoinStep(@RequestBody Map<String, Object> param) {
-		session.setAttribute("joinStep", param.get("joinStep")); // null 저장만 하는 건 OK , but null인 값을 .toString()이나 .equals() 등 메서드 호출하려고 한다면 NEP발생, get 메서드는 괜찮음 단지 이걸가지고 뭘 호출하려고하면 위험하다.
+		session.setAttribute("joinStep", param.get("joinStep"));
 		return this.responseEntityUtil.getResponseEntity(CodeCoreResultList.RESULT_CODE_SUCCESS,"S001",Map.of("success","success"));
 	}
 }

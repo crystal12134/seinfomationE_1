@@ -20,11 +20,4 @@ public class AnyInfoController {
         mv.setViewName("seinfo/intro/companyInfo");
         return mv;
     }
-
-    @GetMapping(value = "/mobilityInfo")
-    public ModelAndView mobilityInfoPage() {
-        ModelAndView mv = new ModelAndView();
-        mv.setViewName("seinfo/intro/mobilityInfo");
-        return mv;
-    }
 }

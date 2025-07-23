@@ -270,13 +270,19 @@ pf.seinfo.fnGetMovePage = (cMenuId, code) => {
     } else if(cMenuId === 'divMid420') { // 제안 이력조회
         movePage = "/proposal/ppsHistoryList";
         openMenu = "N";
+    } else if(cMenuId === 'divMid530') { // 자유게시판
+        movePage = "/board/freeBoard";
+        openMenu = "N";
     } else if(cMenuId === 'divMid610') { // 1:1문의
         movePage = "/board/qnaList";
         openMenu = "N";
     } else if(cMenuId === 'divMid620') { // 회원정보수정
         movePage = "/member/myInfo";
         openMenu = "N";
-    } else if(cMenuId === 'divMid630') { // 탈퇴하기
+    } else if(cMenuId === 'divMid630') { // 업무일지등록
+        movePage = "/member/scheduler";
+        openMenu = "N";
+    } else if(cMenuId === 'divMid640') { // 탈퇴하기
         movePage = "/member/dropInfo";
         openMenu = "N";
     } else if(cMenuId === 'divMid700') {

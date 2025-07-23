@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.seinfo.protoA.component.file.mapper.TusMapper">
+<mapper namespace="com.seinfo.seinfomationA.component.file.mapper.TusMapper">
 
 	<select id="selectMfileGroup" parameterType="camelmap" resultType="camelmap">
 		SELECT /* com.seinfo.protoA.component.file.mapper.selectMfileGroup */
@@ -96,7 +96,7 @@
 	</update>
 
 	<select id="selectMfileList" parameterType="camelmap" resultType="camelmap">
-		SELECT /* com.seinfo.protoA.component.file.mapper.selectMfileList */
+		SELECT /* com.seinfo.seinfomationA.component.file.mapper.selectMfileList */
 			mfile_id, mfile_nm, mfile_path, mfile_type, mfile_status, mfile_group_id
 		FROM seinfo_mfile_list
 		<where>

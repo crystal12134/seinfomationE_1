@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.seinfo.protoA.component.board.mapper.NoticeMapper">
+<mapper namespace="com.seinfo.seinfomationA.component.board.mapper.NoticeMapper">
 
 	<select id="selectNoticeList" parameterType="camelmap" resultType="camelmap">
 		SELECT  ROW_NUMBER() over (ORDER BY notice_no ASC) rnum

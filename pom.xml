@@ -196,7 +196,7 @@
 					<archive>
 						<manifest>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-							<mainClass>com.seinfo.protoA.ProtoAApplication</mainClass>
+							<mainClass>com.seinfo.seinfomationA.SeInformationAApplication</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

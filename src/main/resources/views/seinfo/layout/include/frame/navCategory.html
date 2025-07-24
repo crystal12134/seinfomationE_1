@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+      layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <th:block th:fragment="menuMid010"> <!-- 메인페이지 bottom -->
     <div class="category-nav">
@@ -100,8 +100,11 @@
             <li>
                 <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid620}"></div> <!-- 회원정보보기 -->
             </li>
+            <li sec:authorize="hasAnyRole('ROLE_EMPLOYEE', 'ROLE_ADMIN')">
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid630}"></div> <!-- 업무일지등록 -->
+            </li>
             <li>
-                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid630}"></div> <!-- 탈퇴하기 -->
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid640}"></div> <!-- 탈퇴하기 -->
             </li>
         </ul>
     </div>
@@ -116,8 +119,11 @@
             <li class="active">
                 <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid620}"></div> <!-- 회원정보보기 -->
             </li>
+            <li sec:authorize="hasAnyRole('ROLE_EMPLOYEE', 'ROLE_ADMIN')">
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid630}"></div> <!-- 업무일지등록 -->
+            </li>
             <li>
-                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid630}"></div> <!-- 탈퇴하기 -->
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid640}"></div> <!-- 탈퇴하기 -->
             </li>
         </ul>
     </div>
@@ -132,8 +138,30 @@
             <li>
                 <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid620}"></div> <!-- 회원정보보기 -->
             </li>
+            <li class="active" sec:authorize="hasAnyRole('ROLE_EMPLOYEE', 'ROLE_ADMIN')">
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid630}"></div> <!-- 업무일지등록 -->
+            </li>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid640}"></div> <!-- 탈퇴하기 -->
+            </li>
+        </ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="menuMid640"> <!-- 마이페이지 -->
+    <div class="category-nav">
+        <ul>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid610}"></div> <!-- 1:1문의 -->
+            </li>
+            <li>
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid620}"></div> <!-- 회원정보보기 -->
+            </li>
+            <li id="schedule" sec:authorize="hasAnyRole('ROLE_EMPLOYEE', 'ROLE_ADMIN')">
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid630}"></div> <!-- 업무일지등록 -->
+            </li>
             <li class="active">
-                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid630}"></div> <!-- 탈퇴하기 -->
+                <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid640}"></div> <!-- 탈퇴하기 -->
             </li>
         </ul>
     </div>

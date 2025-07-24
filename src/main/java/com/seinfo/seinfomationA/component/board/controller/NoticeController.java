@@ -21,7 +21,7 @@ import java.util.Map;
 @RequestMapping("/anyone/noticeList")
 @RequiredArgsConstructor
 @Slf4j
-public class AnyNoticeController {
+public class NoticeController {
 
     private final NoticeService noticeService;
 

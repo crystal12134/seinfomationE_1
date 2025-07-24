@@ -126,7 +126,7 @@
             pf.seinfo.ajax({
                 userType: userType,
                 method  : 'post',
-                url     : '/anyone/qnaList/getQnaDetail',
+                url     : '/board/qnaList/getQnaDetail',
                 data    : {noticeNo: noticeNo, userType: userType}
             }, (rData) => {
                 if(rData.process_code === '00'){ <!--성공-->
@@ -206,7 +206,7 @@
             pf.seinfo.ajax({
                 userType: userType,
                 method: 'post',
-                url: '/anyone/qnaList/registReply',
+                url: '/board/qnaList/registReply',
                 data: formData
             }, (rData) => {
                 if(rData.process_code === '00'){ //성공

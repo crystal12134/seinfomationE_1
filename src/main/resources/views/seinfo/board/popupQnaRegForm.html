@@ -88,7 +88,7 @@
             pf.seinfo.ajax({
                 userType: userType,
                 method  : 'post',
-                url     : '/anyone/qnaList/getQnaDetail',
+                url     : '/board/qnaList/getQnaDetail',
                 data    : {noticeNo: noticeNo, userType: userType}
             }, (rData) => {
                 if(rData.process_code === '00'){ <!--성공-->

@@ -63,7 +63,7 @@
                                     <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid620}"></div>
                                 </li>
                                 <li>
-                                    <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid630}"></div>
+                                    <div sec:authorize="hasAnyRole('ROLE_EMPLOYEE', 'ROLE_ADMIN')" th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid630}"></div>
                                 </li>
                             </ul>
                         </div>

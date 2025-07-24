@@ -114,7 +114,7 @@
             pf.seinfo.ajax({
                 userType: userType,
                 method  : 'post',
-                url     :'/anyone/qnaList/reloadQnaList',
+                url     :'/board/qnaList/reloadQnaList',
                 data    : {userType: userType, page: page, keyword: $('#keyword').val()}
             }, (rData) => {
                 if(rData.process_code === '00'){ //성공

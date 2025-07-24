@@ -97,9 +97,7 @@ pf.seinfo.fnLogOutProcess = (returnUrl, refresh) => {
         contentType: 'application/json',
         success : function (rData) {
             if (rData.process_code === '00') {
-                if (pf.zzzUtil.isNotEmpty(returnUrl)) {
-                    location.href = contextPath + returnUrl;
-                } else if (refresh && returnUrl !== '/admin/ppsHistoryList') {
+                if (pf.zzzUtil.isNotEmpty(returnUrl) && returnUrl !== '/admin/ppsHistoryList') {
                     location.href = contextPath + returnUrl;
                 } else {
                     location.href = pf.seinfo.fnGetMovePage("divMid110"); // 기본 로그인 페이지
@@ -285,7 +283,7 @@ pf.seinfo.fnGetMovePage = (cMenuId, code) => {
     } else if(cMenuId === 'divMid640') { // 탈퇴하기
         movePage = "/member/dropInfo";
         openMenu = "N";
-    } else if(cMenuId === 'divMid700') {
+    } else if(cMenuId === 'divMid700') { // 관리자페이지
         movePage = "/admin/ppsHistoryList";
         openMenu = "N";
     } else if(cMenuId === "divTop000") { // 메인페이지

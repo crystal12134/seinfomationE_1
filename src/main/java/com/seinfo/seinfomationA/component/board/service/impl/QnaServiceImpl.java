@@ -37,11 +37,10 @@ public class QnaServiceImpl implements QnaService {
         Map<String, Object> param = new HashMap<>();
         ModelAndView mv = new ModelAndView();
 
-        String userType = tokenUtils.getClaimsByValue(TokenUtils.TOKEN_USER_TYPE).toString();
+        String userType = Objects.toString(tokenUtils.getClaimsByValue(TokenUtils.TOKEN_USER_TYPE).toString(), "");
         mv.addObject("userType", userType);
 
         String tokenUserId =  Objects.toString(tokenUtils.getClaimsByValue(TokenUtils.TOKEN_USER_ID), "");
-
         //내부 : 권한 조회
         if("ADMIN".equals(userType)){
             // 정상: "Y"
@@ -91,14 +90,14 @@ public class QnaServiceImpl implements QnaService {
     public ResponseEntity<?> reloadQnaPage(Map<String, Object> param) {
         Map<String, Object> rtnResult = new HashMap<String, Object>();
 
-        //입력값 설정
-        param.put("userEmail", this.tokenUtils.getClaimsByValue("USER_ID"));
-
         //조회전 체크
-        if(Objects.isNull(param.get("userType")) || "".equals(param.get("userType"))) {
+        String userEmail = Objects.toString(this.tokenUtils.getClaimsByValue(TokenUtils.TOKEN_USER_ID), "");
+        if(Objects.isNull(param.get("userType")) || "".equals(param.get("userType")) || userEmail.isBlank()) {
             rtnResult.put("message", "메뉴 권한이 없습니다. userType을 확인하세요.");
             return this.responseEntityUtil.getResponseEntity(CodeCoreResultList.RESULT_CODE_FAILED, "E001", rtnResult);
         }
+        param.put("userEmail", userEmail);
+
 
         // 전체 레코드 수 조회
         int totalRecords = qnaMapper.getQnaListCount(param);

@@ -1,4 +1,4 @@
-<div th:fragment="defaultJS">
+<div th:fragment="defaultJS" xmlns:layout="">
 
   <script th:src="@{/static/seinfo/js/bootstrap.min.js}"></script>
   <script th:src="@{/static/seinfo/js/jquery.blockUI.js}"></script>
@@ -11,6 +11,13 @@
   <script th:Src="@{/static/seinfo/js/tus.min.js}"></script>
   <script th:src="@{/static/seinfo/js/ckeditor/ckeditor.min.js}"></script>
   <script th:src="@{/static/seinfo/js/ckeditor/ko.min.js}"></script>
+
+  <!-- Toast Editor -->
+  <script th:src="@{/static/seinfo/js/toasteditor/toastui-editor-all.min.js}"></script>
+  <script th:src="@{/static/seinfo/js/toasteditor/toastui-editor-plugin-code-syntax-highlight-all.min.js}"></script>
+  <script th:src="@{/static/seinfo/js/toasteditor/toastui-editor-plugin-color-syntax.min.js}"></script>
+  <script th:src="@{/static/seinfo/js/toasteditor/toastui-editor-plugin-table-merged-cell.min.js}"></script>
+  <script th:src="@{/static/seinfo/js/toasteditor/tui-color-picker.min.js}"></script>
 
   <!-- CORE Common Javascript LIB -->
   <script type="text/javascript" th:inline="javascript">

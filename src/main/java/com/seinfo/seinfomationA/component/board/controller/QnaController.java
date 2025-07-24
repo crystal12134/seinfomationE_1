@@ -13,9 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +30,16 @@ public class QnaController {
     private final TokenUtils tokenUtils;
 
     /**
-     * QnA 목록 재조회 (내부:RTP -> 외부 호출 / 외부:LRTP 에서 바로 호출)
+     * 페이지 호출 : QnA
+     */
+    @GetMapping(value = "/qnaList")
+    public ModelAndView qnaListPage(@RequestParam(defaultValue = "1") int page,
+                                    @RequestParam(required = false) String keyword) {
+        return qnaService.loadQnaPage(page, keyword);
+    }
+
+    /**
+     * QnA 목록 재조회
      */
     @PostMapping(value = "/qnaList/reloadQnaList")
     public ResponseEntity<?> getqnaList(@RequestBody Map<String, Object> param) {

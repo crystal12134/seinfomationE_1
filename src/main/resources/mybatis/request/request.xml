@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.seinfo.seinfomationA.util.token.TokenMapper">
+
+	<select id="selectRequest" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.protoA.util.token.TokenMapper.selectTokenAccess */
+			token_user_id, token_key
+		FROM zzz_token_access
+		WHERE token_user_id = #{tokenUserid}
+	</select>
+
+	<insert id="insertRequest" parameterType="camelmap">
+		INSERT INTO  /* com.seinfo.protoA.util.token.TokenMapper.insertTokenBanned */
+			zzz_token_denied
+		(
+		 	 token_usr_id
+		   , token_key
+		   , token_denied_desc
+		   , reg_dt
+		) VALUES (
+			 #{userUid}
+			,#{tokenKey}
+			,#{tokenDeniedDesc}
+			,now()
+		)
+	</insert>
+
+</mapper>

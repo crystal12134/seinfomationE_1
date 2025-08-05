@@ -133,7 +133,7 @@
                 if(rData.process_code === "00") { //성공
                     if (rData.data.pwdInitYn === "Y") {
                         userInfo.userUid = rData.data.userUid;
-                        fnPopupPwdCahnge();
+                        fnPopupPwdChange();
                         return;
                     }
 
@@ -201,7 +201,7 @@
             $("#password").attr("placeholder", "[(#{seinfo.main.label.00160})]" + "[(#{seinfo.com.msg.00160})]"); // 비밀번호를 입력하세요.
         }
 
-        function fnPopupPwdCahnge() {
+        function fnPopupPwdChange() {
             $("#popupUserPwd").val('');
             $("#popupUserPwdConf").val('');
             $('#password').val('');
@@ -210,13 +210,14 @@
         }
 
         $(() => {
-            $('#id').focus(); // autoFocus
-
             fnInputSetPlaceholder();
 
             if (localStorage.getItem('saveId')) {
                 $('#id').val(localStorage.getItem('saveId'));
                 $('#chkIdSave').prop('checked', true);
+                $('#password').focus();
+            }else {
+                $('#id').focus();
             }
 
             $('#loginForm').on('submit', function (e) {

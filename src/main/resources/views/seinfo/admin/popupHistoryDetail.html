@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block th:fragment="popup01View">
+    <div class="modal" id="modalPpsDetail">
+        <div class="modal-content">
+            <button id="modalBtnCls" class="close-modal-btn">
+                <img th:src="@{/static/seinfo/img/icon-modal-close.svg}" alt='[(#{seinfo.com.btn.00040})]'> <!--닫기-->
+            </button>
+            <div class="modal-body">
+                <div class="detail-header-area">
+                    <div class="title">
+                        <strong>[(#{seinfo.admin.label.00110})]</strong> <!--제안접수관리-->
+                    </div>
+                </div>
+                <div class="detail-body-area" style="margin-top: 10px; !important;">
+                    <div class="table-row-container" style="width: 750px; !important;">
+                        <table>
+                            <tbody>
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00010})]</th> <!--제안 제목-->
+                                <td colspan="3">
+                                    <div class="title-textarea-area">
+                                        <input id="proposalTitle" type="text" maxlength="100" readonly>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00011})]</th><!--제안 분야-->
+                                <td colspan="3">
+                                    <div style="display: flex; gap: 10px;">
+                                        <div class="select-area">
+                                            <input id="proposalArea" type="text" readonly>
+                                        </div>
+                                        <div class="input-area" style="width: 100%;">
+                                            <input id="proposalAreaCont" type="text" style="display: none;" readonly>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>[(#{seinfo.admin.label.00140})]</th> <!--진행 단계-->
+                                <td>
+                                    <div class="title-textarea-area">
+                                        <input id="proposalProcess" type="text" readonly>
+                                    </div>
+                                </td>
+                                <th>[(#{seinfo.admin.label.00150})]</th> <!--심의 결과-->
+                                <td>
+                                    <div class="title-textarea-area">
+                                        <input id="assessResult" type="text" readonly>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00012})]</th><!--제안 내용-->
+                                <td colspan="3">
+                                    <input type="hidden" id="proposalDetail">
+                                    <div class="editorWrap" style="padding: 10px 0;">
+                                        <div id="editorKr" class="editor" style="height:100%;"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00013})]</th><!--첨부 파일-->
+                                <td colspan="3">
+                                    <div th:replace="~{seinfo/file/divFileTus :: popupFileDownload02}"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00019})]</th><!--제안 회사명-->
+                                <td colspan="3">
+                                    <div class="input-area">
+                                        <input id="companyNm" type="text" readonly>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00020})]</th><!--제안 회사 URL-->
+                                <td colspan="3">
+                                    <div class="input-area">
+                                        <input id="companyUrl" type="text" readonly>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00021})]</th><!--담당 성명-->
+                                <td colspan="3">
+                                    <div class="input-area">
+                                        <input id="userNm" type="text" readonly>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00022})]</th><!--담당 연락처-->
+                                <td colspan="3">
+                                    <div class="input-area">
+                                        <input id="userPhone" type="text" readonly>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00023})]</th><!--담당 이메일-->
+                                <td colspan="3">
+                                    <div class="input-area">
+                                        <input id="userEmail" type="text" readonly>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="button-area" style="margin-top: 20px;">
+                        <button id="btnModRequestPopup" class="secondary-xsm-btn" style="width: 100px" onclick="fnOpenModRequestPopup()">
+                            <span id="modText"></span>
+                        </button>
+                        <button id="btnOpenProposalAssessPopup" class="primary-xsm-btn" style="width: 100px" onclick="fnOpenProposalAssessPopup()">평가확정</button>
+                        <button class="primary-outline-xsm-btn" style="width: 100px" onclick="fnClosePpsDetailPopup()">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{seinfo/admin/popupModRequest  :: popup01View}"></div>
+    <div th:replace="~{seinfo/admin/popupProposalAssess  :: popup01View}"></div>
+</th:block>
+
+<th:block th:fragment="popup01Js">
+    <script th:replace="~{seinfo/admin/popupModRequest :: popup01Js}"></script>
+    <script th:replace="~{seinfo/admin/popupProposalAssess :: popup01Js}"></script>
+    <script th:replace="~{seinfo/file/divFileTus :: popupFileDownloadJs}"></script>
+    <script type="text/javascript" th:src="@{/static/seinfo/js/lib/uploadAdapter.js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        // 공통 코드
+        pf.code.getList('RTPC001');
+        const proposalArea = pf.code.setList["RTPC001"];
+        const menuId = 'pps';
+        const tmpToken = pf.token();
+        const userType = tmpToken.USER_TYPE;
+        let ppsDetail = {};
+
+        // 초기 변수 설정
+        const usrInfo =  /*[[${usrInfo != null ? usrInfo : '{}'}]]*/ {};
+        const ppsInfo = /*[[${ppsInfo != null ? ppsInfo : '{}'}]]*/ {};
+        const historyMainYn = /*[[${historyMainYn != null ? historyMainYn : ''}]]*/ '';
+        const modRequestYn = /*[[${modRequestYn != null ? modRequestYn : ''}]]*/ ''
+        const requestSeq =  /*[[${requestSeq != null ? requestSeq : ''}]]*/ ''
+
+        // ckEditor 설정
+        const config = {
+            editorInsKr: null,
+            editorKr: null,
+            useEnMenu: true,
+            lang: 'ko',
+            selectSystemId: '',
+            fileGroupId: '',
+            filesPrev: true,
+            uploadFileCnt: 0,
+            dataToServer: '',
+            boardFileYn: 'Y',
+            uploadFlg: true
+        };
+
+        // ckEditor 초기화
+        const ckedit_init = (target, data, readOnly) => {
+            let selector = document.querySelector("#" + target);
+            if (config.editorInsKr) {
+                config.editorInsKr.destroy();
+            }
+
+            ClassicEditor.create((selector), {
+                toolbar: {
+                    items: ['heading', 'undo', 'redo',
+                        'bold', 'bulletedList', 'numberedList',
+                        'fontColor', 'fontSize', 'fontFamily',
+                        'link', 'blockQuote', 'insertTable']
+                },
+                language: 'ko',
+                fontFamily: {
+                    options: [
+                        'default',
+                        'Arial',
+                        '궁서체',
+                        '맑은고딕',
+                        '바탕체',
+                        '현대산스 Head',
+                        '현대산스 Text',
+                        '현대하모니'
+                    ],
+                    supportAllValues: true
+                },
+                fontSize: {
+                    options: [9, 11, 13, 'default', 17, 19, 21, 24, 27, 32]
+                },
+                table: {
+                    contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableCellProperties', 'tableProperties']
+                },
+            }).then(editor => {
+                editor.setData(data);
+                config.editorInsKr = editor;
+                config.editorKr = editor;
+
+                //읽기전용 스타일 추가
+                if (readOnly) {
+                    editor.enableReadOnlyMode(target);
+                    editor.ui.view.editable.element.classList.add('editor-readonly');
+                    $('.ck .ck-sticky-panel__content').css('display', 'none');
+                }
+            });
+        };
+
+        function initProposalDetail() {
+            downloadSetting.fileGrpId = null;
+
+            $('#modText').text('수정요청');
+            $('#proposalAreaCont').val('');
+            $('#btnModRequestPopup').show().removeAttr('disabled');
+            $('#btnOpenProposalAssessPopup').show().removeAttr('disabled');
+
+            onlyFileDown.downloadInit();
+            downloadSetting.menuId = menuId;
+            downloadSetting.userType = userType;
+        }
+
+        function getProposalDetail(proposalNo) {
+            initProposalDetail();
+
+            pf.seinfo.ajax({
+                url: "/admin/ppsHistoryDetail",
+                method: "POST",
+                data: {proposalNo : proposalNo}
+            },(response) => {
+                ppsDetail = response.data;
+                ppsDetail = pf.seinfoComUtil.fnTransCommonCode(proposalArea, ppsDetail, 'proposalArea', 'proposalAreaKo');
+                downloadSetting.fileGrpId = ppsDetail.fileGroupId;
+                $("#proposalTitle").val(ppsDetail.proposalTitle);
+                $("#proposalProcess").val(ppsDetail.stepVender);
+                $("#assessResult").val(ppsDetail.assessResult);
+                $("#proposalArea").val(ppsDetail.proposalAreaKo);
+                if(ppsDetail.proposalArea === '99'){
+                    $("#proposalAreaCont").val(ppsDetail.proposalAreaCont);
+                    $("#proposalAreaCont").show();
+                }else {
+                    $("#proposalAreaCont").hide();
+                }
+                $("#companyNm").val(ppsDetail.companyNm);
+                $("#companyUrl").val(ppsDetail.companyUrl);
+                $("#userNm").val(ppsDetail.userNm);
+                $("#userPhone").val(ppsDetail.userPhone);
+                $("#userEmail").val(ppsDetail.userEmail);
+                $("#proposalProcess").val(ppsDetail.stepVender);
+                ckedit_init('editorKr', ppsDetail.proposalDetail, true);
+                // 첨부파일
+                onlyFileDown.initView();
+
+                // 수정요청 버튼
+                if(ppsDetail?.modRequestYn === 'Y'){
+                    $('#modText').text('재수정요청');
+                } else if(ppsDetail?.stateRtp === '25'){
+                    $('#btnModRequestPopup').css('display', 'none').attr('disabled', true);
+                    $('#btnOpenProposalAssessPopup').css('display', 'none').attr('disabled', true);
+                } else {
+                    $('#modText').text('수정요청');
+                }
+
+                if(ppsDetail?.lastResultYn === 'Y' || ppsDetail?.assessSkipYn === 'Y') {
+                    $('#btnModRequestPopup').css('display', 'none').attr('disabled', true);
+                    $('#btnOpenProposalAssessPopup').css('display', 'none').attr('disabled', true);
+                }
+            });
+        }
+
+        function fnClosePpsDetailPopup() {
+            $("#modalPpsDetail").css('display', 'none');
+        }
+
+        function fnOpenModRequestPopup() {
+            $("#drawContents").val('');
+            $("#modalModRequest").css('display', 'block');
+        }
+
+        function fnOpenProposalAssessPopup() {
+            $("#assessContent").val('');
+            $("#assessResultSelector").val('');
+            fnMakeSelector();
+            $("#modalProposalAssess").css('display', 'block');
+        }
+    </script>
+</th:block>
+
+</html>

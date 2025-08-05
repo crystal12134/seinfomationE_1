@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+        <style>
+            .ck-editor-reg{
+                width: 700px !important;
+                padding: 0px 0px 0px 0px !important;
+            }
+
+            .ck-editor-detail{
+                width: 700px !important;
+                padding: 0px 0px 0px 0px !important;
+            }
+
+            .ck-editor__editable {
+                max-height: 350px;
+            }
+
+            .editorWrap .ck-editor__editable_inline {
+                padding: 0 15px; !important;
+                height: calc(100vh - 340px)
+            }
+
+            .editorWrap.hasFileup .ck-editor__editable_inline {
+                height: calc(100vh - 561px)
+            }
+
+            .ck.ck-content strong {
+                font-weight: bold !important;
+            }
+
+            .ck.ck-content ul,
+            .ck.ck-content ul li {
+                list-style-type: disc !important;
+            }
+
+            .ck.ck-content ul {
+                padding-left: 40px;
+            }
+
+            .ck.ck-content ol,
+            .ck.ck-content ol li {
+                list-style-type: decimal !important;
+            }
+
+            .ck.ck-content ol {
+                padding-left: 40px !important;
+            }
+
+            .ck-horizontal-line {
+                border-top: 1px solid rgb(0,0,0);
+                /* 수평선의 두께와 색상*/
+                margin: 20px 0;
+                /* 수평선의 위아래 간격*/
+            }
+
+            .ck-content img {
+                width: auto !important;
+                height: auto !important;
+                max-width: 100%;
+                height: auto;
+            }
+
+            .ck.ck-balloon-panel {
+                z-index: 2001 !important;
+            }
+        </style>
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <div th:replace="~{seinfo/layout/include/frame/navCategory :: menuMid420}"></div>
+    <main>
+        <div class="subpage-content">
+            <h2>[(#{seinfo.menu.mid.00430})]</h2><!--의뢰진행상세-->
+
+            <div class="pps-history-area">
+                <section>
+                    <div class="process">
+                        <!-- 진행상태 -->
+                        <ul id="progressList">
+                            <li id="progress1">
+                                <div th:replace="~{seinfo/request/divHistoryStep :: stepBody01}"></div>
+                                <div class="text-area">
+                                    <strong>[(#{seinfo.pps.label.00210})]</strong><!--회원등록-->
+                                    <span id="memberRegisterD"></span> <!-- 회원등록 날짜 -->
+                                </div>
+                            </li>
+                            <li id="progress2">
+                                <div th:replace="~{seinfo/request/divHistoryStep :: stepBody02}"></div>
+                                <div class="text-area">
+                                    <strong>[(#{seinfo.pps.label.00211})]</strong><!--작성중-->
+                                </div>
+                            </li>
+                            <li id="progress3">
+                                <div th:replace="~{seinfo/request/divHistoryStep :: stepBody03}"></div>
+                                <div class="text-area">
+                                    <strong id="skipResult">[(#{seinfo.pps.label.00212})]</strong><!--의뢰등록-->
+                                    <span id="sendD"></span> <!--의뢰등록 날짜-->
+                                </div>
+                            </li>
+                            <li id="progress4">
+                                <div th:replace="~{seinfo/request/divHistoryStep :: stepBody04}"></div>
+                                <div class="text-area">
+                                    <strong>[(#{seinfo.pps.label.00213})]</strong><!--의뢰진행 날짜-->
+                                    <span id="requestAcceptD"></span>
+                                </div>
+                            </li>
+                            <li id="progress5">
+                                <div th:replace="~{seinfo/request/divHistoryStep :: stepBody05}"></div>
+                                <div class="text-area">
+                                    <strong>[(#{seinfo.pps.label.00214})]</strong><!--의뢰완료 날짜-->
+                                    <span id="requestCompleteD"></span> <!-- 결과안내 날짜-->
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="pps-history-list">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <strong class="comm-title">[(#{seinfo.pps.label.00220})]</strong>
+                            <button type="button" style="width:150px;" class="primary-sm-btn" onclick="btnAction.registerQuestionBtn()">추가요청등록</button>
+                        </div>
+                        <div class="table-normal-container">
+                            <table id="requestDetailList">
+                                <colgroup>
+                                    <col />
+                                    <col />
+                                    <col />
+                                    <col />
+                                    <col style="width:120px;" />
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th class="text-center">[(#{seinfo.pps.label.00120})]</th><!--번호-->
+                                    <th class="text-center" width="25%">[(#{seinfo.pps.label.00222})]</th><!--제목-->
+                                    <th class="text-center" width="210px">[(#{seinfo.pps.label.00223})]</th><!--등록자-->
+                                    <th class="text-center">[(#{seinfo.pps.label.00224})]</th><!--등록일-->
+                                    <th class="text-center">[(#{seinfo.pps.label.00240})]</th><!--답변등록-->
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class="text-center"></td>
+                                    <td class="text-left"></td>
+                                    <td class="text-center"></td>
+                                    <td class="text-center"></td>
+                                    <td class="text-center"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                <div class="button-area">
+                    <!--목록으로-->
+                    <button type="button" onclick="btnAction.btnGoToList()" class="primary-md-btn">
+                        [(#{seinfo.com.btn.00150})]
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div th:replace="~{seinfo/request/popupQuestionCont :: popup01View}"></div>
+
+</th:block>
+
+<th:block layout:fragment="html_js">
+
+    <script th:replace="~{seinfo/request/popupQuestionCont :: popup01Js}"></script>
+    <!--<script th:replace="~{seinfo/proposal/popupAnswer :: popup01Js}"></script> -->
+    <script type="text/javascript" th:inline="javascript">
+        let processMap = /*[[${processMap != null ? processMap : '{}'}]]*/ {};
+        let requestDetailList = /*[[${requestDetailList != null ? requestDetailList : '[]'}]]*/[];
+        const page = /*[[${page != null ? page : ''}]]*/ '';
+        const message = /*[[${message != null ? message : ''}]]*/ '';
+
+        function reloadRequestDetail() {
+            $.ajax({
+                url: "/request/reloadRequestDetail",
+                type: "POST",
+                contentType: 'application/json',
+                data: JSON.stringify({requestNo: processMap.requestNo}),
+                success: function (response) {
+                    processMap = response.data.processMap;
+                    requestDetailList = response.data.requestDetailList;
+                    fnSetProgressStatus();
+                    renderTableData();
+                },
+                error: function (jqXHR){
+                    let response = JSON.parse(jqXHR.responseText).message;
+                    let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                    pf.seinfoAlert.warning('[(#{seinfo.com.msg.00170})] <br> ' + msg); //[조회오류]...
+                }
+            })
+        }
+
+        // 진행 상태 업데이트 함수
+        function fnSetProgressStatus() {
+            let activeProgress = parseInt(processMap.progress);
+            $('#progressList li').each(function () {
+                let progress = parseInt(this.id.replace("progress", ""));
+                if (progress < activeProgress) {
+                    $(this).addClass('clear');
+                } else if (progress === activeProgress) {
+                    $(this).addClass('active');
+                }
+            });
+
+            $('#memberRegisterD').text(processMap.memberRegisterD);
+            $('#sendD').text(processMap.sendD);
+            $('#requestAcceptD').text(processMap.requestAcceptD);
+            $('#requestCompleteD').text(processMap.requestCompleteD);
+        }
+
+        // 테이블 데이터 렌더링 함수
+        function renderTableData() {
+            let tbody = $('#requestDetailList tbody');
+            tbody.empty();
+
+            // 조회된 데이터가 없습니다.
+            if (requestDetailList == null || requestDetailList <= 0) {
+                let row = `
+            <tr>
+                <td colspan="5" class="text-center">[(#{seinfo.pps.label.00180})]</td>
+            </tr>
+            `;
+                tbody.append(row);
+
+            } else {
+                $.each(requestDetailList, function (index, item) {
+                    // 그리드 > 답변등록 : 버튼처리
+                    let actionButton = `<div style="width: 100px; margin: 0 auto"> `;
+                    if (item.regReplyYn === 'Y' ) { //답변하기
+                        actionButton += `
+                    <button type="button" class="primary-xsm-btn"
+                        onclick="btnAction.readAnswerBtn('${item.requestNo}','${item.requestSeq}','${item.replyYn}')">
+                            [(#{seinfo.pps.label.00240})]
+                    </button>`;
+                    } else if(item.replyYn === 'Y'){  // 답변 있으면
+                        actionButton += `
+                    <div class="clear">
+                        <button type="button" onclick="btnAction.readAnswerBtn('${item.requestNo}','${item.requestSeq}','${item.replyYn}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
+                                <path d="M4.87109 9.99989L9.91495 14.861L16.6766 4.44434" stroke="#2DC0F0" stroke-width="1.6" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </div>`;
+                    }
+                    actionButton += ` </div>`;
+
+                    let row = `
+                        <tr>
+                            <td class="text-center">${item.rnum}</td>
+                            <td class="text-center">
+                                <button type="button" onclick="btnAction.readQuestionBtn('${item.requestNo}', '${item.requestSeq}','N')"
+                                    style="width:350px; margin-left:10px; text-align:left; word-break:break-all; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+                                    ${item.questionTitle}
+                                </button>
+                            </td>
+                            <td class="text-center">${item.userNm}</td>
+                            <td class="text-center">${item.regDt}</td>
+                            <td class="text-center">${actionButton}</td>
+                        </tr>`;
+                    tbody.append(row);
+                });
+            }
+        }
+
+        const btnAction = {
+            readAnswerBtn: function (proposalNo, requestSeq, replyYn) {
+                readContDetail(proposalNo, requestSeq, replyYn);
+                $('#modalCont').show();
+            },
+            registerAnswerBtn: function () {
+                ckedit_init('popupContContent', '', false);
+                $('#popupWriter').val(pf.token().USER_NM);
+                $('#popupRegDt').val(pf.date.getFormat(new Date(), 'yyyy-MM-DD'));
+                $('#uploadMode').css('display', 'block');
+                $('#downloadMode').css('display', 'none');
+                fileUpDown.initWrite();
+                $('#modalCont').show();
+
+            },
+            readQuestionBtn: function (requestNo, requestSeq, replyYn) {
+                readContDetail(requestNo, requestSeq, replyYn);
+                $('#modalCont').show();
+            },
+            registerQuestionBtn: function () {
+                ckedit_init('popupContContent', '', false);
+                $('#popupWriter').val(pf.token().USER_NM);
+                $('#popupRegDt').val(pf.date.getFormat(new Date(), 'yyyy-MM-DD'));
+                $('#uploadMode').css('display', 'block');
+                $('#downloadMode').css('display', 'none');
+                fileUpDown.initWrite();
+                $('#modalCont').show();
+            },
+            btnGoToList : function(){
+                location.href = `/request/requestList?page=${page}`;
+            }
+
+        }
+
+        $(() => {
+            // 로그인 경고
+            if (message.trim().length > 0) {
+                pf.seinfoAlert(message, () => {
+                    location.href = pf.seinfo.fnGetMovePage("divMid110"); // 로그인 페이지
+                });
+                return;
+            }
+
+            fnSetProgressStatus();
+            renderTableData();
+        });
+    </script>
+</th:block>
+
+

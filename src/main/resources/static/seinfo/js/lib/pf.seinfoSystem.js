@@ -263,10 +263,10 @@ pf.seinfo.fnGetMovePage = (cMenuId, code) => {
     let movePage = '';
 
     if(cMenuId === 'divMid410') { // 제안서 작성
-        movePage = "/proposal/ppsRegForm";
+        movePage = "/request/requestRegForm";
         openMenu = "N";
     } else if(cMenuId === 'divMid420') { // 제안 이력조회
-        movePage = "/proposal/ppsHistoryList";
+        movePage = "/request/requestList";
         openMenu = "N";
     } else if(cMenuId === 'divMid530') { // 자유게시판
         movePage = "/board/freeBoard";
@@ -301,11 +301,8 @@ pf.seinfo.fnGetMovePage = (cMenuId, code) => {
     } else if(cMenuId === 'divMid020') { // 이용약관
         movePage = "/anyone/docAgree";
         openMenu = "Y";
-    } else if(cMenuId === 'divMid310') { // R&D 주요업무
+    } else if(cMenuId === 'divMid310') { // 회사소개
         movePage = "/anyone/companyInfo";
-        openMenu = "Y";
-    } else if(cMenuId === 'divMid320') { // 미래모빌리티
-        movePage = "/anyone/mobilityInfo";
         openMenu = "Y";
     } else if(cMenuId === 'divMid510') { // 공지사항
         movePage = "/anyone/noticeList";

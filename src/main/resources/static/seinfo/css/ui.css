@@ -2360,48 +2360,32 @@ main .subpage-content .pps-history-area .button-area button {
   background: #F5F3F1;
 }
 
-.rnd-tasks-area ul {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: start;
-      -ms-flex-align: start;
-          align-items: flex-start;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
-  gap: 24px;
-  width: 1080px;
-  margin: 0 auto;
+/* 연혁 리스트 */
+.mobility-area ul {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 15px;
 }
-.rnd-tasks-area ul li {
-  width: calc(50% - 12px);
-  height: 234px;
-  background: #F8F8F8;
+
+.mobility-area li {
+  margin-bottom: 10px;
+  padding-left: 12px;
+  position: relative;
 }
-.rnd-tasks-area ul li .inner {
-  padding: 24px 36px;
+
+.mobility-area li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #2dc0f0;
+  font-weight: bold;
 }
-.rnd-tasks-area ul li .inner img {
-  width: 32px;
-  height: 32px;
-}
-.rnd-tasks-area ul li .inner strong {
-  display: block;
-  margin-top: 24px;
-  color: var(--gray-95);
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-}
-.rnd-tasks-area ul li .inner p {
-  margin-top: 16px;
-  color: var(--gray-70);
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: -0.5px;
+
+/* 날짜 표시 */
+.mobility-area time {
+  font-weight: bold;
+  margin-right: 5px;
+  color: #555;
 }
 
 .notice-list-area,

@@ -7,13 +7,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @ApiModel(value = "webApi Response DTO")
 @Setter
 @Getter
 @Builder
-public class CoreWebApiResponseModel {
+public class CoreWebApiResponseModel implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

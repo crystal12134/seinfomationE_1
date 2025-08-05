@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block th:fragment="popup01View">
+    <div class="modal comm-modal comm-scroll-modal" id="modalNoticeDetail">
+        <div class="modal-content" style="max-width: 900px !important;">
+            <div class="modal-body">
+                <div class="comm-detail-area contact-detail-area contact-detail-area-v2">
+                    <strong class="comm-modal-title">[(#{seinfo.board.label.00010})]</strong>
+                    <section>
+                        <div class="detail-header-area">
+                            <div class="title">
+                                <strong id="modalReadFreeBoardTitle"></strong>
+                            </div>
+                            <div class="title-info">
+                                <ul>
+                                    <li>
+                                        <strong>[(#{seinfo.board.label.00050})]</strong>
+                                        <span id="modalRegDt"></span>
+                                    </li>
+                                    <li>
+                                        <strong>[(#{seinfo.board.label.00051})]</strong>
+                                        <span id="modalReadInquireCnt"></span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="detail-body-area" style="gap: 0">
+                            <div class="text-area">
+                                <input type="hidden" id="freeBoardContents" name="freeBoardContents">
+                                <div class="editorWrap" style="padding: 10px 0;">
+                                    <div id="popupFreeBoardDetail" class="ck-editor-detail" style="height: 100%;"></div>
+                                </div>
+                            </div>
+                            <!--4-2. 팝업화면 첨부파일 : 조회(다운로드) >>> popupFileDownloadJs -->
+                            <div th:replace="~{seinfo/file/divFileTus :: popupFileDownload02}"></div>
+                        </div>
+                        <div class="detail-footer-area">
+                            <diV class="next-text-area">
+                                <strong>[(#{seinfo.board.label.00060})]</strong> <!--다음글-->
+                                <button id="nextFreeBoardTitle" href="#"></button>
+                            </diV>
+                            <div class="prev-text-area">
+                                <strong>[(#{seinfo.board.label.00061})]</strong> <!--이전글-->
+                                <button id="prevFreeBoardTitle" href="#"></button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="button-area">
+                        <!--닫기-->
+                        <button id="modalFreeBoardDtlBtnCls" class="comm-close-modal-btn secondary-md-btn">[(#{seinfo.com.btn.00040})]</button>
+                        <button id="modalFreeBoardDtlBtnDel" class="primary-md-btn">[(#{seinfo.com.btn.00012})]</button><!--삭제-->
+                        <button id="modalFreeBoardDtlBtnMod" class="primary-md-btn">[(#{seinfo.com.btn.00011})]</button><!--수정-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="popup01Js">
+    <script th:replace="~{seinfo/file/divFileTus :: popupFileDownloadJs}"></script>
+        <!--// 첨부파일 설정 - 다운로드 : downloadSetting / onlyFileDown -->
+    <script type="text/javascript" th:inline="javascript">
+        let freeBoardDetail = {};
+
+        //글자치환
+        const funcUnEscape = (html) => {
+            if(pf.zzzUtil.isEmpty(html)) return html;
+            html = html.replaceAll("& le;", '<=');
+            html = html.replaceAll("& ge;", '>=');
+            html = html.replaceAll("& ne;", '=/');
+            html = html.replaceAll("& equals;", '=');
+            html = html.replaceAll("& lt;", '<');
+            html = html.replaceAll("& gt;", '>')
+            return html;
+        }
+
+        //게시물 불러오기
+        function getFreeBoardDetail(freeBoardNo) {
+            // 1. menuId = "FREEBOARD" : 내부(토큰 체크) / 외부(토큰 미체크)
+            downloadSetting.menuId = menuId;
+            downloadSetting.userType = userType;
+
+            $.ajax({
+                url: "/board/freeBoardList/getFreeBoardDetail",
+                type: "POST",
+                contentType: 'application/json',
+                data: JSON.stringify({freeBoardNo: freeBoardNo}),
+                success: function (response) {
+                    freeBoardDetail = response.freeBoardDetail;
+                    downloadSetting.fileGrpId = freeBoardDetail.mfileGroupId;
+                    $('#modalReadFreeBoardTitle').text(pf.seinfoComUtil.unEscape(freeBoardDetail.freeBoardTitle));
+                    $('#modalRegDt').text(freeBoardDetail.regDt);
+                    $('#modalReadInquireCnt').text(freeBoardDetail.inquireCnt);
+
+                    if(freeBoardDetail.nextFreeBoardTitle) {
+                        $('#nextFreeBoardTitle').text(pf.seinfoComUtil.unEscape(freeBoardDetail.nextFreeBoardTitle));
+                        $('#nextFreeBoardTitle').attr('title', pf.seinfoComUtil.unEscape(freeBoardDetail.nextFreeBoardTitle));
+                    }else {
+                        $('#nextFreeBoardTitle').text('');
+                        $('#nextFreeBoardTitle').attr('title', '');
+                    }
+                    if(freeBoardDetail.prevfreeBoardTitle) {
+                        $('#prevFreeBoardTitle').text(pf.seinfoComUtil.unEscape(freeBoardDetail.prevFreeBoardTitle));
+                        $('#prevFreeBoardTitle').attr('title', pf.seinfoComUtil.unEscape(freeBoardDetail.prevFreeBoardTitle));
+                    }else {
+                        $('#prevFreeBoardTitle').text('');
+                        $('#prevFreeBoardTitle').attr('title', '');
+                    }
+
+                    ckedit_init('popupFreeBoardDetail', funcUnEscape(freeBoardDetail.freeBoardContents), true);
+
+                    //첨부파일
+                    onlyFileDown.initView();
+
+                    //메인창 재조회 : 조회수 증가된 건수로 보여줌
+                    reloadFreeBoardList();
+                },
+                error: function (jqXHR) {
+                    let response = JSON.parse(jqXHR.responseText).message;
+                    let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                    pf.seinfoAlert.warning('[(#{seinfo.com.msg.00170})] <br> '+ msg); //[조회오류]..
+                }
+            });
+        }
+
+        $(() => {
+            if(!adminYn) {
+                $('#modalFreeBoardDtlBtnDel').remove();
+                $('#modalFreeBoardDtlBtnMod').remove();
+            }
+
+            $('#modalFreeBoardDtlBtnCls').on('click', function () {
+                onlyFileDown.downloadInit();
+                reloadFreeBoardList();
+                $('#modalNoticeDetail').css('display', 'none');
+            });
+
+            $('#modalFreeBoardDtlBtnDel').on('click', function () {
+                pf.seinfoAlert.confirm('[(#{seinfo.main.msg.00180})]', () => { //해당 내용이 영구적으로 삭제됩니다. <br> 그래도 삭제하겠습니까?
+                    onlyFileDown.downloadInit();
+                    fnDeleteFreeBoard(freeBoardDetail.freeBoardNo);
+                    $('#modalNoticeDetail').css('display', 'none');
+                });
+            });
+
+            $('#modalFreeBoardDtlBtnMod').on('click', function (e) {
+                $('#modalNoticeDetail').css('display', 'none');
+                fnModifyFreeBoard(freeBoardDetail.freeBoardNo, 'Y');
+            });
+            $('#prevFreeBoardTitle').on('click', function (e) {
+                onlyFileDown.downloadInit();
+                getFreeBoardDetail(freeBoardDetail.prevFreeBoardNo);
+            });
+            $('#nextFreeBoardTitle').on('click', function (e) {
+                onlyFileDown.downloadInit();
+                getFreeBoardDetail(freeBoardDetail.nextFreeBoardNo);
+            });
+        });
+    </script>
+</th:block>
+</html>

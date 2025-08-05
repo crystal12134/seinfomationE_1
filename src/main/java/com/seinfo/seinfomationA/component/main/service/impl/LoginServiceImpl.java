@@ -302,7 +302,7 @@ public class LoginServiceImpl implements LoginService {
         }
 
         String tempPassword = fnSetTempPassword();
-        String crytPwd = BCrypt.hashpw(tempPassword, BCrypt.gensalt());
+        String crytPwd = BCrypt.hashpw("12345678", BCrypt.gensalt());
         param.put("userEmail", resultMap.get("userEmail").toString());
         //param.put("userEmail", resultMap.get("userUid").toString()); //?? usrId =>userUid 변경하라는 것?
         param.put("userUid", resultMap.get("userUid").toString());

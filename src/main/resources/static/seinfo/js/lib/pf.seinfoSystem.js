@@ -269,7 +269,7 @@ pf.seinfo.fnGetMovePage = (cMenuId, code) => {
         movePage = "/proposal/ppsHistoryList";
         openMenu = "N";
     } else if(cMenuId === 'divMid530') { // 자유게시판
-        movePage = "/board/freeBoard";
+        movePage = "/board/freeBoardList";
         openMenu = "N";
     } else if(cMenuId === 'divMid610') { // 1:1문의
         movePage = "/board/qnaList";

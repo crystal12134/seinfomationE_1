@@ -167,13 +167,13 @@
         </div>
     </main>
 
-    <div th:replace="~{seinfo/request/popupQuestionCont :: popup01View}"></div>
+    <div th:replace="~{seinfo/request/popupRequestCont :: popup01View}"></div>
 
 </th:block>
 
 <th:block layout:fragment="html_js">
 
-    <script th:replace="~{seinfo/request/popupQuestionCont :: popup01Js}"></script>
+    <script th:replace="~{seinfo/request/popupRequestCont :: popup01Js}"></script>
     <!--<script th:replace="~{seinfo/proposal/popupAnswer :: popup01Js}"></script> -->
     <script type="text/javascript" th:inline="javascript">
         let processMap = /*[[${processMap != null ? processMap : '{}'}]]*/ {};
@@ -240,7 +240,7 @@
                     if (item.regReplyYn === 'Y' ) { //답변하기
                         actionButton += `
                     <button type="button" class="primary-xsm-btn"
-                        onclick="btnAction.readAnswerBtn('${item.requestNo}','${item.requestSeq}','${item.replyYn}')">
+                        onclick="btnAction.registerAnswerBtn('${item.requestNo}','${item.requestSeq}','${item.replyYn}')">
                             [(#{seinfo.pps.label.00240})]
                     </button>`;
                     } else if(item.replyYn === 'Y'){  // 답변 있으면

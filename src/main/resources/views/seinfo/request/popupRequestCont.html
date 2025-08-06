@@ -11,7 +11,7 @@
        <div class="modal-content" style="max-width: 900px !important;">
            <div class="modal-body">
                <div class="contact-register-area">
-                   <strong class="comm-modal-title">[(#{seinfo.pps.label.00300})]</strong><!--추가 요청&질문-->
+                   <strong id="modalTitle" class="comm-modal-title">[(#{seinfo.pps.label.00300})]</strong><!--추가 요청&질문-->
                    <section>
                        <div class="table-row-container">
                            <table>
@@ -202,13 +202,14 @@
             if (requestCont.replyYn === 'N' && requestCont.hasOpposite === 'Y') {
                 // 질문이고 답변 있음 → 답변보기
                 $('#popupMoveCont').text('답변보기').css('display', 'block').attr('disabled', false);
+                $('#modalTitle').text('질문보기');
             } else if (requestCont.replyYn === 'Y' && requestCont.hasOpposite === 'Y') {
                 // 답변이고 질문 있음 → 질문보기
                 $('#popupMoveCont').text('질문보기').css('display', 'block').attr('disabled', false);
+                $('#modalTitle').text('답변보기');
             } else {
                 $('#popupMoveCont').css('display', 'none').attr('disabled', true);
             }
-
 
             //첨부파일
             $('#uploadMode').css('display', 'none')

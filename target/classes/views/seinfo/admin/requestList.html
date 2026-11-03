@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+        <style>
+            .table-row-container table td {
+                height: 42px !important;
+            }
+
+            .table-row-container table th {
+                height: 42px !important;
+            }
+
+            input[type=text] {
+                height: 32px !important;
+            }
+
+            .table-row-container table .select-area .form-select {
+                height: 32px !important;
+            }
+
+            .table-row-container table title-textarea-area,
+            .table-row-container table select-area,
+            .table-row-container table input-area {
+                height: 12px !important;
+            }
+
+            .ck-editor {
+                width: 600px !important;
+                padding: 0px 0px 0px 0px !important;
+            }
+
+            .ck-editor__editable {
+                max-height: 175px;
+            }
+
+            .editorWrap .ck-editor__editable_inline {
+                padding: 0 15px !important;
+                height: calc(100vh - 340px)
+            }
+
+            .editorWrap.hasFileup .ck-editor__editable_inline {
+                height: calc(100vh - 561px)
+            }
+
+            .ck.ck-content strong {
+                font-weight: bold !important;
+            }
+
+            .ck.ck-content ul,
+            .ck.ck-content ul li {
+                list-style-type: disc !important;
+            }
+
+            .ck.ck-content ul {
+                padding-left: 40px;
+            }
+
+            .ck.ck-content ol,
+            .ck.ck-content ol li {
+                list-style-type: decimal !important;
+            }
+
+            .ck.ck-content ol {
+                padding-left: 40px !important;
+            }
+
+            .ck-horizontal-line {
+                border-top: 1px solid rgb(0, 0, 0);
+                /* 수평선의 두께와 색상 */
+                margin: 20px 0;
+                /* 수평선 위아래 간격 */
+            }
+        </style>
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <div th:replace="~{seinfo/layout/include/frame/navCategory :: menuMid710}"></div>
+
+    <main>
+        <div class="subpage-content">
+            <h2>[(#{seinfo.admin.label.00010})]</h2> <!--의뢰접수현황-->
+            <div class="pps-history-area">
+
+                <!--1.그리드-->
+                <section>
+                    <strong class="comm-title">[(#{seinfo.admin.label.00010})]</strong> <!--의뢰접수현황-->
+                    <div class="table-normal-container">
+                        <table id="requestHistoryList">
+                            <colgroup>
+                                <col style="width: 50px" />
+                                <col style="width: 150px" />
+                                <col />
+                                <col style="width: 150px" />
+                                <col style="width: 200px" />
+                                <col style="width: 100px" />
+                                <col style="width: 200px" />
+                                <col style="width: 100px" />
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th class="text-center">[(#{seinfo.admin.label.00020})]</th><!--번호-->
+                                    <th class="text-center">[(#{seinfo.admin.label.00030})]</th><!--등록일-->
+                                    <th class="text-center">[(#{seinfo.admin.label.00040})]</th><!--의뢰 제목-->
+                                    <th class="text-center">[(#{seinfo.admin.label.00050})]</th><!--작성자-->
+                                    <th class="text-center">담당자</th><!--담당자 로그인 ID-->
+                                    <th class="text-center">[(#{seinfo.admin.label.00060})]</th><!--진행단계-->
+                                    <th class="text-center">[(#{seinfo.admin.label.00070})]</th><!--답변상태-->
+                                    <th class="text-center">[(#{seinfo.admin.label.00080})]</th><!--제안상세-->
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!--2.페이징-->
+                <div class="pagination"></div>
+
+            </div>
+        </div>
+    </main>
+
+</th:block>
+
+<th:block layout:fragment="html_js">
+    <script type="text/javascript" th:inline="javascript">
+        const paginationImages = {
+            first: /*[[ @{/static/seinfo/img/icon-pagination-first.svg} ]]*/ '',
+            prev: /*[[ @{/static/seinfo/img/icon-pagination-prev.svg} ]]*/ '',
+            next: /*[[ @{/static/seinfo/img/icon-pagination-next.svg} ]]*/ '',
+            last: /*[[ @{/static/seinfo/img/icon-pagination-last.svg} ]]*/ ''
+        };
+
+        let requestList = /*[[${requestList != null ? requestList : '[]'}]]*/ [];
+        let pageResult = /*[[${pageResult != null ? pageResult : '{}'}]]*/ {};
+        const message = /*[[${message != null ? message : ''}]]*/ '';
+        let page = /*[[${pageResult != null and pageResult.cPage != null ?
+                            pageResult.cPage : 1}]]*/ 1;
+        let ReadRequestNo = '';
+
+        function moveRequestDetail(requestNo) {
+            let arrLinkParam = [];
+            arrLinkParam.push('&requestNo=' + requestNo);
+            arrLinkParam.push('&page=' + page);
+
+            let encData = pf.zzzUtil.getEncryptParam(arrLinkParam.join(''));
+            location.href = '/admin/requestDetail' + '?paramData=' + encData;
+
+        }
+
+        function renderTable() {
+            const tbody = $('#requestHistoryList tbody');
+            tbody.empty();
+
+            if(!Array.isArray(requestList) || requestList.length <= 0) {
+                const row = `
+                    <tr>
+                        <td colspan="8" class="text-center">[(#{seinfo.admin.label.00090})]</td> <!-- 조회된 데이터가 없습니다. -->
+                    </tr>
+                `
+                tbody.append(row);
+                return null;
+            }
+
+            $.each(requestList, (index, item) => {
+                const row = `
+                        <tr>
+                            <td class="text-center">${pf.escapeHtml(item.rnum)}</td>
+                            <td class="text-center">${pf.escapeHtml(item.sendD)}</td>
+                            <td class="text-left middle">
+                                <div class="clear">
+                                     <button type="button" class="middle" style="color:#1d62e0; text-decoration:underline; text-underline-position:under;"
+                                        onclick="moveRequestDetail('${pf.safeId(item.requestNo)}')">
+                                        ${pf.escapeHtml(item.requestTitle)}
+                                      </button>
+                                </div>
+                            </td>
+                            <td class="text-center">${pf.escapeHtml(item.userNm)}</td>
+                            <td class="text-center" style="overflow-wrap:anywhere;">${item.contactLoginId || ''}</td>
+                            <td class="text-center">${pf.escapeHtml(item.requestState)}</td>
+                            <td class="text-center">${pf.escapeHtml(item.replyStatus)}</td>
+                            <td class="text-center">
+                                <div class="clear">
+                                    <button type="button" onclick="moveRequestDetail('${pf.safeId(item.requestNo)}')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
+                                            <path d="M4.87109 9.99989L9.91495 14.861L16.6766 4.44434" stroke="#2DC0F0" stroke-width="1.6" stroke-linecap="round"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                tbody.append(row);
+            });
+
+        }
+
+        //목록 그리드 하단 페이지 처리
+        function renderPagination(pageResult) {
+            let pagination = "";
+
+            //첫 페이지 버튼
+            if(pageResult.cPage > 1) {
+                pagination += `<button type="button" class="page-navi first" data-page="1">
+                               <img src="${paginationImages.first}">
+                               </button>`;
+            }
+
+            //이전 페이지 버튼
+            if(pageResult.hPrev) {
+                pagination += `<button type="button" class="page-navi prev" data-page="${pageResult.cPage - 1}">
+                    <img src="${paginationImages.prev}">
+                </button>`;
+            }
+
+            //페이지 번호
+            let startPage = Math.max(1, pageResult.cPage - 5);
+            let endPage = Math.min(pageResult.totalPages, pageResult.cPage + 5);
+
+            pagination += `<div class="page-links">`;
+            for(let i = startPage; i <= endPage; i++) {
+                let activeClass = (pageResult.cPage === i) ? "active" : "";
+                pagination += `<button class="page-link ${activeClass}" data-page="${i}">${i}</button>`;
+            }
+            pagination += `</div>`;
+
+            //다음 페이지 버튼
+            if(pageResult.hNext) {
+                pagination += `<button type="button" class="page-navi next" data-page="${pageResult.cPage + 1}">
+                    <img src="${paginationImages.next}">
+                </button>`;
+            }
+
+            //마지막 페이지 버튼
+            if(pageResult.cPage < pageResult.totalPages) {
+                pagination += `<button type="button" class="page-navi last" data-page="${pageResult.totalPages}">
+                    <img src="${paginationImages.last}">
+                </button>`;
+            }
+            $(".pagination").html(pagination);
+        }
+
+        function reloadRequestList() {
+            pf.seinfo.ajax({
+                url: '/admin/reloadRequestList',
+                method: "GET",
+                data : {page: page}
+            }, (rData) => {
+                if(rData.process_code === '00') {
+                    requestList = rData.data.requestList;
+                    pageResult = rData.data.pageResult;
+                    renderTable();
+                    renderPagination(pageResult);
+                }else {
+                    pf.seinfoAlert.warning('[(#{seinfo.com.msg.00170})] <br> ' + rData.process_msg);
+                }
+            });
+        }
+
+        $(() => {
+            // 로그인&관리자 경고
+            if (message.trim().length > 0) {
+                pf.seinfoAlert(message, () => {
+                    pf.seinfo.fnLogOutProcess();
+                });
+                return null;
+            }
+
+            renderTable();
+            renderPagination(pageResult);
+
+            //클릭 이벤트 (페이지 이동)
+            $(document).on("click", ".pagination button", function (e) {
+                page = $(this).data("page");
+                reloadRequestList();
+            });
+        });
+
+    </script>
+</th:block>
+</html>

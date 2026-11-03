@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <main>
+        <div class="subpage-content">
+            <h2>[(#{seinfo.menu.top.00210})]</h2>
+
+            <div class="join-area">
+                <!--진행상태-->
+                <div th:replace="~{seinfo/member/divProgress :: progress03}"></div>
+                <!--사용자인증-->
+                <form class="login-wrapper-form custom-form padding-top-20" id="nextForm">
+                    <th:block th:if="${message == null}">
+                        <div class="user-member">
+                            <div class="table-row-container">
+                                <table>
+                                    <colgroup>
+                                        <col width="250px"/>
+                                        <col/>
+                                    </colgroup>
+                                    <tbody>
+                                        <tr>
+                                            <th><i class="required">*</i>로그인 아이디</th>
+                                            <td>
+                                                <div class="input-wrap">
+                                                    <div class="input-area">
+                                                        <input type="text" id="loginId" name="loginId" maxlength="20" autocomplete="username" placeholder="영문자로 시작하는 영문·숫자·밑줄 4~20자">
+                                                    </div>
+                                                    <button class="secondary-md-btn" type="button" onclick="fnLoginIdCheck()">아이디 중복 확인</button>
+                                                    <p id="loginIdResult" role="status"></p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="comment"><i class="required">*</i>
+                                                이메일 주소
+                                                <span>(인증·비밀번호 찾기·연락용)</span> <!-- 회원아이디(이메일주소)-->
+                                            </th>
+                                            <td>
+                                                <div style="display: flex; align-items: center; gap: 10px">
+                                                    <div class="input-wrap">
+                                                        <div class="input-area">
+                                                            <input type="text" id="userEmail" name="userEmail" maxlength="40" autocomplete="email">
+                                                        </div>
+                                                        <button class="secondary-md-btn" type="button" onclick="fnEmailCheck()">[(#{seinfo.com.btn.00080})]</button>
+                                                        <!--- 사용자 인증 -->
+                                                        <p id="result" style="font-weight: bold"></p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="required">*</i>[(#{seinfo.main.label.00160})]</th> <!--비밀번호-->
+                                            <td>
+                                                <div class="input-area">
+                                                    <input type="password" id="userPwd" name="userPwd">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="required">*</i>[(#{seinfo.main.label.00161})]</th> <!--비밀번호 확인-->
+                                            <td>
+                                                <div class="input-area">
+                                                    <input type="password" id="userPwdConf" name="userPwdConf">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="required">*</i>[(#{seinfo.member.label.00150})]</th> <!--회원성명-->
+                                            <td>
+                                                <div class="input-area">
+                                                    <input type="text" id="userNm" name="userNm">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="required">*</i>[(#{seinfo.member.label.00160})]</th> <!--핸드폰 번호-->
+                                            <td>
+                                                <div class="input-area">
+                                                    <input type="text" id="userPhone" name="userPhone">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>[(#{seinfo.member.label.00170})]</th> <!--사무실 전화번호-->
+                                            <td>
+                                                <div class="input-area">
+                                                    <input type="text" id="userOfficePhone" name="userOfficePhone">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="button-area">
+                            <button class="primary-md-btn" type="submit" id="nextBtn">[(#{seinfo.com.btn.00030})]</button> <!--다음-->
+                        </div>
+                        </th:block>
+                        <th:block th:if="${message !=null}"></th:block>
+                    </form>
+                 </div>
+            </div>
+        </main>
+
+        <div th:replace="~{seinfo/member/popupUsrConf  :: popup01View}"></div>
+</th:block>
+
+<th:block layout:fragment="html_js">
+    <script th:replace="~{seinfo/member/popupUsrConf :: popup01Js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        const message = /*[[${message != null ? message : ''}]]*/ '';
+        const joinStep = /*[[${joinStep != null ? joinStep : ''}]]*/ '';
+
+        let confirmedLoginId = "";
+
+        function fnLoginIdCheck() {
+            const loginId = $('#loginId').val().trim().toLowerCase();
+            $('#loginId').val(loginId);
+            if (!/^[a-z][a-z0-9_]{3,19}$/.test(loginId)) {
+                pf.seinfoAlert.focus(0, '아이디는 영문자로 시작하는 영문·숫자·밑줄 4~20자입니다.', $('#loginId'));
+                return;
+            }
+            confirmedLoginId = '';
+            $.ajax({
+                type: 'POST', url: '/anyone/member/usrMember/checkLoginId',
+                contentType: 'application/json', data: JSON.stringify({loginId: loginId}),
+                success: function (rData) {
+                    const current = $('#loginId').val().trim().toLowerCase();
+                    if (rData.process_code === '00' && rData.data.available && current === loginId) {
+                        confirmedLoginId = rData.data.loginId;
+                    }
+                    $('#loginIdResult').text(current === loginId ? rData.data.message : '아이디가 변경되었습니다. 다시 확인해주세요.');
+                },
+                error: function () { $('#loginIdResult').text('아이디 중복 확인 중 오류가 발생했습니다.'); }
+            });
+        }
+
+        $(function () {
+            $('#loginId').on('input', function () {
+                confirmedLoginId = '';
+                $('#loginIdResult').text('아이디 중복 확인이 필요합니다.');
+            });
+        });
+
+        let confirmedUserEmail = "";
+        let userEmailStatus = false;
+        let modalPopup = $('#modalUsrConf');
+        let countdownTimer;
+        let timeLeft = 180; // 3분 (초 단위)
+
+        function fnEmailCheck() {
+            if (userEmailStatus) {
+                pf.seinfoAlert.success('[(#{seinfo.member.msg.00040})]'); // 이미 인증성공 되었습니다.
+                return;
+            }
+
+            let email = $('#userEmail').val().trim();
+            $('#userEmail').val(email);
+            var msg1 = '[(#{seinfo.member.label.00120})] ' + ': [(#{seinfo.com.msg.00120})]'; // (이메일주소) : 필수입력값 입니다.
+            var msg2 = '[(#{seinfo.member.label.00120})] ' + ': [(#{seinfo.com.msg.00130})]'; // (이메일주소) : 형식이 올바르지 않습니다.
+            if (!pf.seinfoComUtil.validateEmail(email, msg1, msg2, $('#userEmail'))) {
+                return false;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '/anyone/member/usrMember/sendAuthMail',
+                contentType: 'application/json',
+                data: JSON.stringify({userEmail: email}),
+                success: function (rData) {
+                    if (rData.process_code === "00") {
+                        fnStartTimer();
+                        $('#result').text('[(#{seinfo.member.msg.00070})]'); // 인증진행중
+                        $('#modalAuthNo').val('');
+                        $(modalPopup).show();
+                    } else {
+                        pf.seinfoAlert.warning(rData.data.message);
+                    }
+                },
+                error: function (jqXHR) {
+                    let response = JSON.parse(jqXHR.responseText).message;
+                    let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                    pf.seinfoAlert.warning(msg);
+                }
+            });
+        }
+
+        function fnStartTimer() {
+            clearInterval(countdownTimer); // 기존 타이머 제거
+            timeLeft = 180; // 초기화
+
+            countdownTimer = setInterval(() => {
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                $('#timer').text(`${minutes}:${seconds < 10 ? '0' + seconds : seconds}`);
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    pf.seinfoAlert('[(#{seinfo.member.msg.00071})]');       // 인증유효시간이 종료되었습니다.
+                    $('#result').text('[(#{seinfo.member.msg.00060})]');  // 인증실패
+                    $("#result").attr("class", "text-danger"); //red
+                    $(modalPopup).hide();
+                }
+                timeLeft--;
+            }, 1000);
+        }
+
+        // 폼 전송 액션
+        function fnNextForm(){
+            const loginId = $('#loginId').val().trim().toLowerCase();
+            if (!/^[a-z][a-z0-9_]{3,19}$/.test(loginId) || confirmedLoginId !== loginId) {
+                pf.seinfoAlert.focus(0, '로그인 아이디를 입력하고 중복 확인해주세요.', $('#loginId'));
+                return false;
+            }
+            // 이메일 인증 여부
+            if (confirmedUserEmail.trim().length > 0 && !userEmailStatus) {
+                var msg = '이메일을 변경하면 재인증이 필요합니다.'; // 회원 아이디 : 변경시 재인증이 필요합니다.
+                pf.seinfoAlert.focus(0, msg, $('#emailChkBtn'));
+                return false;
+            } else if (!userEmailStatus) {
+                pf.seinfoAlert.focus(0, '[(#{seinfo.member.msg.00120})]', $('#userEmail')); // 이메일 인증이 필요합니다.
+                return false;
+            }
+
+            // 패스워드 검증
+            let pwd = $('#userPwd').val();
+            let pwdConf = $('#userPwdConf').val();
+            var msg1 = '[(#{seinfo.main.label.00160})] ' + ': [(#{seinfo.com.msg.00120})]'; // 비밀번호 : 필수입력값 입니다.
+            var msg2 = '[(#{seinfo.pwd.msg.00020})]'; // 비밀번호는 영문, 숫자, 특수문자 중 ...
+            var msg3 = '[(#{seinfo.pwd.msg.00030})]'; // 비밀번호 길이는 최소 8자, 최대 20자 입니다.
+            var msg4 = '[(#{seinfo.pwd.msg.00040})]'; // 비밀번호가 일치하지 않습니다.
+            if (!pf.seinfoComUtil.validatePassword(pwd, pwdConf, msg1, msg2, msg3, msg4, $('#userPwd'), $('#userPwdConf'))) {
+                return false;
+            }
+
+            // 회원 성명 검증
+            let userNm = $('#userNm').val();
+            var msg1 = '[(#{seinfo.member.label.00150})] ' + ': [(#{seinfo.com.msg.00120})]';    // 회원 성명 : 필수입력값 입니다.
+            var msg2 = '[(#{seinfo.member.label.00150})] ' + ': [(#{seinfo.member.msg.00080})]'; // 회원 성명 : 최소 2글자 이상이어야 합니다.
+            var msg3 = '[(#{seinfo.member.label.00150})] ' + ': [(#{seinfo.com.msg.00130})]';    // 회원 성명 : 형식이 올바르지 않습니다.
+            var msg4 = '[(#{seinfo.member.label.00150})] ' + ': [(#{seinfo.com.msg.00100})]';    // 회원 성명 : 입력길이가 한도를 초과하였습니다.
+            if (!pf.seinfoComUtil.validateName(userNm, msg1, msg2, msg3, msg4, $('#userNm'), 98)) {
+                return false;
+            }
+
+            // 핸드폰번호 검증
+            let userPhone = $('#userPhone').val();
+            var msg1 = '[(#{seinfo.member.label.00160})] ' + ': [(#{seinfo.com.msg.00120})]'; // 핸드폰 번호 : 필수입력값 입니다.
+            var msg2 = '[(#{seinfo.member.label.00160})] ' + ': [(#{seinfo.com.msg.00130})]'; // 핸드폰 번호 : 형식이 올바르지 않습니다.
+            var msg3 = '[(#{seinfo.member.label.00160})] ' + ': [(#{seinfo.com.msg.00140})]'; // 핸드폰 번호 : 유효하지 않습니다.
+            if (!pf.seinfoComUtil.validatePhoneNo(userPhone, msg1, msg2, msg3, $('#userPhone'))) {
+                return false;
+            }
+
+            // 사무실 전화번호 검증
+            const userOfficePhone = $('#userOfficePhone').val();
+            if (userOfficePhone) {
+                var msg1 = ''; // 빈값 : 필수입력 제외.
+                var msg2 = '[(#{seinfo.member.label.00170})] ' + ': [(#{seinfo.com.msg.00130})]'; // 핸드폰 번호 : 형식이 올바르지 않습니다.
+                var msg3 = '[(#{seinfo.member.label.00170})] ' + ': [(#{seinfo.com.msg.00140})]'; // 핸드폰 번호 : 유효하지 않습니다.
+                if (!pf.seinfoComUtil.validatePhoneNo(userOfficePhone, msg1, msg2, msg3, $('#userOfficePhone'))) {
+                    return false;
+                }
+            }
+
+            const formData = {
+                loginId: loginId,
+                userEmail: confirmedUserEmail,
+                userPwd: pwd,
+                userNm: userNm,
+                userPhone: userPhone,
+                userOfficePhone: $('#userOfficePhone').val()
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '/anyone/member/usrMember/addMemberInfo',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function (rData) {
+                    if (rData.process_code === "00") {
+                        location.href = contextPath + "/anyone/member/endMember";
+                    } else {
+                        //[저장오류] ...
+                        pf.seinfoAlert.warning('[(#{seinfo.com.msg.00171})] <br> ' + rData.data.message);
+                    }
+                },
+                error: function (jqXHR) {
+                    let response = JSON.parse(jqXHR.responseText).message;
+                    let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                    //[저장오류] ...
+                    pf.seinfoAlert.warning('[(#{seinfo.com.msg.00171})] <br> ' + msg);
+                }
+            });
+        }
+
+        // input 칼럼에 대한 힌트제공
+        function fnInputSetPlaceholder() {
+            $("#userEmail").attr("placeholder", "[(#{seinfo.member.label.00110})]" + "[(#{seinfo.com.msg.00160})]"); // 아디를 입력하세요.
+            $("#userPwd").attr("placeholder", "[(#{seinfo.main.label.00160})]" + "[(#{seinfo.com.msg.00160})]"); // 비밀번호를 입력하세요.
+            $("#userPwdConf").attr("placeholder", "[(#{seinfo.main.label.00161})]" + "[(#{seinfo.com.msg.00161})]"); // 비밀번호 확인을 입력하세요.
+            $("#userNm").attr("placeholder", "[(#{seinfo.member.label.00150})]" + "[(#{seinfo.com.msg.00161})]"); // 회원 성명을 입력하세요.
+            $("#userPhone").attr("placeholder", "[(#{seinfo.member.label.00160})]" + "[(#{seinfo.com.msg.00160})]"); // 핸드폰 번호를 입력하세요.
+            $("#userOfficePhone").attr("placeholder", "[(#{seinfo.member.label.00170})]" + "[(#{seinfo.com.msg.00160})]"); // 사무실 전화번호를 입력하세요.
+            $("#modalAuthNo").attr("placeholder", "[(#{seinfo.member.label.00230})]" + "[(#{seinfo.com.msg.00160})]"); // 인증번호를 입력하세요.
+        }
+
+        $(() => {
+            if (!pf.seinfoComUtil.doNotMovePage()) return;
+
+            if (message && message.trim().length > 0) {
+                pf.seinfoAlert.warning(message, () => {
+                    if (parseInt(joinStep) === 2) {
+                        location.href = '/anyone/member/regMember';
+                    } else {
+                        location.href = '/anyone/member/joinMember';
+                    }
+                });
+            }
+
+            $('#userEmail').focus();
+            fnInputSetPlaceholder();
+            pf.seinfoComUtil.autoVaildator('#userNm', 98);
+            pf.seinfoComUtil.formatSetPhoneNo('#userPhone');
+            pf.seinfoComUtil.formatSetPhoneNo('#userOfficePhone');
+
+            $('#userEmail').on('input', function () {
+                let inputedUserEmail = $('#userEmail').val();
+                if (inputedUserEmail !== confirmedUserEmail) {
+                    $('#result').text('');
+                    $("#result").attr("class", "text-wanning");
+                    userEmailStatus = false;
+                }
+            });
+
+            $('#modalBtnCls').on('click', function () {
+                clearInterval(countdownTimer);
+                $('#result').text('');
+            });
+
+            $("#modalAuthNo").on('input', function () {
+                let input = $(this).val().replace(/[^0-9]/g, '');
+                if (input.length > 6) {
+                    input = input.substring(0, 6);
+                }
+                $(this).val(input);
+            });
+
+            $('#nextForm').on('submit', function (e) {
+                e.preventDefault();
+                fnNextForm();
+            });
+        });
+        </script>
+    </th:block>
+</html>
+
+
+
+
+
+
+

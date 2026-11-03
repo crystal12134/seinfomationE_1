@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block th:fragment="popup01View">
+    <div class="modal" id="modalPassChange">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="close-modal-btn">
+                <img th:src="@{/static/seinfo/img/icon-modal-close.svg}" alt='[(#{seinfo.com.btn.00040})]'> <!--닫기-->
+            </button>
+            <div class="modal-body">
+                <div class="password-change-content">
+                    <strong>[(#{seinfo.main.label.00310})]</strong> <!--비밀번호 변경-->
+                    <section>
+                        <strong>
+                            <i>[(#{seinfo.main.label.00380})]</i>[(#{seinfo.main.label.00390})]<br/>[(#{seinfo.main.label.00400})]
+                        </strong> <!--영문, 숫자, 특수문자를 포함한 비밀번호를 작성해주세요.-->
+                        <form id="pwdChangeForm">
+                            <div class="password-change-input-area">
+                                <div class="table-row-container">
+                                    <table>
+                                        <colgroup>
+                                            <col width="160px" />
+                                            <col />
+                                        </colgroup>
+                                        <tbody>
+                                            <tr>
+                                                <th>[(#{seinfo.main.label.00160})]</th><!--비밀번호-->
+                                                <td>
+                                                    <div class="input-area">
+                                                        <input type="password" id="popupUserPwd" autocomplete="off"
+                                                            autofocus>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>[(#{seinfo.main.label.00350})]</th> <!--신규 비밀번호-->
+                                                <td>
+                                                    <div class="input-area">
+                                                        <input type="password" id="popupUserTmpPwd" autocomplete="off"
+                                                               autofocus>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>[(#{seinfo.main.label.00360})]</th> <!--신규 비밀번호 확인-->
+                                                <td>
+                                                    <div class="input-area">
+                                                        <input type="password" id="popupUserTmpPwdConf"
+                                                           autocomplete="off">
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="button-area">
+                                <button class="primary-md-btn">[(#{seinfo.main.label.00370})]</button><!--변경하기-->
+                            </div>
+                        </form>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="popup01Js">
+    <script type="text/javascript" th:inline="javascript">
+       function fnPassChange() {
+           //패스워드 검증
+           if(pf.zzzUtil.isEmpty($('#popupUserPwd').val())) {
+               pf.seinfoAlert.focus(0, '[(#{seinfo.main.msg.00050})]', $('#popupUserPwd')); //비밀번호를 입력하세요.
+           }
+           if(pf.zzzUtil.isEmpty($('#popupUserTmpPwd').val())) {
+               pf.seinfoAlert.focus(0, '[(#{seinfo.main.label.00350})] ' + '[(#{seinfo.com.msg.00120})]'
+                   , $('#popupUserTmpPwd')); //신규 비밀번호 : 필수입력값 입니다.
+           }
+           if(pf.zzzUtil.isEmpty($('#popupUserTmpPwdConf').val())) {
+               pf.seinfoAlert.focus(0, '[(#{seinfo.main.label.00360})] ' + '[(#{seinfo.com.msg.00120})]'
+                   , $('#popupUserTmpPwdConf')); //신규 비밀번호 확인 : 필수입력값 입니다.
+           }
+
+           let tmpPwd = $('#popupUserTmpPwd').val();
+           let tmpPwdConf = $('#popupUserTmpPwdConf').val();
+           var msg1 = '[(#{seinfo.main.label.00350})]' + '[(#{seinfo.com.msg.00120})]'; //신규 비밀번호 : 필수입력값 입니다.
+           var msg2 = '[(#{seinfo.main.label.00020})]' //비밀번호는 영문, 숫자, 특수문자 중...
+           var msg3 = '[(#{seinfo.main.label.00030})]' //비밀번호 길이는 최소 8자, 최대 20자입니다.
+           var msg4 = '[(#{seinfo.main.label.00040})]' //비밀번호가 일치하지 않습니다.
+           if(!pf.seinfoComUtil.validatePassword(tmpPwd, tmpPwdConf, msg1, msg2, msg3, msg4, $('#popupUserTmpPwd'), $('#popupUserTmpPwdConf'))) {
+               return false;
+           }
+
+           pf.seinfo.ajax({
+               method: 'POST',
+               url: '/member/myInfo/passChange/changePwdProcess',
+               data: {  userUid: memberInfo.userUid,
+                        password: $('#popupUserPwd').val(),
+                        newPassword: tmpPwd,
+                        myInfoYn: 'Y'}
+           }, (rData) => {
+               if(rData.process_code === "00") { //성공
+                   pf.seinfoAlert.success(rData.data.message, () => { //비밀번호 변경이 완료되었습니다. 변경하신 비밀번호로 다시 로그인 해주세요.
+                       pf.seinfo.fnLogOutProcess('', '', 'divMid620');
+                   });
+               }else {
+                   pf.seinfoAlert.warning(rData.data.message, () => {
+                       $("#popupUserPwd").val('');
+                       $("#popupUserTmpPwd").val('');
+                       $("#popupUserPwdConf").val('');
+                       setTimeout(function () {$("#popupUserPwd").focus();}, 50);
+                   });
+               }
+           });
+       }
+
+       //input 컬럼에 대한 힌트제공
+       function fnInputSetPlaceholder() {
+           $("#popupUserPwd").attr("placeholder", "[(#{seinfo.main.label.00162})]" + "[(#{seinfo.com.msg.00160})]"); //기존 비밀번호를 입력하세요.
+           $("#popupUserTmpPwd").attr("placeholder", "[(#{seinfo.main.label.00350})]" + "[(#{seinfo.com.msg.00160})]"); //신규 비밀번호를 입력하세요.
+           $("#popupUserPwdConf").attr("placeholder", "[(#{seinfo.main.label.00360})]" + "[(#{seinfo.com.msg.00161})]"); //기존 비밀번호 확인을 입력하세요.
+       }
+
+       $(() => {
+           //input 컬럼에 대한 힌트 설정
+           fnInputSetPlaceholder();
+
+           $('#pwdChangeForm').on('submit', function (e) {
+               e.preventDefault();
+               fnPassChange();
+           });
+       });
+
+    </script>
+</th:block>
+</html>

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+        <style>
+            .ck-editor {
+                width: 950px !important;
+                padding: 0px 0px 0px 0px !important;
+            }
+
+            .ck-editor__editable {
+                max-height: 600px;
+            }
+
+            .editorWrap .ck-editor__editable_inline {
+                padding: 0 15px !important;
+                height: calc(100vh - 340px)
+            }
+
+            .editorWrap.hasFileup .ck-editor__editable_inline {
+                height: calc(100vh - 561px)
+            }
+
+            .ck.ck-content strong {
+                font-weight: bold !important;
+            }
+
+            .ck.ck-content ul,
+            .ck.ck-content ul li {
+                list-style-type: disc !important;
+            }
+
+            .ck.ck-content ul {
+                padding-left: 40px;
+            }
+
+            .ck.ck-content ol,
+            .ck.ck-content ol li {
+                list-style-type: decimal !important;
+            }
+
+            .ck.ck-content ol {
+                padding-left: 40px !important;
+            }
+
+            .ck-horizontal-line {
+                border-top: 1px solid rgb(0, 0, 0);
+                /* 수평선의 두께와 색상 */
+                margin: 20px 0;
+                /* 수평선 위아래 간격 */
+            }
+        </style>
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <div th:replace="~{seinfo/layout/include/frame/navCategory :: menuMid410}"></div>
+
+    <main>
+        <div class="subpage-content">
+            <h2 id="title"></h2><!--제안서 작성-->
+            <div class="pps-regform-area">
+                <section>
+                    <div class="table-row-container">
+                        <table>
+                            <colgroup>
+                                <col width="250px" />
+                                <col />
+                            </colgroup>
+                            <tbody>
+                            <tr>
+                                <th><i class="required">*</i>[(#{seinfo.pps.label.00010})]</th><!--제안 제목-->
+                                <td>
+                                    <div class="title-textarea-area" style="height: 50px;">
+                                        <input id="requestTitle" type="text" maxlength="100"> <!--제목을 입력하세요-->
+                                        <!--<textarea id="proposalTitle" maxlength="100"></textarea> -->
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><i class="required">*</i>[(#{seinfo.pps.label.00012})]</th><!--제안 내용-->
+                                <td>
+                                    <input type="hidden" id="requestDetail">
+                                    <div class="editorWrap" style="padding: 10px 0;">
+                                        <div id="editorKr" class="editor" style="height:100%;"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00013})] (선택)</th><!--첨부 파일: 선택 항목-->
+                                <td>
+                                    <!--1. 첨부파일 : 신규, 수정, 조회 (업로드, 삭제, 다운로드) >>> fileTusJs -->
+                                    <div th:replace="~{seinfo/file/divFileTus :: fileUpload}"></div>
+
+                                    <!--2. 첨부파일 : 조회 (다운로드) >>> fileTusJs -->
+                                    <div th:replace="~{seinfo/file/divFileTus :: fileDownload}"></div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00019})]</th><!--제안 회사명-->
+                                <td>
+                                    <div class="input-area">
+                                        <input id="companyNm" type="text" readonly><!--회사명을 입력하세요-->
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00020})]</th><!--제안 회사 URL-->
+                                <td>
+                                    <div class="input-area">
+                                        <input id="companyUrl" type="text" readonly><!--회사 URL을 입력하세요-->
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th><label for="contactLoginId">담당자 ID</label></th>
+                                <td>
+                                    <div class="input-area">
+                                        <input id="contactLoginId" type="text" readonly
+                                               aria-label="담당자 ID" autocomplete="off">
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00021})]</th><!--담당 성명-->
+                                <td>
+                                    <div class="input-area">
+                                        <input id="userNm" type="text" readonly><!--이름을 입력하세요-->
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00022})]</th><!--담당 연락처-->
+                                <td>
+                                    <div class="input-area">
+                                        <input id="userPhone" type="text" readonly><!--연락처를 입력하세요-->
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00023})]</th><!--담당 이메일-->
+                                <td>
+                                    <div class="input-area">
+                                        <input id="userEmail" type="text" readonly><!--이메일을 입력하세요-->
+                                    </div>
+                                </td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!--A. 제안서작성-->
+                <div id="registerRequest" class="button-area" style="display: none;">
+                    <!--B1. 제안서이력조회 : 작성중 - 수정하기 > 목록 페이지로 되돌아가기-->
+                    <button type="button" class="secondary-md-btn" id="modifyGoToList" style="display: none;">
+                        [(#{seinfo.com.btn.00150})] <!-- 목록으로 -->
+                    </button>
+                    <button type="submit" class="primary-outline-md-btn" id="regTempSave" style="font-weight: 500;">
+                        [(#{seinfo.com.btn.00130})] <!-- 임시저장 -->
+                    </button>
+                    <button type="button" class="primary-md-btn" id="regDelSave">
+                        [(#{seinfo.com.btn.00200})] <!-- 삭제하기 -->
+                    </button>
+                    <button type="submit" class="primary-md-btn" id="submit">
+                        [(#{seinfo.com.btn.00140})] <!-- 제출하기 -->
+                    </button>
+                </div>
+
+                <!--B2. 제안서이력조회 : 제출완료 - 조회하기-->
+                <div id="readRequest" class="button-area" style="display: none;">
+                    <button type="button" class="primary-md-btn" id="readGoToList">
+                        [(#{seinfo.com.btn.00150})] <!-- 목록으로 -->
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+</th:block>
+
+<th:block layout:fragment="html_js">
+    <script type="text/javascript" th:src="@{/static/seinfo/js/internal/uploadAdapter.js}"></script>
+    <script th:replace="~{seinfo/file/divFileTus :: fileTusJs}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        // 공통 코드
+        pf.code.getList('RTPC001');
+        const proposalArea = pf.code.setList["RTPC001"];
+
+        /* (bck 2025.05.15)
+        pf.code.getList('RTPC017');
+        const roleTeamCode = pf.code.setList["RTPC017"];
+        let roleTeam = "";
+        roleTeamCode.forEach((item, index) => {
+            roleTeam = item.value;
+        }); */
+
+        // 첨부파일 설정 : uploadKeySetting / uploadSetting / fileUpDown / fileUpDownSave / fileUpDownErr
+        const uploadKey = {
+            cdKey: 'SEINFO001'
+            , grpKey: 'seinfo-grp-pps'
+            , idKey: 'seinfo-pps'
+            , workKey: 'pps'
+        }
+        uploadKeySetting(uploadKey);
+
+        // 초기 변수 설정
+        const userInfo =  /*[[${userInfo != null ? userInfo : '{}'}]]*/ {};
+        const requestInfo = /*[[${requestInfo != null ? requestInfo : '{}'}]]*/ {};
+        const DetailYn = /*[[${DetailYn != null ? DetailYn : ''}]]*/ '';
+        const requestSeq =  /*[[${requestSeq != null ? requestSeq : ''}]]*/ ''
+        const page = /*[[${page != null ? page : ''}]]*/ '';
+        const message = /*[[${message != null ? message : ''}]]*/ '';
+
+        // ckEditor 설정
+        const config = {
+            editorInsKr: null,
+            editorKr: null,
+            useEnMenu: true,
+            lang: 'ko',
+            selectSystemId: '',
+            fileGroupId: '',
+            filesPrev: true,
+            uploadFileCnt: 0,
+            dataToServer: '',
+            boardFileYn: 'Y',
+            uploadFlg: true
+        };
+
+        // ckEditor 초기화
+        const ckedit_init = (target, data, readOnly) => {
+            let selector = document.querySelector("#" + target);
+            if (config.editorInsKr) {
+                config.editorInsKr.destroy();
+            }
+
+            ClassicEditor.create((selector), {
+                toolbar: {
+                    items: ['heading', 'undo', 'redo',
+                        'bold', 'bulletedList', 'numberedList',
+                        'fontColor', 'fontSize', 'fontFamily', 'highlight',
+                        'link', 'blockQuote', 'insertTable']
+                },
+                language: 'ko',
+                fontFamily: {
+                    options: [
+                        'default',
+                        'Arial',
+                        '궁서체',
+                        '맑은고딕',
+                        '바탕체',
+                        '현대산스 Head',
+                        '현대산스 Text',
+                        '현대하모니'
+                    ],
+                    supportAllValues: true
+                },
+                fontSize: {
+                    options: [9, 11, 13, 'default', 17, 19, 21, 24, 27, 32]
+                },
+                table: {
+                    contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableCellProperties', 'tableProperties']
+                },
+            }).then(editor => {
+                editor.setData(data);
+                config.editorInsKr = editor;
+                config.editorKr = editor;
+
+                //읽기전용 스타일 추가
+                if (readOnly) {
+                    editor.enableReadOnlyMode(target);
+                    editor.ui.view.editable.element.classList.add('editor-readonly');
+                    $('.ck .ck-sticky-panel__content').css('display', 'none');
+                }
+            });
+        };
+
+        // UI 업데이트 (버튼 및 입력 필드 설정)
+        function updateUI() {
+            const actions = {
+                regTempSave: () => {
+                    if (DetailYn === "Y") return;
+                    confirmRequest('/request/registerRequest', '01', "[(#{seinfo.pps.msg.00030})]"); // 임시저장 되었습니다.
+                },
+                regDelSave: () => { // 진행단계 : 작성중 일때만, 삭제가능
+                    const requestState = requestInfo?.requestState || '';
+                    if (DetailYn === "Y" || requestState !== '01') {
+                        pf.seinfoAlert.warning('[(#{seinfo.com.msg.00172})] <br> [(#{seinfo.com.msg.00140})]'); // [삭제오류] 유효하지 않습니다.
+                        return;
+                    }
+                    pf.seinfoAlert.confirm('[(#{seinfo.main.msg.00180})]', () => { // 해당 내용이 영구적으로 삭제됩니다. <br> 그래도 삭제하시겠습니까?
+                        fnDelProposal('/request/removeRequest', requestState, "[(#{seinfo.com.msg.00040})]");
+                    });
+                },
+                submit: () => {
+                    if (DetailYn === "Y") return;
+                    confirmRequest('/request/registerRequest', '10', "[(#{seinfo.pps.msg.00040})]") // 제출 되었습니다.
+                },
+                modifyGoToList: () => {
+                    if (DetailYn === "Y" || !requestInfo.requestNo) return;
+                    location.href = '/request/requestList?page=' + page;
+                },
+                readGoToList: () => {
+                    if (DetailYn === "Y" || !requestInfo.requestNo) return;
+                    location.href = '/request/requestList?page=' + page;
+                },
+                modifyGoToBack: () => {
+                    if (DetailYn === "N" || !requestInfo.requestNo) return;
+                    location.href = '/request/requestDetail?paramData=' + fnMakeParam();
+                },
+                readGoToBack: () => {
+                    if (DetailYn === "N" || !requestInfo.requestNo) return;
+                    location.href = '/request/requestDetail?paramData=' + fnMakeParam();
+                }
+            };
+            Object.keys(actions).forEach(id => $(`#${id}`).on('click', actions[id]));
+
+            $('.button-area > div').hide();
+            setProposalState();
+        }
+
+        // 제안 상태별 UI 설정
+        function setProposalState() {
+            const requestState = requestInfo?.requestState || '';
+
+            if (!requestState.trim() || requestState === '01') {
+                $('#title').text('[(#{seinfo.pps.label.00028})]'); // 제안서 작성
+                $('#registerRequest').show();
+                requestState === '01' ? $('#modifyGoToList').css('display', 'block') : $('#modifyGoToList').css('display', 'none');
+                requestState === '01' ? $('#regDelSave').css('display', 'block') : $('#regDelSave').css('display', 'none');
+                requestState === '01' ? fileUpDown.initEdit() : fileUpDown.initWrite();
+
+                // 신규 제안서 작성 : 기본문구 가져오기 (upd 2025.05.14)
+                // 방법1) 최초 1번만 설정해주기
+                let defaultText = '';
+                if (pf.zzzUtil.isEmpty(requestInfo.requestNo)) {
+                    defaultText = pf.seinfoComUtil.initDetailText();
+                } else {
+                    defaultText = requestInfo?.requestDetail || '';
+                }
+                ckedit_init('editorKr', defaultText, false);
+            } else {
+                $('#title').text('[(#{seinfo.pps.label.00030})]'); // 제안서 조회
+                $('#requestTitle').attr('readonly', true);
+                $('#readRequest').show();
+                ckedit_init('editorKr', requestInfo?.requestDetail || '', true);
+                fileUpDown.initView();
+            }
+        }
+
+        // 페이지 초기 데이터 로드 및 설정
+        function loadProposalData() {
+
+            uploadSetting.fileGrpId = requestInfo?.mfileGroupId || null;
+
+            $('#requestTitle').val(pf.seinfoComUtil.unEscape(requestInfo?.requestTitle));
+            $('#companyNm').val(pf.seinfoComUtil.unEscape(userInfo.companyNm));
+            $('#companyUrl').val(pf.seinfoComUtil.unEscape(userInfo.companyUrl));
+            // 저장된 의뢰는 해당 의뢰의 담당자를 표시합니다. 신규는 로그인 회원입니다.
+            $('#contactLoginId').val(requestInfo?.contactLoginId || userInfo?.contactLoginId || '');
+            $('#userNm').val(userInfo.userNm);
+            $('#userPhone').val(userInfo.userPhone);
+            $('#userEmail').val(userInfo.userEmail);
+
+            updateUI();
+        }
+
+        // 글자치환
+        const funcUnEscape = (html) => {
+            if (pf.zzzUtil.isEmpty(html)) return html;
+            html = html.replaceAll("& le;", '<=');
+            html = html.replaceAll("& ge;", '>=');
+            html = html.replaceAll("& ne;", '=/');
+            html = html.replaceAll("& equals;", '=');
+            html = html.replaceAll("& lt;", '<');
+            html = html.replaceAll("& gt;", '>');
+
+            return html;
+        }
+
+        // 저장전 제안서 검증
+        function confirmRequest(url, requestState, successMessage) {
+            event.preventDefault();
+
+            let proposalTitle = $('#requestTitle').val();
+            if (pf.zzzUtil.isEmpty(proposalTitle)) return pf.seinfoAlert.focus(0, '[(#{seinfo.pps.msg.00010})]', $('#requestTitle')); // 제목을 입력하세요.
+
+            $('#requestDetail').val(config.editorKr.getData());
+            let requestDetail = $('#requestDetail').val();
+
+            if (requestState === '10') {
+                if (pf.zzzUtil.isEmpty(requestDetail)) return pf.seinfoAlert.focus(0, '[(#{seinfo.pps.msg.00020})]', $('#requestDetail')); // 제안 내용을 입력하세요.
+
+                // 첨부파일은 선택 사항입니다. 파일 없이도 의뢰서를 제출할 수 있습니다.
+
+                pf.seinfoAlert.confirm('[(#{seinfo.pps.msg.00130})]', () => { // 제안서 제출시 수정이 불가능 합니다.<br> 제출하시겠습니까?
+                    fnSubmitProposal(url, requestState, successMessage, requestDetail);
+                });
+                return;
+            }
+
+            fnSubmitProposal(url, requestState, successMessage, requestDetail);
+        }
+
+        // 제안서 저장 처리
+        function fnSubmitProposal(url, requestState, successMessage, requestDetail) {
+            // 저장순서 : 첨부파일 저장 > 업무저장
+            fileUpDownSave((resultVal) => {
+                if (!resultVal) { // 첨부파일 저장 : 실패시 여기에서 종료
+                    // 첨부파일 : 업로드 오류발생시, 후속처리 (upd 2025.04.02)
+                    fileUpDownErr();
+                    return;
+                }
+
+                // 업무저장 (제안서 등록 및 수정 처리)
+                const formData = {
+                    requestNo: requestInfo?.requestNo || null,
+                    requestTitle: $('#requestTitle').val(),
+                    companyNm: $('#companyNm').val(),
+                    requestDetail,
+                    requestState,
+                    fileGrpId: fileUpDown.filesArray.length > 0 ? uploadSetting.fileGrpId : null,
+                    sendD: requestInfo?.sendD || null,
+                };
+
+                // 중복 로그인 차단 관련 (bck 2025.06.09)
+                //if (!pf.lrtp.validateToken("", {gbn:"02"})) return;
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function (rData) {
+                        if (rData.process_code === "00") {
+                            pf.seinfoAlert.success(successMessage, () => {
+                                if (requestState === '01') {
+                                    //신규는 저장된 제안번호로 설정한 후에 재조회 한다.
+                                    if (pf.zzzUtil.isEmpty(formData.requestNo)) {
+                                        const saveRequestNo = rData.data.saveRequestNo;
+                                        let arrLinkParam = [];
+                                        arrLinkParam.push('&requestNo=' + saveRequestNo);
+                                        arrLinkParam.push('&page=1');
+                                        let encData = pf.zzzUtil.getEncryptParam(arrLinkParam.join(''));
+                                        location.href = '/request/requestRegForm?paramData='+ encData ;
+                                    } else {
+                                        window.location.reload(); // 화면 재호출 (upd 2025.04.29)
+                                    }
+                                } else if(requestState === '10') {
+                                    location.href = '/request/requestList';
+                                }  else {
+                                    location.href = '/request/requestDetail?page=' + page;
+                                }
+                            });
+                        }else {
+                            let msg = pf.zzzUtil.strNvlChange(rData.data.message, rData.process_msg);
+                            pf.seinfoAlert.warning('[(#{seinfo.com.msg.00171})] <br> ' + msg, ()=> { //[저장오류] ...
+                                fileUpDownErr();
+                            });
+                        }
+                    },
+                    error: function (jqXHR) {
+                        let response = JSON.parse(jqXHR.responseText).message;
+                        let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                        pf.seinfoAlert.warning('[(#{seinfo.com.msg.00171})] <br> ' + msg, () => {
+                            fileUpDownErr();
+                        }); //[저장오류] ...
+                    }
+                });
+            });
+        }
+
+        // 제안서 삭제
+        function fnDelProposal(url, requestState, successMessage) {
+            // 중복 로그인 차단 관련 (bck 2025.06.09)
+            //if (!pf.lrtp.validateToken("", {gbn:"02"})) return;
+
+            $.ajax({
+                url: url,
+                type: "DELETE",
+                contentType: 'application/json',
+                data: JSON.stringify({ requestNo: requestInfo?.requestNo, requestState: requestState}),
+                success: function (response) {
+                    if(response.success){
+                        pf.seinfoAlert.success(successMessage, ()=>{ // 삭제되었습니다.
+                            location.href = '/request/requestList?page=' + page;
+                        });
+                    }
+                },
+                error: function (jqXHR) {
+                    let response = JSON.parse(jqXHR.responseText).message;
+                    let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                    pf.seinfoAlert.warning('[(#{seinfo.com.msg.00172})] <br> '+ msg); //[삭제오류] ...
+                }
+            });
+        }
+
+
+        // param 인코딩
+        function fnMakeParam() {
+            let arrLinkparam = [];
+            arrLinkparam.push('&requestNo=' + requestInfo.requestNo);
+
+            let encData = pf.zzzUtil.getEncryptParam(arrLinkparam.join(''));
+            return encData;
+        }
+
+        function fnInputSetPlaceholder() {
+            $("#requestTitle").attr("placeholder", "[(#{seinfo.main.msg.00130})]"); // 제목을 입력하세요.
+        }
+
+        // 페이지 로드 시 실행
+        $(() => {
+            // 로그인 경고
+            if (message.trim().length > 0) {
+                pf.seinfoAlert(message, () => {
+                    location.href = pf.seinfo.fnGetMovePage("divMid110"); // 로그인 페이지
+                });
+                return;
+            }
+
+            fnInputSetPlaceholder();
+            loadProposalData();
+        });
+    </script>
+
+</th:block>
+
+</html>
+
+

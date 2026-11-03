@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+        <style></style>
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <main>
+        <div class="subpage-content">
+            <h2>[(#{seinfo.menu.top.00110})]</h2>   <!--로그인-->
+            <div class="login-area">
+                <div class="login-inner">
+                    <div class="text-area">
+                        <strong>[(#{seinfo.main.label.00110})]</strong> <!--H-SYNC에 오신것을 환영합니다.-->
+                        <p>
+                            [(#{seinfo.main.label.00120})] <br />
+                            [(#{seinfo.main.label.00130})] <br />
+                            아이디는 영문 소문자로 관리되며 이메일 주소로는 로그인할 수 없습니다.
+                        </p>
+                        <!--로그인을 위하여 아래에 아이디와 비밀번호를 입력해주시기 바랍니다.
+                            처음 방문하셨다면 회원가입을 하신 후에 서비스를 이용하실 수 있습니다.
+                            아이디 입력시 대소문자를 정확히 구분해서 입력해주세요.
+                         -->
+                    </div>
+                    <div class="login-input">
+                        <form id="loginForm">
+                            <div class="login-input-inner">
+                                <article>
+                                    <div class="input-area">
+                                        <label class="label">[(#{seinfo.main.label.00150})]</label> <!--아이디-->
+                                        <div class="input">
+                                            <img th:src="@{/static/seinfo/img/icon-login-user.svg}"
+                                                 alt='[(#{seinfo.main.label.00150})]' /> <!--아이디-->
+                                            <input type="text" id="id" name="id" maxlength="20" autocomplete="username" data-caps-lock="login-id" placeholder="로그인 아이디">
+                                        </div>
+                                    </div>
+                                    <div class="input-area">
+                                        <label class="label">[(#{seinfo.main.label.00160})]</label> <!--비밀번호-->
+                                        <div class="input">
+                                            <img th:src="@{/static/seinfo/img/icon-login-pw.svg}"
+                                                 alt='[(#{seinfo.main.label.00160})]' /> <!--비밀번호-->
+                                            <input type="password" id="password" name="password" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="box-checkbox">
+                                        <input type="checkbox" id="chkIdSave">
+                                        <label for="chkIdSave" class="label">
+                                            <span>[(#{seinfo.main.label.00170})]</span> <!--아이디 저장하기-->
+                                        </label>
+                                    </div>
+                                </article>
+
+                                <div class="button-area">
+                                    <button type="submit" class="primary-md-btn">[(#{seinfo.menu.top.00110})]</button>
+                                    <!--로그인-->
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="login-etc-area">
+                    <ul>
+                        <li>
+                            <img th:src="@{/static/seinfo/img/icon-key.svg}" alt='[(#{seinfo.menu.mid.00110})]'>
+                            <!--임시 비밀번호 발급-->
+                            <div class="inner">
+                                <span>[(#{seinfo.main.label.00180})]</span> <!--계정이 잠기셨나요?-->
+                                <button type="button" onclick="unlockPwd()"
+                                        class="outline-sm-btn">비밀번호 재설정 메일</button>  <!--임시 비밀번호 발급-->
+                            </div>
+                        </li>
+                        <li>
+                            <img th:src="@{/static/seinfo/img/icon-search.svg}" alt='[(#{seinfo.menu.mid.00120})]'>
+                            <!--아이디/비밀번호 찾기-->
+                            <div class="inner">
+                                <span>[(#{seinfo.main.label.00190})]</span> <!--아이디와 비밀번호를 잊으셨나요?-->
+                                <a th:href="@{/login/passFind}"><button
+                                        class="outline-sm-btn">[(#{seinfo.menu.mid.00120})]</button></a>
+                                <!--아이디/비밀번호 찾기-->
+                            </div>
+                        </li>
+                        <li>
+                            <img th:src="@{/static/seinfo/img/icon-join.svg}" alt='[(#{seinfo.menu.mid.00210})]'>
+                            <!--회원가입-->
+                            <div class="inner">
+                                <span>[(#{seinfo.main.label.00200})]</span> <!--아직 H-SYNC회원이 아니신가요?-->
+                                <a th:href="@{/anyone/member/joinMember}"><button
+                                        class="outline-sm-btn">[(#{seinfo.menu.top.00210})]</button></a> <!--회원가입-->
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </main>
+    <div th:replace="~{seinfo/main/popupTmpPassChange :: popup01View}"></div>
+</th:block>
+
+<th:block layout:fragment="html_js">
+    <script th:replace="~{seinfo/main/popupTmpPassChange :: popup01Js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        const prevPage = /*[[${prevPage != null ? prevPage : ''}]]*/ '';
+        const userInfo = {};
+
+        function loginForm() {
+            let id = $('#id').val().trim().toLowerCase();
+            let password = $('#password').val();
+
+            if (!/^[a-z][a-z0-9_]{3,19}$/.test(id)) {
+                pf.seinfoAlert.focus(0, '로그인 아이디(영문자로 시작하는 영문·숫자·밑줄 4~20자)를 입력해주세요.', $('#id'));
+                return;
+            }
+
+            if (pf.zzzUtil.isEmpty(password)) { //비밀번호를 입력하세요.
+                pf.seinfoAlert.focus(0, '[(#{seinfo.main.msg.00050})]', $('#password'));
+                return;
+            }
+
+        $.ajax({
+            type: "POST",
+            url: '/login/login/loginProcess',
+            contentType: 'application/json',
+            data: JSON.stringify({id: id, password: password}),
+            success: function (rData) {
+                if(rData.process_code === "00") { //성공
+                    if (rData.data.pwdInitYn === "Y") {
+                        userInfo.userUid = rData.data.userUid;
+                        fnPopupPwdChange();
+                        return;
+                    }
+
+                    let saveChkId = $('#chkIdSave').is(':checked');
+                    if (saveChkId) {
+                        localStorage.setItem('saveLoginId', id);
+                    } else {
+                        localStorage.removeItem('saveLoginId');
+                    }
+
+                    const moveMain =pf.seinfo.fnGetMovePage('divTop000');
+                    if (prevPage) {
+                        const movePage = pf.seinfo.fnGetMovePage(prevPage);
+                        location.href = pf.zzzUtil.strNvlChange(movePage, moveMain);
+                    } else {
+                        location.href = moveMain;
+                    }
+                } else {
+                    let msg = pf.zzzUtil.strNvlChange(rData.data.message, rData.process_msg);
+                    pf.seinfoAlert.warning('[(#{seinfo.com.msg.00176})] <br> '+ msg); //[로긴오류] ...
+                }
+            },
+            error: function (jqXHR) {
+                let response = JSON.parse(jqXHR.responseText).message;
+                let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                pf.seinfoAlert.warning('[(#{seinfo.com.msg.00176})]) <br> '+ msg); //[로긴오류] ...
+            }
+        });
+    }
+
+    function unlockPwd() {
+        let  id = $('#id').val().trim().toLowerCase();
+
+        if (!/^[a-z][a-z0-9_]{3,19}$/.test(id)) {
+                pf.seinfoAlert.focus(0, '로그인 아이디(영문자로 시작하는 영문·숫자·밑줄 4~20자)를 입력해주세요.', $('#id'));
+                return;
+            }
+
+        $.ajax({
+            type: "POST",
+            url: '/login/login/unlockPwd',
+            contentType: 'application/json',
+            data: JSON.stringify({id: id}),
+            success: function (rData) {
+                if(rData.process_code === "00"){ //성공
+                    pf.seinfoAlert.warning('[(#{seinfo.main.msg.00110})]'); // 등록된 이메일로 비밀번호가 전송되었습니다.
+                } else {
+                    let msg = pf.zzzUtil.strNvlChange(rData.data.message, rData.process_msg);
+                    pf.seinfoAlert.warning(msg); //오류라도 메세지는 : 해당 아이디로 임시비밀번호를 발송하였습니다. (upd 2025.04.30)
+                    //pf.seinfoAlert.warning('[(#{seinfo.com.msg.00177})] <br> ' + msg); //[인증오류] ...
+                }
+            },
+            error: function (jqXHR) {
+                let response = JSON.parse(jqXHR.responseText).message;
+                let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                pf.seinfoAlert.warning('[(#{seinfo.com.msg.00177})]) <br> '+ msg); //[인증오류] ...
+                }
+            });
+        }
+
+        //input 칼럽에 대한 힌트 제공
+        function fnInputSetPlaceholder() {
+            $("#id").attr("placeholder", "[(#{seinfo.main.label.00150})]" + "[(#{seinfo.com.msg.00160})]"); // 아이디를 입력하세요.
+            $("#password").attr("placeholder", "[(#{seinfo.main.label.00160})]" + "[(#{seinfo.com.msg.00160})]"); // 비밀번호를 입력하세요.
+        }
+
+        function fnPopupPwdChange() {
+            $("#popupUserPwd").val('');
+            $("#popupUserPwdConf").val('');
+            $('#password').val('');
+            $('#modalPassChange').show();
+            $("#popupUserPwd").focus();
+        }
+
+        $(() => {
+            fnInputSetPlaceholder();
+
+            if (localStorage.getItem('saveLoginId')) {
+                $('#id').val(localStorage.getItem('saveLoginId'));
+                $('#chkIdSave').prop('checked', true);
+                $('#password').focus();
+            }else {
+                $('#id').focus();
+            }
+
+            $('#loginForm').on('submit', function (e) {
+                e.preventDefault();
+                loginForm();
+            });
+        });
+    </script>
+</th:block>
+
+</html>

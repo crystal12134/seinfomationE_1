@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.seinfo.seinfomationA.component.board.mapper.FreeBoardMapper">
+
+	<!--자유게시판 리스트 조회-->
+	<select id="selectFreeBoardList" parameterType="camelmap" resultType="camelmap">
+		SELECT 
+		  a.freeboard_no
+		, a.freeboard_title
+		, a.freeboard_content
+		, a.user_id		
+		, COALESCE((SELECT CASE WHEN c.user_role = 'ADMIN' THEN '관리자' ELSE c.login_id END FROM seinfo_vendor_manager c WHERE c.user_email = a.user_id), '탈퇴회원') AS author_id
+		, DATE_FORMAT(a.reg_dt, '%Y.%m.%d') AS reg_dt
+		, DATE_FORMAT(a.mod_dt, '%Y.%m.%d') AS mod_dt
+		, a.inquire_cnt
+		, a.like_count
+		, a.hate_count
+		, a.mod_user_id
+		, (
+            SELECT COUNT(*)
+            FROM seinfo_freeboard_comments b
+            WHERE b.freeboard_no = a.freeboard_no
+          ) AS commentCount
+ 		FROM seinfo_freeboard_posts a
+		<where>
+		<if test='keyword != null and keyword != ""'>
+			<if test='searchType == "tc"'>
+				AND (
+			    	   a.freeboard_title LIKE CONCAT('%', #{keyword}, '%')
+			    	OR a.freeboard_content LIKE CONCAT('%', #{keyword}, '%')
+				)
+			</if>
+			<if test='searchType == "t"'>
+				AND (
+					   a.freeboard_title LIKE CONCAT('%', #{keyword}, '%')
+				)
+			</if>
+			<if test='searchType == "c"'>
+				AND (
+				       a.freeboard_content LIKE CONCAT('%', #{keyword}, '%')
+				)
+			</if>
+			<if test='searchType == "n"'>
+		        AND EXISTS (
+		            SELECT 1
+		            FROM seinfo_vendor_manager c
+		            WHERE c.user_email = a.user_id
+		              AND c.login_id LIKE CONCAT('%', #{keyword}, '%')
+		        )
+		    </if>
+		</if>
+		</where>
+		ORDER BY 1 DESC
+		LIMIT #{pageSize} OFFSET #{startRow}
+	</select>
+
+	<!--자유게시판 페이지 1.2.3-->
+	<select id="getFreeBoardListCount" parameterType="camelmap" resultType="int">
+		select count(*)
+		  from seinfo_freeboard_posts a
+		 <where>
+		<if test='keyword != null and keyword != ""'>
+			<if test='searchType == "tc"'>
+			and (
+			    	freeboard_title LIKE CONCAT('%', #{keyword}, '%')
+			  	 OR freeboard_content LIKE CONCAT('%', #{keyword}, '%')
+				)
+			</if>
+			<if test='searchType == "t"'>
+				AND (
+				freeboard_title LIKE CONCAT('%', #{keyword}, '%')
+				)
+			</if>
+			<if test='searchType == "c"'>
+				AND (
+				freeboard_content LIKE CONCAT('%', #{keyword}, '%')
+				)
+			</if>
+			<if test='searchType == "n"'>
+		        AND EXISTS (
+		            SELECT 1
+		            FROM seinfo_vendor_manager c
+		            WHERE c.user_email = a.user_id
+		              AND c.login_id LIKE CONCAT('%', #{keyword}, '%')
+		        )
+		    </if>
+		</if>
+		</where>
+	</select>
+
+	<!--자유게시판 상세페이지 댓글 등록-->
+	<insert id="insertFreeBoardComment" parameterType="map">
+		INSERT INTO seinfo_freeboard_comments 
+		(
+			comment_content,
+			parent_no,
+			freeboard_no,
+			user_id,
+			reg_dt,
+			mod_dt,
+			like_count,
+			hate_count
+		) VALUES (
+			 #{commentContent}
+			,#{parentNo}
+			,#{freeboardNo}
+			,#{userId}
+			,NOW()
+			,NOW()
+			,#{likeCount}
+			,#{hateCount}
+		);
+	</insert>
+
+	<!--자유게시판 글 등록하기-->
+	<insert id="insertFreeBoard" parameterType="map">
+			<selectKey keyProperty="freeboardNo" order="BEFORE" resultType="string">
+			SELECT CONCAT('F_', DATE_FORMAT(NOW(), '%y%m'), '_',
+			       LPAD(IFNULL( (SELECT CAST(SUBSTRING(MAX(freeboard_no), 8, 4) AS UNSIGNED) +1
+			                     FROM seinfo_freeboard_posts
+			                     WHERE freeboard_no LIKE CONCAT('F_', DATE_FORMAT(NOW(), '%y%m'), '_%')
+			                     ), 1), 4,'0'))
+		</selectKey>
+		INSERT INTO seinfo_freeboard_posts 
+		(
+			  freeboard_no
+			, freeboard_title
+			, freeboard_content
+			, user_id
+			, reg_dt
+			, mod_dt
+			, inquire_cnt
+			, like_count
+			, hate_count
+		) VALUES (
+			 #{freeboardNo}
+			,#{freeBoardTitle}
+			,#{freeBoardContent}
+			,#{userId}
+			,NOW()
+			,NOW()
+			,0
+			,0
+			,0
+		);
+	</insert>
+	
+	<!--자유게시판 글 수정하기-->
+	<update id="updateFreeBoard" parameterType="map">
+		update seinfo_freeboard_posts
+		   set  freeboard_title   = #{freeBoardTitle}
+			  , freeboard_content = #{freeBoardContent}
+              , mod_user_id = #{actorEmail}
+              , mod_dt = now()
+         WHERE freeboard_no = #{freeBoardNo}
+           AND (#{actorAdmin} = TRUE OR user_id = #{actorEmail})
+	</update>
+
+	
+
+	<!-- 기존 추천 여부 조회 -->
+	<select id="selectFreeBoardLikeByUser" resultType="map">
+		SELECT like_sort
+		FROM seinfo_freeboard_likes
+		WHERE user_id = #{userId}
+		<if test='freeboardNo != null'>
+			AND freeboard_no = #{freeboardNo} 
+		</if>
+		<if test='commentNo != null'>
+			AND comment_no = #{commentNo}
+		</if>
+	</select>
+
+	<!-- 추천 기록 삽입 -->
+	<insert id="insertFreeBoardLike" parameterType="map">
+		INSERT INTO seinfo_freeboard_likes 
+		(
+			<if test='freeboardNo != null'>
+			freeboard_no, 
+			</if>
+			<if test='commentNo != null'>
+			comment_no,
+			</if>
+			user_id, 
+			like_sort
+		)
+		VALUES (
+			<if test='freeboardNo != null'>
+			#{freeboardNo}, 
+			</if>
+			<if test='commentNo != null'>
+			#{commentNo}, 
+			</if>
+			#{userId}, 
+			#{likeSort}
+		)
+	</insert>
+
+	<!-- 추천 상태 수정 (Y <-> N) -->
+	<update id="updateFreeBoardLike" parameterType="map">
+		UPDATE seinfo_freeboard_likes
+		SET like_sort = #{likeSort}, created_at = NOW()
+		WHERE user_id = #{userId}
+		<if test='freeboardNo != null'>
+			AND freeboard_no = #{freeboardNo} 
+		</if>
+		<if test='commentNo != null'>
+			AND comment_no = #{commentNo}
+		</if>
+	</update>
+	
+
+	<!-- 추천/비추천 취소 -->
+	<delete id="deleteFreeBoardLike" parameterType="map">
+		DELETE FROM seinfo_freeboard_likes
+		WHERE user_id = #{userId}
+		<if test='freeboardNo != null'>
+			AND freeboard_no = #{freeboardNo} 
+		</if>
+		<if test='commentNo != null'>
+			AND comment_no = #{commentNo}
+		</if>
+	</delete>
+
+	<!-- 게시글 테이블 업데이트 -->
+	<update id="updateFreeBoardDetailLike" parameterType="map">
+		UPDATE seinfo_freeboard_posts
+		<set>
+			<if test='likeSort == "Y"'>
+				<choose>
+					<when test="cancel == true">
+						like_count = like_count - 1,
+					</when>
+					<when test="change == true">
+						like_count = like_count + 1,
+						hate_count = hate_count - 1,
+					</when>
+					<otherwise>
+						like_count = like_count + 1,
+					</otherwise>
+				</choose>
+			</if>
+			<if test='likeSort == "N"'>
+				<choose>
+					<when test="cancel == true">
+						hate_count = hate_count - 1,
+					</when>
+					<when test="change == true">
+						hate_count = hate_count + 1,
+						like_count = like_count - 1,
+					</when>
+					<otherwise>
+						hate_count = hate_count + 1,
+					</otherwise>
+				</choose>
+			</if>
+		</set>
+		WHERE freeboard_no = #{freeboardNo}
+	</update>
+
+
+	<!--자유게시판 댓글 추천 비추천-->
+	<update id="increaseCommentLike" parameterType="map">
+		 UPDATE seinfo_freeboard_comments
+		<set>
+			<if test='likeSort == "Y"'>
+				<choose>
+					<when test="cancel == true">
+						like_count = IFNULL(like_count, 1) - 1,
+					</when>
+					<when test="change == true">
+						like_count = IFNULL(like_count, 0) + 1,
+						hate_count = IFNULL(hate_count, 1) - 1,
+					</when>
+					<otherwise>
+						like_count = IFNULL(like_count, 0) + 1,
+					</otherwise>
+				</choose>
+			</if>
+			<if test='likeSort == "N"'>
+				<choose>
+					<when test="cancel == true">
+						hate_count = IFNULL(hate_count, 1) - 1,
+					</when>
+					<when test="change == true">
+						hate_count = IFNULL(hate_count, 0) + 1,
+						like_count = IFNULL(like_count, 1) - 1,
+					</when>
+					<otherwise>
+						hate_count = IFNULL(hate_count, 0) + 1,
+					</otherwise>
+				</choose>
+			</if>
+		</set>
+		WHERE comment_no = #{commentNo}
+	</update>
+
+	<!--자유게시판 상세페이지 조회-->
+	<select id="selectFreeBoardDetail" parameterType="camelmap" resultType="camelmap">
+		SELECT 
+		  freeboard_no
+		, freeboard_title
+		, freeboard_content
+		, user_id
+		, COALESCE((SELECT CASE WHEN c.user_role = 'ADMIN' THEN '관리자' ELSE c.login_id END FROM seinfo_vendor_manager c WHERE user_id = c.user_email), '탈퇴회원') AS author_id
+		, DATE_FORMAT(reg_dt, '%Y.%m.%d') AS reg_dt
+		, DATE_FORMAT(mod_dt, '%Y.%m.%d') AS mod_dt
+		, inquire_cnt
+		, like_count
+		, hate_count
+ 		FROM seinfo_freeboard_posts
+		WHERE freeboard_no = #{freeboardNo}
+	</select>
+
+	<!--자유게시판 상세페이지 댓글 조회-->
+	<select id="selectFreeBoardComment" parameterType="camelmap" resultType="camelmap">
+		SELECT 
+				comment_content,
+				comment_no,
+				parent_no,
+				freeboard_no,
+				DATE_FORMAT(reg_dt, '%Y.%m.%d %H:%i') AS reg_dt,
+				DATE_FORMAT(mod_dt, '%Y.%m.%d %H:%i') AS mod_dt,
+				user_id,
+                COALESCE((SELECT CASE WHEN c.user_role = 'ADMIN' THEN '관리자' ELSE c.login_id END FROM seinfo_vendor_manager c WHERE user_id = c.user_email), '탈퇴회원') AS author_id,
+				IFNULL(like_count, 0) AS like_count,
+				IFNULL(hate_count, 0) AS hate_count,
+				CASE 
+				WHEN EXISTS (
+					SELECT 1 FROM seinfo_freeboard_comments c2 
+					WHERE c2.parent_no = c1.comment_no
+				)
+				THEN 1
+				ELSE 0
+				END AS has_child
+		 FROM seinfo_freeboard_comments c1
+		WHERE freeboard_no = #{freeboardNo}
+		 AND parent_no IS NULL
+		ORDER BY reg_dt ASC
+	</select>
+
+	<!--자유게시판 조회수-->
+	<update id="updateInquireCnt" parameterType="camelmap">
+		update seinfo_freeboard_posts
+		   set inquire_cnt = #{inquireCnt}
+		 where freeboard_no = #{freeboardNo}
+	</update>
+
+	<!-- <select id="selectFreeBoardFileGrpId" parameterType="camelmap" resultType="camelmap">
+		select mfile_group_id as mfile_grp_id
+		  from seinfo_notice
+		 where notice_no = #{noticeNo}
+		   and notice_type = 'N'
+	</select> -->
+
+	<!--자유게시판 글 삭제-->
+	<delete id="deleteFreeBoardPost" parameterType="map">
+		DELETE FROM seinfo_freeboard_posts
+        WHERE freeboard_no = #{freeboardNo}
+          AND (#{actorAdmin} = TRUE OR user_id = #{actorEmail})
+    </delete>
+
+<!-- 대댓글 조회 -->
+	<select id="selectFreeBoardAddComment" parameterType="camelmap" resultType="camelmap">
+		SELECT 
+				comment_content,
+				comment_no,
+				parent_no,
+				freeboard_no,
+				DATE_FORMAT(reg_dt, '%Y.%m.%d %H:%i') AS reg_dt,
+				DATE_FORMAT(mod_dt, '%Y.%m.%d %H:%i') AS mod_dt,
+				user_id,
+                COALESCE((SELECT CASE WHEN c.user_role = 'ADMIN' THEN '관리자' ELSE c.login_id END FROM seinfo_vendor_manager c WHERE user_id = c.user_email), '탈퇴회원') AS author_id,
+				IFNULL(like_count, 0) AS like_count,
+				IFNULL(hate_count, 0) AS hate_count
+		 FROM seinfo_freeboard_comments 
+		WHERE parent_no = #{parentNo}
+		ORDER BY reg_dt ASC;
+	</select>
+
+    <delete id="deleteFreeBoardCommentsByPost" parameterType="map">
+        DELETE FROM seinfo_freeboard_comments
+        WHERE freeboard_no = #{freeboardNo}
+          AND EXISTS (
+              SELECT 1 FROM seinfo_freeboard_posts p
+              WHERE p.freeboard_no = #{freeboardNo}
+                AND (#{actorAdmin} = TRUE OR p.user_id = #{actorEmail})
+          )
+    </delete>
+
+	<!-- 원댓글 삭제 (원댓글+대댓글 전부 삭제) -->
+	<delete id="deleteFreeBoardCommentWithChild" parameterType="map">
+		DELETE FROM seinfo_freeboard_comments
+		 WHERE comment_no = #{commentNo}
+		    OR parent_no = #{commentNo}
+	</delete>
+
+	<!-- 대댓글만 삭제 -->
+	<delete id="deleteChildComment" parameterType="map">
+		DELETE FROM seinfo_freeboard_comments
+		 WHERE comment_no = #{commentNo}
+	 	   AND parent_no IS NOT NULL
+	</delete>
+
+	<!--자유게시판 댓글 수정-->
+	<update id="updateComment" parameterType="camelmap">
+		UPDATE seinfo_freeboard_comments
+		   SET comment_content = #{commentContent},
+			   mod_dt = NOW()
+		WHERE comment_no = #{commentNo}
+	</update>
+
+	<!--자유게시판 대댓글 수정-->
+	<update id="updateFarentComment" parameterType="map">
+		UPDATE seinfo_freeboard_comments
+		   SET comment_content = #{commentContent},
+			   mod_dt = NOW()
+		WHERE comment_no = #{commentNo}
+		  AND parent_no IS NOT NULL
+	</update>
+
+</mapper>

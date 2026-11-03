@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+        <style>
+            .ck-editor-reg{
+                width: 700px !important;
+                padding: 0px 0px 0px 0px !important;
+            }
+
+            .ck-editor-detail{
+                width: 700px !important;
+                padding: 0px 0px 0px 0px !important;
+            }
+
+            .ck-editor__editable {
+                max-height: 350px;
+            }
+
+            .editorWrap .ck-editor__editable_inline {
+                padding: 0 15px; !important;
+                height: calc(100vh - 340px)
+            }
+
+            .editorWrap.hasFileup .ck-editor__editable_inline {
+                height: calc(100vh - 561px)
+            }
+
+            .ck.ck-content strong {
+                font-weight: bold !important;
+            }
+
+            .ck.ck-content ul,
+            .ck.ck-content ul li {
+                list-style-type: disc !important;
+            }
+
+            .ck.ck-content ul {
+                padding-left: 40px;
+            }
+
+            .ck.ck-content ol,
+            .ck.ck-content ol li {
+                list-style-type: decimal !important;
+            }
+
+            .ck.ck-content ol {
+                padding-left: 40px !important;
+            }
+
+            .ck-horizontal-line {
+                border-top: 1px solid rgb(0,0,0);
+                /* 수평선의 두께와 색상*/
+                margin: 20px 0;
+                /* 수평선의 위아래 간격*/
+            }
+
+            .ck-content img {
+                width: auto !important;
+                height: auto !important;
+                max-width: 100%;
+                height: auto;
+            }
+
+            .ck.ck-balloon-panel {
+                z-index: 2001 !important;
+            }
+        </style>
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <div th:replace="~{seinfo/layout/include/frame/navCategory :: menuMid710}"></div>
+    <main>
+        <div class="subpage-content">
+            <h2>[(#{seinfo.admin.label.00110})]</h2><!--의뢰상세관리-->
+
+            <div class="pps-history-area">
+                <section>
+                    <strong class="comm-title">[(#{seinfo.admin.label.00080})]</strong>
+                    <div class="table-row-container">
+                        <table>
+                            <tbody>
+                            <tr>
+                                <th>[(#{seinfo.admin.label.00040})]</th> <!--의롸 제목-->
+                                <td colspan="3">
+                                    <div class="title-textarea-area">
+                                        <input th:value="${requestDetail['requestTitle']}" type="text" maxlength="100" readonly>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>[(#{seinfo.admin.label.00060})]</th> <!--진행 단계-->
+                                <td>
+                                    <div class="input-area" style="display: flex; align-items: center; gap: 10px">
+                                        <input id="requestStateKo" type="text" readonly>
+                                        <button type="button" style="width:120px; display: none;" class="primary-sm-btn" onclick="btnAction.btnChangeRequestState()" id="requestStateText"></button>
+                                    </div>
+                                </td>
+                                <th>[(#{seinfo.admin.label.00030})]</th> <!--등록일-->
+                                <td>
+                                    <div class="input-area">
+                                        <input th:value="${requestDetail['sendD']}" id="regDt" type="text" readonly>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>[(#{seinfo.admin.label.00070})]</th><!--의뢰 내용-->
+                                <td colspan="3">
+                                    <input type="hidden" id="requestDetail">
+                                    <div class="editorWrap" style="padding: 10px 0;">
+                                        <div id="editorKr" class="editor" style="height:100%;"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00013})]</th><!--첨부 파일-->
+                                <td colspan="3">
+                                    <div th:replace="~{seinfo/file/divFileTus :: fileDownload}"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00019})]</th><!--제안 회사명-->
+                                <td>
+                                    <div class="input-area">
+                                        <input th:value="${requestDetail['companyNm']}" type="text" readonly>
+                                    </div>
+                                </td>
+                                <th>[(#{seinfo.pps.label.00021})]</th><!--담당 성명-->
+                                <td>
+                                    <div class="input-area">
+                                        <input th:value="${requestDetail['userNm']}" type="text" readonly>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>담당자 ID</th>
+                                <td colspan="3">
+                                    <div class="input-area">
+                                        <input th:value="${requestDetail['contactLoginId']}" type="text" readonly
+                                               aria-label="담당자 ID">
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00022})]</th><!--담당 연락처-->
+                                <td>
+                                    <div class="input-area">
+                                        <input th:value="${requestDetail['userPhone']}" type="text" readonly>
+                                    </div>
+                                </td>
+                                <th>[(#{seinfo.pps.label.00023})]</th><!--담당 이메일-->
+                                <td>
+                                    <div class="input-area">
+                                        <input th:value="${requestDetail['userEmail']}" type="text" readonly>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>[(#{seinfo.pps.label.00020})]</th><!--제안 회사 URL-->
+                                <td colspan="3">
+                                    <div class="input-area">
+                                        <input th:value="${requestDetail['companyUrl']}" type="text" readonly>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pps-history-list">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <strong class="comm-title">[(#{seinfo.pps.label.00220})]</strong>
+                            <button id="btnRegisterQuestionBtn" type="button" style="width:150px; display: none;" class="primary-sm-btn" onclick="btnAction.registerQuestionBtn()">추가요청등록</button>
+                        </div>
+                        <div class="table-normal-container">
+                            <table id="requestContList">
+                                <colgroup>
+                                    <col />
+                                    <col />
+                                    <col />
+                                    <col />
+                                    <col style="width:150px;" />
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">[(#{seinfo.pps.label.00120})]</th><!--번호-->
+                                        <th class="text-center" width="25%">[(#{seinfo.pps.label.00222})]</th><!--제목-->
+                                        <th class="text-center" width="210px">[(#{seinfo.pps.label.00223})]</th><!--등록자-->
+                                        <th class="text-center">[(#{seinfo.pps.label.00224})]</th><!--등록일-->
+                                        <th class="text-center">[(#{seinfo.pps.label.00240})]</th><!--답변등록-->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-center"></td>
+                                        <td class="text-left"></td>
+                                        <td class="text-center"></td>
+                                        <td class="text-center"></td>
+                                        <td class="text-center"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                <div class="button-area">
+                    <!--목록으로-->
+                    <button type="button" onclick="btnAction.btnGoToList()" class="primary-md-btn">
+                        [(#{seinfo.com.btn.00150})]
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div th:replace="~{seinfo/admin/popupRequestCont :: popup01View}"></div>
+
+</th:block>
+
+<th:block layout:fragment="html_js">
+    <script type="text/javascript" th:src="@{/static/seinfo/js/internal/uploadAdapter.js}"></script>
+    <script th:replace="~{seinfo/admin/popupRequestCont :: popup01Js}"></script>
+    <script th:replace="~{seinfo/file/divFileTus :: fileTusJs}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        pf.code.getList('SE002');
+        const requestStateKo = pf.code.setList["SE002"];
+
+        //첨부파일 설정 : uploadKeySetting / uploadSetting / fileUpDown / fileUpDownSave / fileUpDownErr
+        let uploadKey = {
+            cdKey: 'SEINFO001'
+            , grpKey: 'seinfo-grp-not'
+            , idKey: 'seinfo-not'
+            , workKey: 'not'
+            , userType: pf.token().USER_TYPE
+        }
+        uploadKeySetting(uploadKey);
+
+        const menuId = 'request';
+        const tmpToken = pf.token();
+        const userType = tmpToken.USER_TYPE;
+        let registerRequestCont = {};
+        let requestDetail = /*[[${requestDetail != null ? requestDetail : '{}'}]]*/ {};
+        const fileGroupId = /*[[${requestDetail['fileGroupId'] != null ? requestDetail['fileGroupId'] : ''}]]*/ '';
+        let requestContList = /*[[${requestContList != null ? requestContList : '[]'}]]*/[];
+        const page = /*[[${page != null ? page : ''}]]*/ '';
+        const message = /*[[${message != null ? message : ''}]]*/ '';
+
+        // ckEditor 설정
+        const config = {
+            ckeditInstances: [],
+            editorInsKr: null,
+            editorKr: null,
+            useEnMenu: true,
+            lang: 'ko',
+            selectSystemId: '',
+            fileGroupId: '',
+            filesPrev: true,
+            uploadFileCnt: 0,
+            dataToServer: '',
+            boardFileYn: 'Y',
+            uploadFlg: true
+        };
+
+        //CKEditor 초기화
+        const ckedit_init = (target, data, readonly) => {
+            let selector = document.querySelector("#" + target);
+
+            //이미 존재하는 인스턴스 파괴
+            if(config.ckeditInstances[target]) {
+                config.ckeditInstances[target].destroy();
+                delete config.ckeditInstances[target];
+            }
+
+            ClassicEditor.create(selector, {
+                toolbar: {
+                    items: [
+                        'heading', 'undo', 'redo',
+                        'bold', 'bulletedList', 'numberedList',
+                        'fontColor', 'fontSize', 'fontFamily',
+                        'link', 'imageUpload', 'blockQuote', 'insertTable'
+                    ]
+                },
+                image: {
+                    resizeUnit: 'px',
+                    toolbar: ['imageTextAlternative', 'imageStyle:alignLeft', 'imageStyle:alignCenter', 'imageStyle:alignRight', 'imageStyle:side'],
+                    styles: ['full', 'alignLeft', 'alignCenter', 'alignRight', 'side']
+                },
+                language: 'ko',
+                fontFamily: {
+                    options: [
+                        'default',
+                        'Arial',
+                        '궁서체',
+                        '맑은고딕',
+                        '바탕체',
+                        '현대산스 Head',
+                        '현대산스 Text',
+                        '현대하모니'
+                    ],
+                    supportAllValues: true
+                },
+                fontSize: {
+                    options: [9, 11, 13, 'default', 17, 19, 21, 24, 27, 32]
+                },
+                table: {
+                    contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableCellProperties', 'tableProperties']
+                },
+                extraPlugins: [customUploadAdapterPlugin]
+            }).then(editor => {
+                editor.setData(data);
+                config.ckeditInstances[target] = editor; //인스턴스를 해당 타겟으로 저장
+
+                if(readonly) {
+                    editor.enableReadOnlyMode(target);
+                    editor.ui.view.editable.element.classList.add('editor-readonly');
+                    $('.ck .ck-sticky-panel__content').css('display', 'none');
+                }
+            });
+        };
+
+        //CKEditor 업로드 플러그인 설정
+        function customUploadAdapterPlugin(editor) {
+            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                return new uploadAdapter(loader, editor.t);
+            }
+        }
+
+        function fnRequestStateText(requestState) {
+            if(requestState === '10'){
+                $('#requestStateText').css('display', 'block').text('[(#{seinfo.admin.label.00210})]'); //접수하기
+            }else if(requestState === '20'){
+                $('#requestStateText').css('display', 'block').text('[(#{seinfo.admin.label.00220})]'); // 완료하기
+            }else if(requestState === '99'){
+                $('#requestStateText').css('display', 'none').text('');
+            }
+        }
+
+        // 페이지 다시 불러오기
+        function reloadRequestDetail(flag) {
+            pf.seinfo.ajax({
+                url: "/admin/reloadRequestDetail",
+                type: "POST",
+                data: {requestNo: requestDetail.requestNo},
+            }, (rData) => {
+                requestDetail = rData.data.requestDetail;
+                requestContList = rData.data.requestContList;
+                flag? loadPage() : renderTableData();
+            });
+        }
+
+        function loadPage(flag) {
+            requestDetail = pf.seinfoComUtil.fnTransCommonCode(requestStateKo, requestDetail, 'requestState', 'requestStateKo');
+            fnRequestStateText(requestDetail.requestState);
+            $('#requestStateKo').val(requestDetail['requestStateKo']);
+            if(requestDetail.requestState === '99' || requestDetail.requestState === '10') {
+                $('#btnRegisterQuestionBtn').css('display', 'none').attr('disabled', 'disabled');
+            }else {
+                $('#btnRegisterQuestionBtn').css('display', 'block').removeAttr('disabled');
+            }
+            ckedit_init('editorKr', requestDetail['requestDetail'], true);
+            uploadSetting.fileGrpId = fileGroupId;
+            fileUpDown.initView();
+            flag? reloadRequestDetail() : renderTableData();
+        }
+
+
+        // 테이블 데이터 렌더링 함수
+        function renderTableData() {
+            let tbody = $('#requestContList tbody');
+            tbody.empty();
+
+            // 조회된 데이터가 없습니다.
+            if (requestContList == null || requestContList <= 0) {
+                let row = `
+                    <tr>
+                        <td colspan="5" class="text-center">[(#{seinfo.pps.label.00180})]</td>
+                    </tr>
+                    `;
+                tbody.append(row);
+
+            } else {
+                $.each(requestContList, function (index, item) {
+                    // 그리드 > 답변등록 : 버튼처리
+                    let actionButton = `<div style="width: 100px; margin: 0 auto"> `;
+                    if (item.regReplyYn === 'Y' && requestDetail.requestState !== '99') { //답변하기
+                        actionButton += `
+                    <button type="button" class="primary-xsm-btn"
+                        onclick="btnAction.registerAnswerBtn('${pf.safeId(item.requestNo)}','${pf.safeId(item.requestSeq)}','${pf.safeId(item.replyYn)}')">
+                            [(#{seinfo.pps.label.00240})] <!-- 답변 등록 -->
+                    </button>`;
+                    } else if(item.replyYn === 'Y'){  // 답변 있으면
+                        actionButton += `
+                    <div class="clear">
+                        <button type="button" onclick="btnAction.readAnswerBtn('${pf.safeId(item.requestNo)}','${pf.safeId(item.requestSeq)}','${pf.safeId(item.replyYn)}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
+                                <path d="M4.87109 9.99989L9.91495 14.861L16.6766 4.44434" stroke="#2DC0F0" stroke-width="1.6" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </div>`;
+                    }
+                    actionButton += ` </div>`;
+
+                    let row = `
+                        <tr>
+                            <td class="text-center">${pf.escapeHtml(item.rnum)}</td>
+                            <td class="text-center">
+                                <button type="button" class="middle" onclick="btnAction.readQuestionBtn('${pf.safeId(item.requestNo)}', '${pf.safeId(item.requestSeq)}','N')"
+                                    style="width:350px; margin-left:10px; text-align:left; word-break:break-all; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; color:#1d62e0; text-decoration:underline; text-underline-position:under;">
+                                    ${pf.escapeHtml(item.questionTitle)}
+                                </button>
+                            </td>
+                            <td class="text-center">${pf.escapeHtml(item.userNm)}</td>
+                            <td class="text-center">${pf.escapeHtml(item.regDt)}</td>
+                            <td class="text-center">${actionButton}</td>
+                        </tr>`;
+                    tbody.append(row);
+                });
+            }
+        }
+
+        const btnAction = {
+            readAnswerBtn: function (proposalNo, requestSeq, replyYn) {
+                readContDetail(proposalNo, requestSeq, replyYn);
+                $('#modalCont').show();
+            },
+            registerAnswerBtn: function (requestNo, requestSeq, replyYn) {
+                registerRequestCont = {requestNo: requestNo, requestSeq: requestSeq, replyYn: replyYn};
+                ckedit_init('popupContContent', '', false);
+                $('#popupWriter').val(pf.token().USER_NM);
+                $('#popupRegDt').val(pf.date.getFormat(new Date(), 'yyyy-MM-DD'));
+                $('#uploadMode').css('display', 'block');
+                $('#downloadMode').css('display', 'none');
+                $('#modalTitle').text('답변하기');
+                uploadSetting.fileGrpId = null;
+                fileUpDown.initWrite('file-upload-popup');
+                $('#modalCont').show();
+
+            },
+            readQuestionBtn: function (requestNo, requestSeq, replyYn) {
+                readContDetail(requestNo, requestSeq, replyYn);
+                $('#modalCont').show();
+            },
+            registerQuestionBtn: function () {
+                ckedit_init('popupContContent', '', false);
+                $('#popupWriter').val(pf.token().USER_NM);
+                $('#popupRegDt').val(pf.date.getFormat(new Date(), 'yyyy-MM-DD'));
+                $('#uploadMode').css('display', 'block');
+                $('#downloadMode').css('display', 'none');
+                $('#modalTitle').text('질문하기');
+                uploadSetting.fileGrpId = null;
+                fileUpDown.initWrite('file-upload-popup');
+                $('#modalCont').show();
+            },
+            btnGoToList : function(){
+                location.href = `/admin/requestList?page=${page}`;
+            },
+            btnChangeRequestState: function () {
+                changeRequestState(requestDetail['requestNo'], requestDetail['requestState']);
+            }
+        }
+
+        function changeRequestState(requestNo, requestState) {
+            pf.seinfoAlert.confirm('[(#{seinfo.admin.msg.00010})]', () => { // 상태를 변경하시겠습니까?
+                pf.seinfo.ajax({
+                    url: "/admin/updateRequestState",
+                    method: "POST",
+                    data: {requestNo: requestNo, requestState: requestState},
+                }, (rData) => {
+                    if(rData.process_code === '00'){
+                        pf.seinfoAlert.success('[(#{seinfo.admin.msg.00020})]', () => { // 상태가 변경 되었습니다.
+                            reloadRequestDetail(true);
+                        });
+                    }else {
+                        pf.seinfoAlert.warning(rData.data, () => {
+                            fnContInit();
+                            fileUpDownErr();
+                        });
+                    }
+                });
+            });
+        }
+
+        $(() => {
+            // 로그인 경고
+            if (message.trim().length > 0) {
+                pf.seinfoAlert(message, () => {
+                    location.href = pf.seinfo.fnGetMovePage("divMid110"); // 로그인 페이지
+                });
+                return;
+            }
+
+            loadPage();
+            renderTableData();
+        });
+    </script>
+</th:block>
+
+

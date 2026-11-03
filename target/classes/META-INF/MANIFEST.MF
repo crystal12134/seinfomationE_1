@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Build-Jdk-Spec: 21
+Implementation-Title: seinformationE_1
+Implementation-Version: 0.0.1-SNAPSHOT
+Main-Class: com.seinfo.seinfomationA.SeInformationAApplication
+Created-By: Maven Integration for Eclipse
+

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block th:fragment="popup01View">
+    <div class="modal comm-modal comm-scroll-modal" id="modalAnswerRegister">
+
+        <div class="modal-content" style="max-width: 900px !important;">
+            <div class="modal-body">
+                <div class="contact-register-area">
+                    <!--1:1문의 질문등록-->
+                    <strong class="comm-modal-title">[(#{seinfo.board.label.00210})]</strong>
+                    <section>
+                        <div class="table-row-container">
+                            <table>
+                                <colgroup>
+                                    <col width="160px"/>
+                                    <col />
+                                    <col width="160px"/>
+                                    <col />
+                                </colgroup>
+                                <tbody>
+                                    <tr>
+                                        <td><i class="required">*</i>[(#{seinfo.board.label.00049})]</td><!--등록자-->
+                                        <td>
+                                            <div class="input-area">
+                                                <input type="text" id="modalAnswerRegUsrNm" readonly>
+                                            </div>
+                                        </td>
+                                        <td><i class="required">*</i>[(#{seinfo.board.label.00050})]</td><!--등록일-->
+                                        <td>
+                                            <div class="input-area">
+                                                <input type="text" id="modalAnsRegDt" readonly>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td><i class="required">*</i>[(#{seinfo.board.label.00015})]</td><!--제목-->
+                                        <td colspan="3">
+                                            <div class="input-area">
+                                                <input type="text" id="modalQuestionTitle" readonly>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="required">*</i>[(#{seinfo.board.label.00016})]</td><!--내용-->
+                                        <td colspan="3">
+                                            <div class="textarea-area">
+                                                <textarea id="modalQuestionContent" readonly></textarea>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-content" style="max-width: 900px !important;">
+            <div class="modal-body">
+                <div class="contact-register-area">
+                    <!--1:1문의 답변작성-->
+                    <strong class="comm-modal-title">[(#{seinfo.board.label.00250})]</strong>
+                    <section>
+                        <div class="table-row-container">
+                            <table>
+                                <colgroup>
+                                    <col width="160px"/>
+                                    <col />
+                                    <col width="160px"/>
+                                    <col />
+                                </colgroup>
+                                <tbody>
+                                <tr>
+                                    <td><i class="required">*</i>[(#{seinfo.pps.label.00350})]</td><!--작성자-->
+                                    <td>
+                                        <div class="input-area">
+                                            <input type="text" id="modalAnsModUsrNm" readonly>
+                                        </div>
+                                    </td>
+                                    <td><i class="required">*</i>[(#{seinfo.pps.label.00360})]</td><!--작성일-->
+                                    <td>
+                                        <div class="input-area">
+                                            <input type="text" id="modalAnsModDt" readonly>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td><i class="required">*</i>[(#{seinfo.board.label.00233})]</td><!--답변-->
+                                    <td colspan="3">
+                                        <div class="textarea-area">
+                                            <textarea id="modalAnswerContent" autofocus maxlength="990"></textarea>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                    <div class="button-area">
+                        <!--닫기-->
+                        <button id="modalAnswerBtnCls" class="comm-close-modal-btn secondary-md-btn">[(#{seinfo.com.btn.00040})]</button>
+                        <!--삭제-->
+                        <button id="modalAnswerBtnDel" class="primary-md-btn">[(#{seinfo.com.btn.00012})]</button>
+                        <!--저장-->
+                        <button id="modalAnswerBtnOk" class="primary-md-btn">[(#{seinfo.com.btn.00010})]</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="popup01Js">
+    <script type="text/javascript" th:inline="javascript">
+
+        //조회 : QnA 상세내역 (질문 + 답변)
+        let qnaDetail = {};
+
+        function fnGetAnswerDetail(noticeNo, gbn) {
+
+            pf.seinfo.ajax({
+                userType: userType,
+                method  : 'post',
+                url     : '/board/qnaList/getQnaDetail',
+                data    : {noticeNo: noticeNo, userType: userType, qnaMode: qnaMode}
+            }, (rData) => {
+                if(rData.process_code === '00'){ <!--성공-->
+                    qnaDetail = rData.data.qnaDetail;
+
+                    //질문
+                    $("#modalAnswerRegUsrNm").val(qnaDetail.noticeUserNm);
+                    $("#modalAnsRegDt").val(qnaDetail.noticeD);
+                    $("#modalQuestionTitle").val(pf.seinfoComUtil.unEscape(qnaDetail.noticeTitle));
+                    $("#modalQuestionContent").val(pf.seinfoComUtil.unEscape(qnaDetail.noticeContents));
+                    //답변
+                    $("#modalAnsModUsrNm").val(qnaDetail.answerUserNm);
+                    $("#modalAnsModDt").val(qnaDetail.answerD);
+                    $("#modalAnswerContent").val(pf.seinfoComUtil.unEscape(qnaDetail.answerContents));
+
+                    //답변 작성자 비교 동일인 경우 활성
+                    if(adminYn === 'Y' && tmpToken.USER_ID === qnaDetail.answerUserId) {
+                        $("#modalAnswerContent").attr('readonly', false);
+
+                        if(gbn === 'A') {
+                            $('#modalAnswerBtnDel').css('display', 'none');
+                        } else {
+                            $('#modalAnswerBtnDel').css('display', 'block');
+                        }
+
+                        $('#modalAnswerBtnOk').css('display', 'block');
+                    } else{
+                        $('#modalAnswerContent').attr('readonly', true);
+
+                        if(gbn === 'A') {
+                            $('#modalAnswerBtnDel').css('display', 'none');
+                            $('#modalAnswerBtnOk').css('display', 'block');
+                        }else {
+                            $('#modalAnswerBtnDel').css('display', 'none');
+                            $('#modalAnswerBtnOk').css('display', 'none');
+                        }
+                    }
+                }else{
+                    //[조회오류]..
+                    pf.seinfoAlert.warning('[(#{seinfo.com.msg.00170})] <br> ' + rData.data.message);
+                }
+            });
+        }
+
+        //저장 : 답변 입력
+        function fnRegistAnswerUpd() {
+
+            if(adminYn === 'N') {
+                pf.seinfoAlert.warning('[(#{seinfo.main.msg.00050})]' + '(adminYn)'); //권한이 없습니다.
+                return;
+            }
+
+            if(modifyMode !== 'A') {
+                if(tmpToken.USER_ID !== qnaDetail.answerUserId){
+                    pf.seinfoAlert.warning('[(#{seinfo.main.msg.00170})]'); //권한이 없습니다.
+                    return;
+                    }
+            }
+
+            if(modifyMode !== 'AD') {
+                if(pf.zzzUtil.isEmpty($("#modalAnswerContent").val())){
+                    pf.seinfoAlert.focus(0, '[(#{seinfo.main.msg.00140})]',$("#modalAnswerContent")); //권한이 없습니다.
+                    return;
+                }
+            }
+
+            const formData = {
+                noticeNo : qnaDetail.noticeNo,
+                modifyMode : modifyMode,
+                answerTitle : $("#modalQuestionTitle").val(),
+                answerContents : $("#modalAnswerContent").val(),
+                userType : userType,
+                adminYn : adminYn,
+                qnaDelYn : qnaDelMode
+            };
+
+            pf.seinfo.ajax({
+                userType: userType,
+                method: 'post',
+                url: '/board/qnaList/registReply',
+                data: formData
+            }, (rData) => {
+                if(rData.process_code === '00'){ //성공
+                    fnInitAnswer();
+
+                    let msg = '[(#{seinfo.com.msg.00010})]'; //저장되었습니다.
+                    if(modifyMode == 'AD') {
+                        msg = '[(#{seinfo.com.msg.00040})]'; //삭제되었습니다.
+                    }
+
+                    pf.seinfoAlert.success(msg, () => {
+                        $('#modalAnswerRegister').css('display', 'none');
+                        reloadQnaList(); //부모창 재조회
+                    });
+                }else {
+                    fnInitAnswer();
+                    //[저장오류] ...
+                    pf.seinfoAlert.warning('[(#{seinfo.com.msg.00171})] <br> '+ rData.data.message, ()=> {
+                        $('#modalAnswerRegister').css('display', 'none');
+                    });
+                }
+            });
+        }
+
+        //초기화
+        function fnInitAnswer() {
+            $('body').css('overflow', ''); //메인창 스크롤 초기화
+        }
+
+        $(() => {
+            $("#modalAnswerContent").attr("placeholder", "[(#{seinfo.main.msg.00140})]"); //내용을 입력하세요.
+
+            $("#modalAnswerBtnOk").click('click', function (e) {
+               if(pf.zzzUtil.isEmpty($("#modalAnswerContent").val())) {
+                   pf.seinfoAlert.focus(0, '[(#{seinfo.main.msg.00140})]', $('#modalAnswerContent')); //내용을 입력하세요.
+                   return;
+               }
+
+               pf.seinfoAlert.confirm('[(#{seinfo.com.msg.00060})]', () => { //저장하시겠습니까?
+                   e.preventDefault;
+                   fnRegistAnswerUpd();
+               });
+            });
+
+            $('#modalAnswerBtnDel').click('click', function (e) {
+                pf.seinfoAlert.confirm('[(#{seinfo.main.msg.00180})]', () => { //해당 내용이 영구적으로 삭제됩니다. <br> 그래도 삭제하시겠습니까?
+                    e.preventDefault;
+                    modifyMode = 'AD'
+                    fnRegistAnswerUpd();
+                });
+            });
+
+            $('#modalAnswerBtnCls').click('click', function (e) {
+                e.preventDefault;
+                fnInitAnswer();
+            });
+        });
+    </script>
+</th:block>
+</html>

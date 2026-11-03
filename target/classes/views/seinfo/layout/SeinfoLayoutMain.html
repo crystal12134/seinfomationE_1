@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+    <!-- 헤더 정의-->
+    <head th:replace="~{seinfo/layout/include/css/defaultHeader :: defaultHeader}"><title></title></head>
+
+    <div class="h-sync-wrap sub-wrap">
+
+        <!-- top 메뉴 처리 -->
+        <th:block th:insert="~{seinfo/layout/include/frame/defaultMenu}"></th:block>
+
+        <!-- 컨텐츠 내용 - 본문 -->
+        <th:block layout:fragment="html_body"></th:block>
+
+        <!-- botoom 밑단 처리 -->
+        <th:block th:insert="~{seinfo/layout/include/frame/defaultFooter}"></th:block>
+
+    </div>
+
+    <!-- JAVASCRIPT 정의 -->
+    <div th:replace="~{seinfo/layout/include/js/defaultJS :: defaultJS}"}></div>
+</html>

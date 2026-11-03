@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.seinfo.seinfomationA.util.api.ApiMapper">
+
+	<select id="getCodeList" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.protoA.util.api.AipMapper.getCodeList */
+			  code_id
+		    , code_nm
+		    , code_value
+		FROM zzz_code_info
+		WHERE code_parent_id = #{codeParentId}
+	</select>
+
+    <select id="getAdminMailInfo" resultType="camelmap">
+        SELECT /*  com.seinfo.protoA.util.api.AipMapper.getNextRequestSeq */
+            user_email,
+            user_phone,
+            user_nm
+        FROM seinfo_vendor_manager
+        WHERE user_role = 'ADMIN'
+    </select>
+
+    <select id="getUserEmailInfo" parameterType="camelmap" resultType="camelmap">
+        SELECT /*  com.seinfo.protoA.util.api.AipMapper.getNextRequestSeq */
+            b.user_email,
+            b.user_nm,
+            b.user_phone
+        FROM seinfo_request a
+                 JOIN seinfo_vendor_manager b
+                      ON a.reg_user_id = b.user_email
+        WHERE a.request_no = #{requestNo}
+    </select>
+
+</mapper>

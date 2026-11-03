@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+        <style></style>
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <main class="vh-100 d-flex justify-content-center align-items-center">
+        <section class="w-100 d-flex justify-content-center">
+            <div class="card shadow-lg rounded-4 p-4" style="max-width: 400px; width: 100%;">
+                <div class="card-body text-center">
+                    <h4 class="card-title text-danger mb-3">⚠️ 권한이 없습니다</h4>
+                    <p class="card-text">이 페이지에 접근할 수 있는 권한이 없습니다.</p>
+                    <button class="btn btn-outline-secondary mt-3" onclick="history.back()">← 돌아가기</button>
+                </div>
+            </div>
+        </section>
+    </main>
+</th:block>
+
+<th:block layout:fragment="html_js">
+
+</th:block>
+</html>

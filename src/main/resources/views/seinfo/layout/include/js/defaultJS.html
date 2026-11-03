@@ -1,0 +1,37 @@
+<div th:fragment="defaultJS" xmlns:layout="">
+
+  <script th:src="@{/static/seinfo/js/external/bootstrap.min.js}"></script>
+  <script th:src="@{/static/seinfo/js/external/jquery.blockUI.js}"></script>
+  <script th:src="@{/static/seinfo/js/external/moment.min.js}"></script>
+  <script th:src="@{/static/seinfo/js/external/moment-timezone.js}"></script>
+  <script th:src="@{/static/seinfo/js/external/select2/select2.min.js}"></script>
+  <script th:src="@{/static/seinfo/js/external/select2/ko.js}"></script>
+  <script th:src="@{/static/seinfo/js/external/swiper-bundle.min.js}"></script>
+  <script th:src="@{/static/seinfo/js/external/bootbox.all.min.js}"></script>
+  <script th:Src="@{/static/seinfo/js/external/tus.min.js}"></script>
+  <script th:src="@{/static/seinfo/js/external/ckeditor/ckeditor.min.js}"></script>
+  <script th:src="@{/static/seinfo/js/external/ckeditor/ko.min.js}"></script>
+
+  <!-- CORE Common Javascript LIB -->
+  <script type="text/javascript" th:inline="javascript">
+      let pf  = {};
+
+      // Context
+      let contextPath = /* [[@{/}]] */ '';
+      contextPath = contextPath.slice(0, contextPath.length-1);
+
+      $.getDocHeight = () => Math.max($(document).height(), document.documentElement.clientHeight) -10;
+  </script>
+
+  <script th:src="@{/static/seinfo/js/internal/security-client.js}"></script>
+  <script th:src="@{/static/seinfo/js/internal/pf.seinfoSystem.js}"></script>
+  <script th:src="@{/static/seinfo/js/internal/pf.util.js}"></script>
+  <script th:src="@{/static/seinfo/js/internal/pf.zzzUtil.js}"></script>
+  <script th:src="@{/static/seinfo/js/internal/pf.seinfoComUtil.js}"></script>
+  <script th:src="@{/static/seinfo/js/internal/pf.seinfoAlert.js}"></script>
+  <script th:src="@{/static/seinfo/js/internal/pf.seinfoFile.js}"></script>
+
+  <script th:src="@{/static/seinfo/js/internal/password-caps-lock.js}"></script>
+
+  <th:block layout:fragment="html_js"></th:block>
+</div>

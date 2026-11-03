@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+        <style></style>
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <div th:replace="~{seinfo/layout/include/frame/navCategory :: menuMid010}"></div>
+
+    <main>
+        <div class="subpage-content">
+            <h2>[(#{seinfo.menu.mid.00010})]</h2> <!-- 개인정보처리방침 -->
+            <div class="privacy-section-area">
+                <div th:replace="~{seinfo/document/contentPolicy :: content01}"></div>
+            </div>
+        </div>
+    </main>
+</th:block>
+
+<th:block layout:fragment="html_js">
+    <script th:replace="~{seinfo/document/contentPolicy :: content01Js}"></script>
+</th:block>
+
+</html>

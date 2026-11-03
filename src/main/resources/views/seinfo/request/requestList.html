@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+    <style></style>
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <div th:replace="~{seinfo/layout/include/frame/navCategory :: menuMid420}"></div>
+
+<main>
+    <div class="subpage-content">
+        <h2>[(#{seinfo.menu.mid.00420})]</h2> <!--제안이력조회-->
+        <div class="pps-history-area">
+
+            <!--1.그리드-->
+            <section>
+                <strong class="comm-title">[(#{seinfo.pps.label.00110})]</strong> <!--제안 이력-->
+                <div class="table-normal-container">
+                    <table>
+                        <colgroup>
+                            <col style="width: 50px" />
+                            <col style="width: 150px" />
+                            <col />
+                            <col style="width: 150px" />
+                            <col style="width: 100px" />
+                            <col style="width: 200px" />
+                            <col style="width: 100px" />
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th class="text-center">[(#{seinfo.pps.label.00120})]</th><!--번호-->
+                                <th class="text-center">[(#{seinfo.pps.label.00130})]</th><!--등록일-->
+                                <th class="text-center">[(#{seinfo.pps.label.00140})]</th><!--의뢰 제목-->
+                                <th class="text-center">담당자</th><!--담당자 로그인 ID-->
+                                <th class="text-center">[(#{seinfo.pps.label.00150})]</th><!--진행 상태-->
+                                <th class="text-center">답변상태</th><!--진행 상태-->
+                                <th class="text-center">[(#{seinfo.pps.label.00170})]</th><!--의뢰 상세-->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="list : ${requestList}">
+                                <td class="text-center">[[${list['rnum']}]]</td> <!--번호-->
+                                <td class="text-center">[[${list['sendD']}]]</td> <!--등록일-->
+                                <td class="text-left middle"><!--제안제목-->
+                                    <button type="button" class="middle"
+                                        style="color:#1d62e0; text-decoration:underline; text-underline-position:under;"
+                                        onclick="moveView(this, '/request/requestRegForm')"
+                                        th:data-requestNo="${list['requestNo']}">
+                                        [[${list['requestTitle']}]]
+                                    </button>
+                                </td>
+                                <td class="text-center" style="overflow-wrap:anywhere;">[[${list['contactLoginId']}]]</td><!--담당자 로그인 ID-->
+                                <td class="text-center">[[${list['requestState']}]]</td> <!--진행상태-->
+                                <td class="text-center">[[${list['replyStatus']}]]</td>
+                                <!--제안상세-->
+                                <td class="text-center">
+                                    <div class="clear">
+                                        <button type="button" th:data-requestNo="${list['requestNo']}"
+                                            onclick="moveView(this, '/request/requestDetail')">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
+                                                <path d="M4.87109 9.99989L9.91495 14.861L16.6766 4.44434" stroke="#2DC0F0" stroke-width="1.6" stroke-linecap="round"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${requestList == null or #lists.isEmpty(requestList)}">
+                                <td colspan="7" class="text-center">[(#{seinfo.pps.label.00180})]</td> <!--조회된 데이터가 없습니다.-->
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!--2.페이징-->
+            <div class="pagination" th:if="${pageResult != null}">
+                <!-- 첫 페이지 버튼 -->
+                <a th:if="${pageResult.cPage > 1}" th:href="@{/request/requestList(page=1)}"
+                   class="page-navi first">
+                    <img th:src="@{/static/seinfo/img/icon-pagination-first.svg}" alt='[(#{seinfo.board.label.00071})]'> <!--첫페이지-->
+                </a>
+
+                <!-- 이전 페이지 버튼 -->
+                <a th:if="${pageResult.hPrev}" th:href="@{/request/requestList(page=${pageResult.cPage - 1})}"
+                   class="page-navi prev">
+                    <img th:src="@{/static/seinfo/img/icon-pagination-prev.svg}" alt='[(#{seinfo.board.label.00072})]'> <!--이전페이지-->
+                </a>
+
+                <!-- 페이지 번호 -->
+                <th:block th:with="startPage=${pageResult.cPage - 5}, endPage=${pageResult.cPage + 5}">
+                    <div class="page-links">
+                        <a th:each="page : ${#numbers.sequence(1, pageResult.totalPages)}"
+                           th:if="${page >= startPage and page <= endPage}"
+                           th:href="@{/request/requestList(page=${page})}"
+                           th:class="${pageResult.cPage == page} ? 'page-link active' : 'page-link'">
+                            [[${page}]]
+                        </a>
+                    </div>
+                </th:block>
+
+                <!-- 다음 페이지 버튼 -->
+                <a th:if="${pageResult.hNext}" th:href="@{/request/requestList(page=${pageResult.cPage + 1})}"
+                   class="page-navi next" style="display: block">
+                    <img th:src="@{/static/seinfo/img/icon-pagination-next.svg}" alt='[(#{seinfo.board.label.00073})]'> <!--다음페이지-->
+                </a>
+
+                <!-- 마지막 페이지 버튼 -->
+                <a th:if="${pageResult.cPage < pageResult.totalPages}"
+                   th:href="@{/request/requestList(page=${pageResult.totalPages})}" class="page-navi last" style="display: block">
+                    <img th:src="@{/static/seinfo/img/icon-pagination-last.svg}" alt='[(#{seinfo.board.label.00074})]'> <!--마지막페이지-->
+                </a>
+            </div>
+
+        </div>
+    </div>
+</main>
+</th:block>
+
+<th:block layout:fragment="html_js">
+    <script type="text/javascript" th:inline="javascript">
+        const message = /*[[${message != null ? message : ''}]]*/ '';
+        const page = /*[[${pageResult != null and pageResult.cPage != null ?
+                            pageResult.cPage : 1}]]*/ 1;
+
+        function moveView(button, nextView) {
+            const requestNo = button.getAttribute('data-requestNo');
+
+            let arrLinkparam = [];
+            arrLinkparam.push('&requestNo=' + requestNo);
+            arrLinkparam.push('&page=' + page);
+
+            let encData = pf.zzzUtil.getEncryptParam(arrLinkparam.join(''));
+            location.href = nextView + '?paramData=' + encData;
+        }
+
+        $(() => {
+            // 로그인 경고
+            if (message.trim().length > 0) {
+                pf.seinfoAlert(message, () => {
+                    location.href = pf.seinfo.fnGetMovePage("divMid110"); // 로그인 페이지
+                });
+                return null;
+            }
+        });
+    </script>
+</th:block>
+</html>

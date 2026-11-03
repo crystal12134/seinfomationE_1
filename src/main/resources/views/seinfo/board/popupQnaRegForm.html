@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block th:fragment="popup01View">
+    <div class="modal comm-modal" id="modalQnaRegister">
+        <div class="modal-overlay"></div>
+
+        <div class="modal-content" style="max-width: 900px !important;">
+            <div class="modal-body">
+                <div class="contact-register-area">
+                    <!--1:1문의 질문등록-->
+                    <strong class="comm-modal-title">[(#{seinfo.board.label.00210})]</strong>
+                    <section>
+                        <div class="table-row-container">
+                            <table>
+                                <colgroup>
+                                    <col width="160px"/>
+                                    <col />
+                                    <col width="160px"/>
+                                    <col />
+                                </colgroup>
+                                <tbody>
+                                    <tr>
+                                        <td><i class="required">*</i>[(#{seinfo.board.label.00049})]</td><!--등록자-->
+                                        <td>
+                                            <div class="input-area">
+                                                <input type="text" id="modalQnaRegUsrNm" readonly>
+                                            </div>
+                                        </td>
+                                        <td><i class="required">*</i>[(#{seinfo.board.label.00050})]</td><!--등록일-->
+                                        <td>
+                                            <div class="input-area">
+                                                <input type="text" id="modalQnaRegDt" readonly>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="required">*</i>[(#{seinfo.board.label.00015})]</td><!--제목-->
+                                        <td colspan="3">
+                                            <div class="input-area">
+                                                <input type="text" id="modalQnaTitle" autofocus maxlength="50">
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="required">*</i>[(#{seinfo.board.label.00016})]</td><!--내용-->
+                                        <td colspan="3">
+                                            <div class="textarea-area">
+                                                <textarea id="modalQnaContents"></textarea>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                    <div class="button-area">
+                        <!--닫기-->
+                        <button type="button" id="modalQnaBtnCls" class="comm-close-modal-btn secondary-md-btn">
+                            [(#{seinfo.com.btn.00040})]
+                        </button>
+
+                        <!--삭제-->
+                        <button type="button" id="modalQnaBtnDel" class="primary-md-btn">[(#{seinfo.com.btn.00012})]</button>
+
+                        <!--저장-->
+                        <button type="button" id="modalQnaBtnOk" class="primary-md-btn">[(#{seinfo.com.btn.00010})]</button>
+
+                        <!--답변하기-->
+                        <button type="button" id="modalQnaBtnRe" class="primary-md-btn">[(#{seinfo.com.btn.00170})]</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="popup01Js">
+    <script type="text/javascript" th:inline="javascript">
+
+        //조회 : QnA 상세내역 (질문)
+        let questionDetail = {};
+
+        function fnGetQuestionDetail(noticeNo, gbn) {
+            modifyMode = gbn;
+
+            pf.seinfo.ajax({
+                userType: userType,
+                method  : 'post',
+                url     : '/board/qnaList/getQnaDetail',
+                data    : {noticeNo: noticeNo, userType: userType, qnaMode: qnaMode}
+            }, (rData) => {
+                if(rData.process_code === '00'){ <!--성공-->
+                    questionDetail = rData.data.qnaDetail;
+                    $("#modalQnaRegUsrNm").val(questionDetail.noticeUserNm);
+                    $("#modalQnaRegDt").val(questionDetail.noticeD);
+                    $("#modalQnaTitle").val(pf.seinfoComUtil.unEscape(questionDetail.noticeTitle));
+                    $("#modalQnaContents").val(pf.seinfoComUtil.unEscape(questionDetail.noticeContents));
+                }else{
+                    //[조회오류]..
+                    pf.seinfoAlert.warning('[(#{seinfo.com.msg.00170})] <br> ' + rData.data.message);
+
+                    $('#modalQnaRegister').hide();
+                    $('#modalQnaBtnDel').css('display', 'none');
+                    $('#modalQnaBtnOk').css('display', 'none');
+                }
+            });
+        }
+
+        //저장 : 질문 입력
+        function fnRegistQnaUpd() {
+
+            if(modifyMode !== 'R') {
+                if(questionDetail.userEmail !== tmpToken.USER_ID) {
+                    pf.seinfoAlert.warning('[(#{seinfo.main.msg.00160})]' +'(modifyMode)'); //권한이 불충분 합니다.
+                    return;
+                }
+            }
+
+            if(adminYn === 'Y') {
+                pf.seinfoAlert.warning('[(#{seinfo.main.msg.00160})]' +'(adminYn)'); //권한이 불충분 합니다.
+                return;
+            }
+
+            if(!(modifyMode === 'R' || modifyMode === 'RU' || modifyMode === 'RD')) {
+                pf.seinfoAlert.warning('[(#{seinfo.main.msg.00160})]' +'(modifyMode)'); //권한이 불충분 합니다.
+                return;
+            }
+
+            if(modifyMode !== 'RD') {
+                if(pf.zzzUtil.isEmpty($("#modalQnaTitle").val())) {
+                    pf.seinfoAlert.focus(0, '[(#{seinfo.main.msg.00130})]', $('#modalQnaTitle')); //제목을 입력하세요.
+                    return;
+                } else if($("#modalQnaTitle").val().length > 100) {
+                    var msg = '[(#{seinfo.board.label.00150})]' + ': [(#{seinfo.com.msg.00100})]'; //제목 : 입력길이가 한도를 초과하였습니다.
+                    pf.seinfoAlert.focus(0, msg, $('#modalQnaTitle'));
+                    return;
+                }
+
+                if(pf.zzzUtil.isEmpty($("#modalQnaContents").val())) {
+                    pf.seinfoAlert.focus(0, '[(#{seinfo.main.msg.00140})]', $('#modalQnaContents')); //내용을 입력하세요.
+                    return;
+                }
+            }
+
+            //업무저장 (QnA 등록)
+            const formData = {
+                modifyMode : modifyMode,
+                noticeNo : questionDetail.noticeNo ? questionDetail.noticeNo : null,
+                noticeTitle : $("#modalQnaTitle").val(),
+                noticeContents : $("#modalQnaContents").val(),
+                userType : userType,
+                adminYn : adminYn,
+                replyYn : replyMode
+            };
+
+            pf.seinfo.ajax({
+                method: 'post',
+                url: '/board/qnaList/registQuestion',
+                data: formData
+            }, (rData) => {
+                if(rData.process_code === '00'){ //성공
+                    fnInitQna();
+
+                    let msg = '[(#{seinfo.com.msg.00010})]'; //저장되었습니다.
+                    if(modifyMode === 'RD') {
+                        msg = '[(#{seinfo.com.msg.00040})]'; //삭제되었습니다.
+                    }
+
+                    //처리되었습니다.
+                    pf.seinfoAlert.success(msg, () => {
+                        $('#modalQnaRegister').hide();
+
+                        reloadQnaList(); //부모창 재조회
+                    });
+                }else {
+                    fnInitQna();
+                    //[저장오류] ...
+                    pf.seinfoAlert.warning('[(#{seinfo.com.msg.00171})] <br> '+ rData.data.message, ()=> {
+                        $('#modalQnaRegister').hide();
+                    });
+                }
+            });
+        }
+
+        //초기화
+        function fnInitQna() {
+            $('body').css('overflow', ''); //메인창 스크롤 초기화
+        }
+
+        $(() => {
+            $("#modalQnaTitle").attr("placeholder", "[(#{seinfo.main.msg.00130})]"); //제목을 입력하세요.
+            $("#modalQnaContents").attr("placeholder", "[(#{seinfo.main.msg.00140})]"); //내용을 입력하세요.
+
+            //버튼클릭 : 저장
+            $('#modalQnaBtnOk').click('click', function (e) {
+                pf.seinfoAlert.confirm('[(#{seinfo.com.msg.00060})]', () => { //저장하시겠습니까?
+                    e.preventDefault;
+                    fnRegistQnaUpd();
+                });
+            });
+
+            //버튼클릭 : 답변하기
+            $('#modalQnaBtnRe').click('click', function (e) {
+                if(qnaDelMode == 'Y') { //질문삭제 건은 답변작성 불가
+                    //[권한오류] 유효하지 않습니다.
+                    pf.seinfoAlert.warning('[(#{seinfo.com.msg.00174})] <br> [(#{seinfo.com.msg.00140})]');
+                    return;
+                }
+
+                if(adminYn === 'Y' && replyMode === 'N') {
+                    e.preventDefault;
+                    $('#modalQnaRegister').hide();
+                    fnQnaAnswerOpen('A', questionDetail.noticeNo);
+                }
+            });
+
+            //버튼클릭 : 삭제
+            $('#modalQnaBtnDel').click('click', function (e) {
+                pf.seinfoAlert.confirm('[(#{seinfo.main.msg.00180})]', () => {
+                    modifyMode = "RD";
+                    e.preventDefault;
+                    fnRegistQnaUpd();
+                });
+            });
+
+            //버튼닫기 : 닫기
+            $('#modalQnaBtnCls').click('click', function (e) {
+                e.preventDefault;
+                fnInitQna();
+            })
+        })
+    </script>
+</th:block>
+</html>

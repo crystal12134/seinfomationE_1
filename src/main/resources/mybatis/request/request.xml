@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.seinfo.seinfomationA.component.request.mapper.RequestMapper">
+
+	<select id="selectRequestUserInfo" parameterType="camelmap" resultType="camelmap">
+		select /* com.seinfo.seinfomationA.component.request.mapper.RequestMapper.selectRequestUserInfo */
+			b.company_nm
+			 , b.company_url
+			 , a.login_id AS contact_login_id
+			 , a.user_nm
+			 , a.user_phone
+			 , a.user_email
+		from seinfo_vendor_manager a
+				 join seinfo_vendor b
+					  on a.company_no = b.company_no
+		where a.user_email = #{userEmail}
+		  and IFNULL(a.user_pwd_init_yn,'N') != 'Y'
+          and a.bl_yn = 'N'
+	</select>
+
+	<select id="selectUserUid" parameterType="camelmap" resultType="camelmap">
+		select /* com.seinfo.seinfomationA.component.request.mapper.RequestMapper.selectUserUid */
+			user_uid, bl_yn
+		from seinfo_vendor_manager a
+		where a.user_email = #{userEmail}
+		  and IFNULL(a.user_pwd_init_yn,'N') != 'Y'
+          and a.bl_yn = 'N'
+	</select>
+
+	<select id="selectRequestRegForm" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.seinfomationA.component.request.mapper.RequestMapper.selectRequestRegForm */
+			a.request_no
+			 , a.user_uid
+			 , b.login_id AS contact_login_id
+			 , a.request_title
+			 , a.request_detail
+			 , a.mfile_group_id
+			 , DATE_FORMAT(a.send_d, '%Y-%m-%d') AS send_d
+			 , a.request_state
+		FROM seinfo_request a
+				 JOIN seinfo_vendor_manager b
+					  ON a.user_uid = b.user_uid
+		WHERE request_no = #{requestNo}
+		  <if test='userEmail != null'>
+		    AND b.user_email = #{userEmail}
+          </if>
+		  AND IFNULL(b.user_pwd_init_yn,'N') != 'Y'
+          AND b.bl_yn = 'N';
+	</select>
+
+	<select id="getLastRequestNo" resultType="camelmap">
+		select /* com.seinfo.seinfomationA.component.request.mapper.RequestMapper.getLastRequestNo */
+			request_no
+		from seinfo_request
+		WHERE request_no like concat('REQ', date_format(now(), '%y%m'), '%')
+		order by request_no desc
+		limit 1
+	</select>
+
+	<insert id="insertRequest" parameterType="camelmap">
+		INSERT /* com.seinfo.seinfomationA.component.request.mapper.RequestMapper.insertRequest */
+		INTO seinfo_request
+		(
+		  request_no
+		, user_uid
+		, request_title
+		, request_detail
+		, mfile_group_id
+		, request_state
+		, send_d
+		, reg_dt
+		, reg_user_id
+		, mod_dt
+		, mod_user_id
+		)
+		VALUES
+			(
+			 	#{requestNo}
+				, #{userUid}
+				, LEFT(#{requestTitle}, 100)
+				, #{requestDetail}
+				, #{fileGrpId}
+				, #{requestState}
+				, #{sendD}
+				, now()
+				, #{userEmail}
+				, now()
+				, #{userEmail}
+			)
+			ON DUPLICATE KEY UPDATE
+				  request_title     = LEFT(VALUES(request_title), 100)
+				, request_detail    = VALUES(request_detail)
+				, request_state     = VALUES(request_state)
+				, mfile_group_id    = VALUES(mfile_group_id)
+				, send_d            = VALUES(send_d)
+				, mod_dt            = VALUES(mod_dt)
+				, mod_user_id       = VALUES(mod_user_id)
+	</insert>
+
+	<delete id="deleteRequest" parameterType="camelmap">
+		DELETE /* com.seinfo.seinfomationA.component.request.mapper.RequestMapper.deleteRequest */
+		FROM seinfo_request
+		WHERE request_no = #{requestNo}
+		  AND user_uid = #{userUid}
+		  AND request_state = #{requestState}
+	</delete>
+
+	<select id="selectRequestFileGrpId" parameterType="camelmap" resultType="camelmap">
+		SELECT /*com.seinfo.seinfomationA.component.request.mapper.RequestMapper.selectRequestFileGrpId */
+			mfile_group_id as mfile_grp_id
+		FROM seinfo_request
+		WHERE request_no = #{requestNo}
+		  AND user_uid = #{userUid}
+		  AND request_state = #{requestState}
+	</select>
+
+	<select id="selectRequestList" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.seinfomationA.component.request.mapper.RequestMapper.selectRequestHistoryList */
+            ROW_NUMBER() OVER (ORDER BY r.request_no ASC) AS rnum
+             , r.request_no
+             , CASE
+                   WHEN CHAR_LENGTH(r.request_title) &gt; 30
+                       THEN CONCAT(LEFT(r.request_title, 30), '...')
+                   ELSE r.request_title
+            END AS request_title
+             , IFNULL(code.code_nm, '회원등록') AS request_state
+             , CASE
+                   WHEN lc.reply_yn = 'N' AND IFNULL(lc_role.user_role, '') = 'ADMIN' THEN '관리자 질문등록'
+                   WHEN lc.reply_yn = 'N' AND IFNULL(lc_role.user_role, '') != 'ADMIN' THEN '의뢰자 질문등록'
+                   WHEN lc.reply_yn = 'Y' AND IFNULL(lc_role.user_role, '') = 'ADMIN' THEN '관리자 답변등록'
+                   WHEN lc.reply_yn = 'Y' AND IFNULL(lc_role.user_role, '') != 'ADMIN' THEN '의뢰자 답변등록'
+                   ELSE ''
+            END AS reply_status
+             , CASE
+                   WHEN r.send_d IS NULL THEN DATE_FORMAT(r.reg_dt, '%y.%m.%d')
+                   WHEN r.send_d IS NOT NULL THEN DATE_FORMAT(r.send_d, '%y.%m.%d')
+                   ELSE DATE_FORMAT(r.send_d, '%Y-%m-%d')
+            END AS send_d
+             , vm.login_id AS contact_login_id
+             , CASE WHEN vm.user_role = 'ADMIN' THEN '관리자' ELSE vm.login_id END AS user_nm
+        FROM seinfo_request r
+                 LEFT JOIN (
+            SELECT code_value, code_nm
+            FROM zzz_code_info
+            WHERE use_yn = 'Y'
+              AND code_parent_id = 'SE002'
+        ) code
+                           ON code.code_value = r.request_state
+                 JOIN seinfo_vendor_manager vm
+                      ON vm.user_uid = r.user_uid
+                 LEFT JOIN (
+            SELECT request_no, reply_yn, reg_user_id
+            FROM (
+                     SELECT x.request_no, x.reply_yn, x.reg_user_id
+                          , ROW_NUMBER() OVER (
+                         PARTITION BY x.request_no
+                         ORDER BY x.reg_dt DESC, x.request_seq DESC
+                         ) AS rn
+                     FROM seinfo_request_cont x
+                 ) t
+            WHERE t.rn = 1
+        ) lc
+                           ON lc.request_no = r.request_no
+                 LEFT JOIN seinfo_vendor_manager lc_role
+                           ON lc_role.user_email = lc.reg_user_id
+        WHERE vm.user_email = #{userEmail}
+          AND IFNULL(vm.user_pwd_init_yn, 'N') != 'Y'
+          AND vm.bl_yn = 'N'
+        ORDER BY 1 DESC
+        LIMIT #{pageSize} OFFSET #{startRow}
+	</select>
+
+	<select id="getRequestListCount" parameterType="camelmap" resultType="int">
+		SELECT /* com.seinfo.seinfomationA.component.request.mapper.RequestMapper.getRequestHistoryListCount */
+			COUNT(*)
+		FROM seinfo_request
+		WHERE user_uid = (
+			SELECT user_uid
+			FROM seinfo_vendor_manager a
+			WHERE a.user_email = #{userEmail}
+			  AND IFNULL(a.user_pwd_init_yn, 'N') != 'Y'
+		  AND a.bl_yn = 'N'
+			)
+	</select>
+
+	<select id="selectRequestProcess" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.seinfomationA.component.request.mapper.RequestMapper.selectRequestProcess */
+			a.request_no
+			 , CASE /* 상태별 표시 */
+				   WHEN a.request_state is null then '1'
+				   WHEN a.request_state='01' then '2'
+				   WHEN a.request_state='10' then '3'
+				   WHEN a.request_state='20' then '4'
+				   WHEN a.request_state='99' then '5'
+				   ELSE '1'
+			   END AS progress
+			 , DATE_FORMAT(b.reg_dt, '%Y.%m.%d') AS member_register_d /* 회원등록 날짜 */
+			 , DATE_FORMAT(a.send_d, '%Y.%m.%d') AS send_d /* 의뢰서 제출 날짜 */
+			 , DATE_FORMAT(a.request_accept_d, '%Y.%m.%d') AS request_accept_d /* 의뢰서 접수 날짜 */
+			 , DATE_FORMAT(a.request_complete_d, '%Y.%m.%d') AS request_complete_d /* 의뢰 완료 날짜 */
+		     , a.request_state
+		FROM seinfo_request a
+				 JOIN seinfo_vendor_manager b
+					  ON a.user_uid = b.user_uid
+		WHERE a.user_uid = (SELECT user_uid FROM seinfo_vendor_manager m WHERE m.user_email = #{userEmail}
+								 and IFNULL(m.user_pwd_init_yn,'N') != 'Y'
+		 						 and m.bl_yn = 'N')
+		  AND a.request_no = #{requestNo}
+	</select>
+
+	<select id="selectRequestContList" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.seinfomationA.component.request.mapper.RequestMapper.selectRequestDetail */
+			ROW_NUMBER() OVER (ORDER BY a.reg_dt ASC, a.request_seq ASC) AS rnum
+			,a.request_no
+			,a.request_seq
+			,a.question_title
+			,a.question_content
+			,DATE_FORMAT(a.reg_dt, '%Y-%m-%d') AS reg_dt
+			,CASE
+				WHEN a.reply_yn='N' AND b.reply_yn = 'Y' THEN 'Y'
+				ELSE 'N'
+			 END AS reply_yn
+			,CASE WHEN c.user_role = 'ADMIN' THEN '관리자' ELSE c.login_id END AS user_nm
+			, CASE
+				  WHEN b.reply_yn = 'Y' THEN 'N'
+				  WHEN b.reply_yn IS NULL AND c.user_email != #{userEmail} THEN 'Y'
+				  ELSE 'N'
+			END AS reg_reply_yn
+		FROM seinfo_request_cont a
+				 LEFT JOIN seinfo_request_cont b
+						   ON b.request_no = a.request_no
+							   AND b.request_seq = a.request_seq
+							   AND b.reply_yn = 'Y'
+				 LEFT JOIN seinfo_vendor_manager c
+						   ON a.reg_user_id = c.user_email
+		WHERE a.request_no = #{requestNo}
+		  AND a.reply_yn = 'N'
+		ORDER BY 1 DESC
+	</select>
+
+	<select id="selectRequestContDetail" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.seinfomationA.component.request.mapper.RequestMapper.selectReply */
+			a.request_no
+			 , a.request_seq
+			 , a.question_title
+			 , a.question_content
+			 , DATE_FORMAT(a.reg_dt, '%Y-%m-%d') AS reg_dt
+			 , a.mfile_group_id AS mfile_grp_id
+			 , CASE WHEN b.user_role = 'ADMIN' THEN '관리자' ELSE b.login_id END AS user_nm
+			 , a.reply_yn
+			 , CASE
+				   WHEN EXISTS (
+					   SELECT 1
+					   FROM seinfo_request_cont c
+					   WHERE c.request_no = a.request_no
+						 AND c.reply_yn = 'Y'
+						 AND request_seq = a.request_seq
+				   ) THEN 'Y'
+				   ELSE 'N'
+			END AS has_opposite
+		FROM seinfo_request_cont a
+				 JOIN seinfo_vendor_manager b
+					  ON a.reg_user_id = b.user_email
+		WHERE a.request_no = #{requestNo}
+		  AND a.request_seq = #{requestSeq}
+		  AND a.reply_yn = #{replyYn}
+	</select>
+
+	<select id="getNextRequestSeq" parameterType="camelmap" resultType="int">
+		SELECT /* com.seinfo.seinfomationA.component.request.mapper.RequestMapper.getNextRequestSeq */
+		    IFNULL(MAX(request_seq), 0) + 1
+		FROM seinfo_request_cont
+		WHERE request_no = #{requestNo}
+	</select>
+
+	<insert id="insertRequestCont" parameterType="camelmap">
+		INSERT /* com.seinfo.seinfomationA.component.request.mapper.RequestMapper.insertRequestCont */
+		INTO seinfo_request_cont
+		(
+		 	request_no
+			,request_seq
+			,question_title
+			,question_content
+			,reply_yn
+			,mfile_group_id
+			,reg_dt
+			,reg_user_id
+			,mod_dt
+			,mod_user_id
+		)
+		VALUES
+		(
+			#{requestNo}
+			,#{requestSeq}
+			,LEFT(#{questionTitle}, 100)
+			,#{questionContent}
+			,#{replyYn}
+			,#{fileGrpId}
+			,now()
+			,#{userEmail}
+			,now()
+			,#{userEmail}
+		)
+	</insert>
+
+</mapper>

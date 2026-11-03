@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutFullPage}">
+
+<th:block layout:fragment="html_head">
+  <title></title>
+  <th:block layout:fragment="html_css">
+    <style>
+      body {
+        overflow: hidden;
+      }
+    </style>
+    <link rel="stylesheet" th:href="@{/static/seinfo/css/main-layout-v2.css}">
+	<link rel="stylesheet" th:href="@{/static/seinfo/css/process-cards-v3.css}">
+  </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+  <div>
+    <main>
+      <div id="fullpage" class="mainpage-content">
+
+        <!--1. 1페이지-->
+        <div class="section section01">
+          <!--1.1. 상단 슬라이드-->
+          <div class="swiper mainSwiper">
+            <div class="swiper-wrapper">
+              <div class="swiper-slide slide01">
+                <div class="inner">
+                  <div class="visual-text">
+                    <h2>
+                        <strong>
+                          <strong class="title-point">[(#{seinfo.main.label.00010})]</strong>[(#{seinfo.main.label.00011})]<!--최신 기술을 선도합니다.-->
+                        </strong>
+                    </h2>
+                    <span>[(#{seinfo.main.label.00012})]</span>
+                    <!--끊임없는 혁신으로 미래를 앞서갑니다.-->
+                  </div>
+                </div>
+              </div>
+              <div class="swiper-slide slide02">
+                <div class="inner">
+                  <div class="visual-text">
+                    <h2>
+                        <strong>
+                          <strong class="title-point">[(#{seinfo.main.label.00013})]</strong>[(#{seinfo.main.label.00014})] <!--고객의 니즈에 맞춰갑니다.-->
+                        </strong>
+                    </h2>
+                    <span>[(#{seinfo.main.label.00015})]</span>
+                    <!--창의적인 아이디어를 실현하고, 지속 가능한 혁신을 이루어 나가며 함께 성장합니다.-->
+                  </div>
+                </div>
+              </div>
+              <div class="swiper-slide slide03">
+                <div class="inner">
+                  <div class="visual-text">
+                    <h2>
+                        <strong>
+                          [(#{seinfo.main.label.00016})] <strong class="title-point">[(#{seinfo.main.label.00017})]</strong> <!--지속 가능한 혁신의 원동력, 변화-->
+                        </strong>
+                    </h2>
+                    <span>[(#{seinfo.main.label.00018})]</span> <!--함께 더 나은 미래를 만들어가길 기대합니다.-->
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="slide-control-area">
+              <div class="swiper-bullet">
+                <ul>
+                  <li></li>
+                  <li></li>
+                  <li></li>
+                </ul>
+              </div>
+              <div class="slide-action-area">
+                <div class="swiper-pagination"></div>
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-stop">
+                  <img th:src="@{static/seinfo/img/icon-slide-stop.svg}" alt='[(#{seinfo.main.label.00020})]'> <!--슬라이드 정지-->
+                </div>
+                <div class="swiper-button-play">
+                  <img th:src="@{static/seinfo/img/icon-slide-play.svg}" alt='[(#{seinfo.main.label.00021})]'> <!--슬라이드 시작-->
+                </div>
+                <div class="swiper-button-next"></div>
+              </div>
+            </div>
+          </div>
+
+          <!--1-2. 하단 화면연결-->
+          <div class="main-content service-home">
+  <nav class="service-home__services" aria-label="주요 서비스">
+    <a class="service-home__request" href="javascript:void(0)" onclick="btnVaildation('divMid410')">
+      <span class="service-home__eyebrow">PROJECT REQUEST</span>
+      <img th:src="@{/static/seinfo/img/icon-core-category02.svg}" alt="" />
+      <strong>의뢰서 작성</strong>
+      <span>홈페이지부터 업무시스템까지,<br />필요한 서비스를 알려주세요.</span>
+      <span class="service-home__cta">프로젝트 상담 시작 <span aria-hidden="true">↗</span></span>
+    </a>
+    <div class="service-home__shortcuts">
+      <a th:if="${loginYn == false}" th:href="@{/anyone/member/joinMember}">
+        <img th:src="@{/static/seinfo/img/icon-core-category01.svg}" alt="" />
+        <span><strong>회원가입</strong><small>서비스 이용 시작하기</small></span><b aria-hidden="true">↗</b>
+      </a>
+      <a th:unless="${loginYn == false}" href="javascript:void(0)" onclick="btnVaildation('divMid620')">
+        <img th:src="@{/static/seinfo/img/icon-core-category05.svg}" alt="" />
+        <span><strong>회원정보 수정</strong><small>내 정보 관리</small></span><b aria-hidden="true">↗</b>
+      </a>
+      <a href="javascript:void(0)" onclick="btnVaildation('divMid420')">
+        <img th:src="@{/static/seinfo/img/icon-core-category04.svg}" alt="" />
+        <span><strong>의뢰 조회</strong><small>진행 상황</small></span><b aria-hidden="true">↗</b>
+      </a>
+      <a href="javascript:void(0)" onclick="btnVaildation('divMid610')">
+        <img th:src="@{/static/seinfo/img/icon-core-category03.svg}" alt="" />
+        <span><strong>문의 사항</strong><small>문의하기</small></span><b aria-hidden="true">↗</b>
+      </a>
+    </div>
+  </nav>
+  <aside class="service-home__updates" aria-label="새 소식과 이용 안내">
+    <section class="service-home__notice">
+      <div class="service-home__heading"><h2>공지사항</h2><a th:href="@{/anyone/noticeList}">전체보기 <span aria-hidden="true">↗</span></a></div>
+      <ul>
+        <li th:each="list, stat : ${noticeList}" th:if="${stat.index lt 2}">
+          <a href="javascript:void(0)" th:attr="onclick=|moveToNotice('${list.noticeNo}')|"><span th:text="${list.noticeTitle}"></span><time th:text="${list.regDt}"></time></a>
+        </li>
+        <li class="service-home__empty" th:if="${noticeList == null or #lists.isEmpty(noticeList)}">등록된 공지사항이 없습니다.</li>
+      </ul>
+    </section>
+    <section class="service-home__faq">
+      <div class="service-home__heading"><h2>자주 묻는 질문</h2><a th:href="@{/anyone/faqList}">FAQ <span aria-hidden="true">↗</span></a></div>
+      <ul>
+        <li th:each="list, stat : ${faqList}" th:if="${stat.index lt 2}">
+          <a href="javascript:void(0)" th:attr="onclick=|moveToFaq('${list.faqNo}', '${list.faqType}')|"><b aria-hidden="true">Q</b><span th:text="${list.faqQuestion}"></span><i aria-hidden="true">›</i></a>
+        </li>
+        <li class="service-home__empty" th:if="${faqList == null or #lists.isEmpty(faqList)}">등록된 질문이 없습니다.</li>
+      </ul>
+    </section>
+  </aside>
+</div>
+        </div>
+
+
+        <!--2. 2페이지-->
+        <div class="section section02">
+          <div class="inner">
+            <div class="title-area">              
+              <h2>[(#{seinfo.main.label.00031})]</h2> <!--개발의뢰 절차는?-->
+            </div>
+            <div class="content-area">
+              <ul>
+                <li>
+                  <div class="icon-area">
+                    <img th:src="@{static/seinfo/img/icon-process-01.svg}" alt="" />
+					<span class="process-name">회원가입</span>
+                  </div>                  
+                </li>
+                <li>
+                  <div class="icon-area">
+                    <img th:src="@{static/seinfo/img/icon-process-02.svg}" alt="" /> <!--기술제안-->
+					<span class="process-name">의뢰서작성</span>
+                  </div>				  
+                </li>
+                <li>
+                  <div class="icon-area">
+                    <img th:src="@{static/seinfo/img/icon-process-03.svg}" alt="" /> <!--접수-->
+					<span class="process-name">작성완료</span>
+                  </div>                 
+                </li>
+                <li>
+                  <div class="icon-area">
+                    <img th:src="@{static/seinfo/img/icon-process-04.svg}" alt="" /> <!--사내홍보/공유-->
+					<span class="process-name">접수</span>
+                  </div>				  
+                </li>
+                <li>
+                  <div class="icon-area">
+                    <img th:src="@{static/seinfo/img/icon-process-05.svg}" alt="" /> <!--신기술 심의-->
+					<span class="process-name">개발완료</span>
+                  </div>				  
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!--3. 바닥 페이지-->
+        <div class="section footer fp-auto-height">
+          <!--FOOTER 공통-->
+          <div th:replace="~{seinfo/layout/include/frame/divFooterList :: divBody01}"> </div>
+        </div>
+      </div>
+
+            <div id="fp-nav" class="fp-right ver1">
+              <ul>
+                <li>
+                  <a href="#" class="fp-nav01">
+                    <span class="sr-only">[(#{seinfo.main.label.00033})]</span> <!--Section 1-->
+                    <span></span>
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="fp-nav02">
+                    <span class="sr-only">[(#{seinfo.main.label.00034})]</span> <!--Section 2-->
+                    <span></span>
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="fp-nav03">
+                    <span class="sr-only">[(#{seinfo.main.label.00035})]</span> <!--Section 3-->
+                    <span></span>
+                  </a>
+                </li>
+              </ul>
+          </div>
+      </main>
+  </div>
+</th:block>
+
+<th:block layout:fragment="html_js">
+  <script type="text/javascript" th:inline="javascript">
+    function btnVaildation(prevPage) {
+      pf.seinfo.fnMenuClick(prevPage);
+      return null;
+    }
+
+    function moveToNotice(noticeNo) {
+      location.href = contextPath + `/anyone/noticeList?noticeNo=${noticeNo}`;
+    }
+
+    function moveToFaq(faqNo, faqType) {
+      location.href = contextPath + `/board/faqList?faqNo=${faqNo}&faqType=${faqType}`;
+    }
+  </script>
+</th:block>
+
+</html>

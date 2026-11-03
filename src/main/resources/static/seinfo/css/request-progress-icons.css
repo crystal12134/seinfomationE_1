@@ -1,0 +1,19 @@
+/* 의뢰진행상세: 메인 화면과 동일한 SVG 아이콘. 날짜와 진행 상태 클래스 유지. */
+#progressList > li .image-area {
+    background: var(--process-icon-color, #177e97);
+}
+
+#progressList > li .image-area img {
+    display: block;
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+#progressList > li.active .image-area {
+    box-shadow: 0 0 0 5px #fff, 0 0 0 8px var(--process-icon-color, #177e97);
+}
+
+#progressList > li .text-area {
+    min-height: 28px;
+}

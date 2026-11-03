@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block th:fragment="stepBody01">
+    <div class="image-area" style="--process-icon-color: #177E97;">
+        <img th:src="@{/static/seinfo/img/icon-process-01.svg}"
+             alt="회원등록" width="60" height="60">
+    </div>
+</th:block>
+
+<th:block th:fragment="stepBody02">
+    <div class="image-area" style="--process-icon-color: #2D5CA5;">
+        <img th:src="@{/static/seinfo/img/icon-process-02.svg}"
+             alt="작성중" width="60" height="60">
+    </div>
+</th:block>
+
+<th:block th:fragment="stepBody03">
+    <div class="image-area" style="--process-icon-color: #47649B;">
+        <img th:src="@{/static/seinfo/img/icon-process-03.svg}"
+             alt="의뢰등록" width="60" height="60">
+    </div>
+</th:block>
+
+<th:block th:fragment="stepBody04">
+    <div class="image-area" style="--process-icon-color: #187A77;">
+        <img th:src="@{/static/seinfo/img/icon-process-04.svg}"
+             alt="의뢰진행" width="60" height="60">
+    </div>
+</th:block>
+
+<th:block th:fragment="stepBody05">
+    <div class="image-area" style="--process-icon-color: #5E568E;">
+        <img th:src="@{/static/seinfo/img/icon-process-05.svg}"
+             alt="의뢰완료" width="60" height="60">
+    </div>
+</th:block>
+
+</html>

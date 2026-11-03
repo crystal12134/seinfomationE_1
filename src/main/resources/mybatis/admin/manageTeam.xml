@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.seinfo.seinfomationA.component.admin.mapper.ManageTeamMapper">
+    <select id="selectTeamMemberList" resultType="camelmap">
+        SELECT /* com.seinfo.seinfomationA.component.admin.mapper.ManageTeamMapper.selectTeamListForAdmin */
+              a.user_email
+            , a.login_id
+            , a.user_phone
+            , a.user_nm
+            , b.team_no
+            , b.team_manager
+            , a.team_grade
+            , a.user_uid
+            , CASE
+                WHEN a.user_uid = b.team_manager AND b.team_manager IS NOT NULL AND TRIM(b.team_manager) != '' THEN 'Y'
+                ELSE 'N'
+              END AS manager_yn
+         FROM seinfo_vendor_manager a
+    LEFT JOIN seinfo_team b
+           ON a.team_no = b.team_no
+        WHERE a.company_no = 'b53a6eb768bd9a16131748ac8e9ca20b'
+            <if test='userNm != null'>
+                AND a.user_nm LIKE CONCAT('%', #{userNm}, '%')
+            </if>
+            <if test='userPhone != null'>
+                AND a.user_phone LIKE CONCAT('%', #{userPhone}, '%')
+            </if>
+            <if test='userEmail != null'>
+                AND a.user_email LIKE CONCAT('%', #{userEmail}, '%')
+            </if>
+            <if test='teamNm != null'>
+                AND b.team_nm LIKE CONCAT('%', #{teamNm}, '%')
+            </if>
+    </select>
+
+    <select id="selectLoginIdentity" resultType="camelmap">
+        SELECT user_uid, login_id, user_email FROM seinfo_vendor_manager
+        WHERE user_uid = #{userUid}
+    </select>
+    <select id="selectLoginIdOwner" resultType="camelmap">
+        SELECT user_uid, login_id FROM seinfo_vendor_manager WHERE login_id = #{loginId}
+    </select>
+
+    <select id="selectMemberList" resultType="camelmap">
+        SELECT user_uid, user_nm
+          FROM seinfo_vendor_manager
+         WHERE company_no = 'b53a6eb768bd9a16131748ac8e9ca20b'
+    </select>
+
+    <!-- upsertTeamManger는 이전 인터페이스 호환용으로 남기되 서비스에서 호출하지 않습니다. -->
+    <insert id="insertTeamMember" parameterType="com.seinfo.seinfomationA.component.admin.model.TeamMangerModel">
+        INSERT INTO seinfo_vendor_manager
+            (login_id, user_nm, user_phone, user_email, reg_user_id, reg_dt,
+             company_no, team_grade, team_no, user_role, user_pwd_init_yn, fail_cnt, user_pwd_ch_d)
+        VALUES
+            (#{loginId}, #{userNm}, #{userPhone}, #{userEmail}, #{regUserId}, NOW(),
+             'b53a6eb768bd9a16131748ac8e9ca20b', #{teamGrade}, IF(#{teamNo} = 'null', NULL, #{teamNo}),
+             'EMPLOYEE', 'Y', 0, DATE(NOW()))
+    </insert>
+    <update id="updateTeamMember" parameterType="com.seinfo.seinfomationA.component.admin.model.TeamMangerModel">
+        UPDATE seinfo_vendor_manager
+        SET user_nm = #{userNm}, user_phone = #{userPhone}, team_grade = #{teamGrade},
+            team_no = IF(#{teamNo} = 'null', NULL, #{teamNo}), mod_dt = NOW(), mod_user_id = #{regUserId}
+        WHERE user_uid = #{userUid}
+    </update>
+    <select id="selectTeamEmailOwner" resultType="camelmap">
+        SELECT user_uid FROM seinfo_vendor_manager WHERE user_email = #{userEmail} LIMIT 1
+    </select>
+
+    <update id="updateTeamManger" parameterType="camelmap">
+        UPDATE seinfo_vendor_manager
+           SET team_no = #{teamNo}
+         WHERE user_uid = #{userUid}
+    </update>
+
+    <delete id="deleteTeamManger">
+        DELETE FROM seinfo_vendor_manager WHERE user_uid = #{userUid}
+    </delete>
+
+    <select id="selectTeamList" resultType="camelmap">
+        SELECT
+          team_no
+        , team_nm
+        , team_manager
+        , use_yn
+        FROM seinfo_team
+        <where>
+            <if test="teamNm != null and teamNm != ''">
+                team_nm LIKE CONCAT('%', #{teamNm}, '%')
+            </if>
+        </where>
+    </select>
+    
+    <insert id="upsertTeam" parameterType="camelmap">
+        INSERT INTO seinfo_team
+            (
+                  team_no
+                , team_nm
+                , team_manager
+                , use_yn
+             )
+            VALUES
+            <foreach collection="list" item="item" index="index" separator=",">
+            (
+                  #{item.teamNo}
+                , #{item.teamNm}
+                , #{item.teamManager}
+                , #{item.useYn}
+            )
+            </foreach>
+            ON DUPLICATE KEY UPDATE
+            team_nm = VALUES(team_nm)
+           ,team_manager = VALUES(team_manager)
+           ,use_yn = VALUES(use_yn)
+    </insert>
+
+    <delete id="deleteTeam">
+        DELETE FROM seinfo_team WHERE team_no = #{teamNo}
+    </delete>
+</mapper>

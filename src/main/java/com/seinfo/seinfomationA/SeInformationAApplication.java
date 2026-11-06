@@ -10,7 +10,7 @@ public class SeInformationAApplication {
 
 		// [치트키] application.properties를 완전히 무시하고 자바 코드로 직접 주입
         System.setProperty("spring.datasource.driver-class-name", "com.mysql.cj.jdbc.Driver");
-        System.setProperty("spring.datasource.url", "jdbc:mysql://b4ey5e476x38w3w45zjl-mysql.services.clever-cloud.com:3306/b4ey5e476x38w3w45zjl?serverTimezone=Asia/Seoul&characterEncoding=UTF-8");
+        System.setProperty("spring.datasource.url", "jdbc:mysql://b4ey5e476x38w3w45zjl-mysql.services.clever-cloud.com:3306/b4ey5e476x38w3w45zjl?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&autoReconnect=true&maxReconnects=3");
         System.setProperty("spring.datasource.username", "ux60upem7b2vzj51");
         System.setProperty("spring.datasource.password", "T80dnemJc3hOVlZbbo0T");
 

@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.seinfo.seinfomationA.security.AuthenticatedCryptoTest
--------------------------------------------------------------------------------
-Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 s -- in com.seinfo.seinfomationA.security.AuthenticatedCryptoTest

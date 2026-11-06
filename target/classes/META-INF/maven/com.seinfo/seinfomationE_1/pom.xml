@@ -32,12 +32,10 @@
 	<dependencies>
         <dependency><groupId>com.h2database</groupId><artifactId>h2</artifactId><scope>test</scope></dependency>
         <dependency><groupId>org.jsoup</groupId><artifactId>jsoup</artifactId><version>1.21.2</version></dependency>
-		<!--  JPA 라이브러리가 완전히 비활성화
-			<dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-		-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>

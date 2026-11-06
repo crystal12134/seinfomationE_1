@@ -32,10 +32,12 @@
 	<dependencies>
         <dependency><groupId>com.h2database</groupId><artifactId>h2</artifactId><scope>test</scope></dependency>
         <dependency><groupId>org.jsoup</groupId><artifactId>jsoup</artifactId><version>1.21.2</version></dependency>
-		<dependency>
+		<!--  JPA 라이브러리가 완전히 비활성화
+			<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
@@ -65,7 +67,7 @@
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
-		
+
 		<!-- 타임리프 -->
 		<dependency>
 		    <groupId>nz.net.ultraq.thymeleaf</groupId>
@@ -111,7 +113,7 @@
 			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -131,7 +133,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<scope>provided</scope> 
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 		    <groupId>me.desair.tus</groupId>
@@ -165,7 +167,7 @@
 			<artifactId>swagger-models</artifactId>
 			<version>1.5.20</version>
 		</dependency>
-		
+
 	</dependencies>
 
 	<build>

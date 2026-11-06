@@ -3,7 +3,7 @@
 
 <mapper namespace="com.seinfo.seinfomationA.util.api.ApiMapper">
 
-	<select id="getCodeList" parameterType="camelmap" resultType="camelmap">
+	<select id="getCodeList" resultType="camelmap">
 		SELECT /* com.seinfo.protoA.util.api.AipMapper.getCodeList */
 			  code_id
 		    , code_nm
@@ -21,7 +21,7 @@
         WHERE user_role = 'ADMIN'
     </select>
 
-    <select id="getUserEmailInfo" parameterType="camelmap" resultType="camelmap">
+    <select id="getUserEmailInfo" resultType="camelmap">
         SELECT /*  com.seinfo.protoA.util.api.AipMapper.getNextRequestSeq */
             b.user_email,
             b.user_nm,

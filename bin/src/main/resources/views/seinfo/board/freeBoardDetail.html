@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+        <style>
+            .ck-editor-reg{
+                width: 700px !important;
+                padding: 0px 0px 0px 0px !important;
+            }
+
+            .ck-editor-detail{
+                width: 700px !important;
+                padding: 0px 0px 0px 0px !important;
+            }
+
+            .ck-editor__editable {
+                max-height: 350px;
+            }
+
+            .editorWrap .ck-editor__editable_inline {
+                padding: 0 15px; !important;
+                height: calc(100vh - 340px)
+            }
+
+            .editorWrap.hasFileup .ck-editor__editable_inline {
+                height: calc(100vh - 561px)
+            }
+
+            .ck.ck-content strong {
+                font-weight: bold !important;
+            }
+
+            .ck.ck-content ul,
+            .ck.ck-content ul li {
+                list-style-type: disc !important;
+            }
+
+            .ck.ck-content ul {
+                padding-left: 40px;
+            }
+
+            .ck.ck-content ol,
+            .ck.ck-content ol li {
+                list-style-type: decimal !important;
+            }
+
+            .ck.ck-content ol {
+                padding-left: 40px !important;
+            }
+
+            .ck-horizontal-line {
+                border-top: 1px solid rgb(0,0,0);
+                /* 수평선의 두께와 색상*/
+                margin: 20px 0;
+                /* 수평선의 위아래 간격*/
+            }
+
+            .ck-content img {
+                width: auto !important;
+                height: auto !important;
+                max-width: 100%;
+                height: auto;
+            }
+
+            .ck.ck-balloon-panel {
+                z-index: 2001 !important;
+            }
+
+            .post-stats-area {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 20px;
+            }
+
+            .stat-circle {
+            display: inline-block;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 2rem;
+            color: #444;
+            line-height: 1.2;
+            padding-top: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            background-color: #f1f1f1;
+            }
+
+            .stat-circle span {
+            display: block;
+            font-size: 0.9rem;
+            }
+
+            .stat-circle:hover {
+            background-color: #12afe2;
+            color: white;
+            }
+
+
+        </style>
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <div th:replace="~{seinfo/layout/include/frame/navCategory :: menuMid530}"></div>
+
+    <main>
+        <div class="subpage-content">
+            <h2>자유게시판</h2> <!-- 자유게시판 -->
+            <div class="notice-list-area">
+                <section>
+                    <div class="notice-list-top">
+                        <!--총 1,234건의 공지사항이 있습니다.-->
+                         <div class="total">
+                            
+                        </div> 
+
+                        <!-- <div class="search-area">
+                            <div class="select-area">
+                                <select id="searchType" name="searchType" class="form-select" th:value="${param.searchType}">
+                                    <option value="tc">[(#{seinfo.board.label.00014})]</option>
+                                    <option value="t">[(#{seinfo.board.label.00015})]</option>
+                                    <option value="c">[(#{seinfo.board.label.00016})]</option>
+                                </select>
+                            </div>
+                            <div class="input-area">
+                                <input type="text" id="keyword" name="keyword" th:value="${param.keyword}" />
+                            </div>
+                            <button type="button" id="searchBtn" onclick="reloadFreeBoardList()" class="secondary-md-btn">조회</button>
+                        </div> -->
+                        <!--</form>-->
+                    </div>
+                    <div class="table-normal-container">
+                        <table id="freeBoardList">
+                            <colgroup>
+                                <col style="width: 9%" />
+                                <col />
+                                <col style="width: 12%" />
+                                <col style="width: 7%" />
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th class="text-left" style="font-size: 1rem; width: 70%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold;">[[${freeBoardDetail['freeboardTitle']}]]</th><!--제목-->
+                                    <th style="width: 15%; text-align: right; font-weight: normal; font-size: 0.9rem; white-space: nowrap; ">[[${freeBoardDetail['authorId']}]]</th><!--글쓴이-->
+                                    <th style="width: 15%; text-align: right; font-weight: normal; font-size: 0.9rem; white-space: nowrap;">[[${freeBoardDetail['regDt']}]]</th><!--날짜-->
+                                </tr>
+                                
+                                <tr>
+                                    <td colspan="3" style="text-align: right; padding-top: 10px;">
+                                        <span style="color: gray; font-size: 14px;">조회수 : [[${freeBoardDetail['inquireCnt']}]]</span>
+                                    </td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="button-area" id="regNoticeBtn" style="display: none;">
+                        <!--등록하기-->
+                        <button type="button" class="primary-md-btn">[(#{seinfo.com.btn.00190})]</button>
+                    </div>
+                </section>
+
+                <section class="post-content-area" style="margin-bottom: 20px; font-weight: normal;">
+                    <div>
+                         <td class="text-left" th:utext="${@safeHtml.clean(freeBoardDetail['freeboardContent'])}"></td><!--내용-->
+                    </div>
+                </section>
+
+                <!-- 게시글 추천/비추천/조회수 -->
+                <section class="post-stats-area">
+                    <!-- 추천 버튼 -->
+                    <span class="stat-circle" id="like-button" th:data-post-id="${freeBoardDetail.freeboardNo}">
+                        👍 <span id="like-count" th:text="${freeBoardDetail.likeCount}"></span>
+                    </span>&nbsp;&nbsp;
+
+                    <!-- 비추천 버튼 -->
+                    <span class="stat-circle" id="hate-button" th:data-post-id="${freeBoardDetail.freeboardNo}">
+                        👎 <span id="hate-count" th:text="${freeBoardDetail.hateCount}"></span>
+                    </span>&nbsp;&nbsp;
+                </section>
+                
+                <!-- 글 수정/삭제 버튼 -->
+                <div style="text-align: right; margin-bottom: 5px;"
+                    th:if="${#authentication.name == freeBoardDetail.userId}">
+                    <!-- 수정 버튼 -->
+                    <button 
+                        type="button"
+                        th:attr="onclick=|openModifyFreeBoard('${freeBoardDetail.freeboardNo}')|"
+                        style="margin-right: 10px;">
+                        수정
+                    </button>
+
+                    
+                    <button 
+                        type="button"
+                        th:attr="onclick=|deletePost('${freeBoardDetail.freeboardNo}')|"
+                        style="margin-right: 10px;">
+                        삭제
+                    </button>
+                </div>
+
+                <!-- 댓글 등록 버튼 -->
+                <form>
+                    <div>
+                        <div class="textarea-area">
+                            <textarea id="FreeBoardcommentContent" name="commentContent"></textarea>
+                        </div>
+                        <button type="button"
+                                id="searchBtn"
+                                onclick="FreeBoardComment(this.form)"
+                                class="secondary-md-btn"
+                                style="width: 100px;">
+                        등록
+                        </button>
+                    </div>
+                </form>
+
+
+                <!-- 댓글 조회 -->
+                <table>
+                    <tbody th:each="list, iterStat : ${commentList}">
+                        <!-- 사용자 ID 출력 -->
+                        <tr>
+                            <td class="text-left" style="font-size: 1rem; font-weight: bold; padding-bottom: 7px; padding-top: 20px;">
+                                <span th:text="${list['authorId']}"></span>
+                            </td>
+                            <td style="text-align: right;">
+                                <span th:text="${list['regDt']}"></span>
+                            </td>
+                        </tr>
+
+                        <!-- 댓글 내용 + 좋아요/싫어요 -->
+                        <tr>
+                            <td colspan="2">
+                                 <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; width: 100%;">
+                                    <!-- 댓글 내용 -->
+                                    <div style=" font-weight: normal; flex: 1;">
+                                        <div th:id="'comment-content-'+${list['commentNo']}" style="font-weight: normal; width: 100%; word-break: break-word;">
+                                            [[${pf.escapeHtml(list.commentContent)}]]
+                                        </div>
+                                    </div>
+
+                                    <!-- 좋아요 / 싫어요 -->
+                                    <div style="white-space: nowrap;">
+                                        <!-- 추천 버튼 -->
+                                        <span class="like-button-comment"
+                                            th:data-comment-id="${list['commentNo']}"
+                                            style="cursor: pointer;">
+                                            👍 <span th:id="'comment-like-count-'+${list['commentNo']}" th:text="${list['likeCount']}"></span>
+                                        </span>&nbsp;&nbsp;
+
+                                        <!-- 비추천 버튼 -->
+                                        <span class="hate-button-comment"
+                                            th:data-comment-id="${list['commentNo']}"
+                                            style="cursor: pointer;">
+                                            👎 <span th:id="'comment-hate-count-'+${list['commentNo']}" th:text="${list['hateCount']}"></span>
+                                        </span>&nbsp;&nbsp;
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+
+                        <!-- 대댓글 입력창 (기본은 숨김) -->
+                        <tr th:id="'reply-form-' + ${iterStat.index}" style="display: none;">
+                            <td colspan="2" style="padding-top: 10px;">
+                                <form th:action="@{/comments/reply}" method="post">
+                                    <input type="hidden" name="parentNo" th:value="${list.commentNo}" />
+                                    <input type="hidden" name="freeboardNo" th:value="${list.freeboardNo}" />
+                                    <div class="textarea-area">
+                                        <textarea name="commentContent" style="width: 100%; padding-left: 7px;" placeholder="답글을 입력하세요"></textarea>
+                                    </div>
+                                    <!-- 등록 / 취소 버튼 왼쪽 정렬 -->
+                                    <div style="text-align: left; margin-top: 5px;">
+                                         <button type="button" onclick="FreeBoardComment(this.form)">등록</button>
+                                        <button type="button"
+                                                th:onclick="'cancelReplyForm(' + ${iterStat.index} + ')'"
+                                                style="margin-left: 6px;">
+                                            취소
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                        
+                        <!-- 댓글 보기 + 답글 버튼 같은 라인 -->
+                        <tr>
+                            <td colspan="2" style="padding-top: 10px; padding-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <!-- 왼쪽: 답글 / 댓글 보기 -->
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <!-- 답글 버튼 -->
+                                        <button type="button"
+                                                th:id="'reply-btn-' + ${iterStat.index}"
+                                                th:onclick="'toggleReplyForm(' + ${iterStat.index} + ')'"
+                                                style="border: 1px solid #ccc; background-color: #f9f9f9; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                                            답글
+                                        </button>
+
+                                        <!-- 댓글 보기 버튼 -->
+                                        <button type="button"
+                                                th:if="${list['hasChild'] == 1}"
+                                                th:id="'toggle-btn-' + ${list['commentNo']}"
+                                                th:attr="onclick='toggleChildComments(' + ${list['commentNo']} + ')'"
+                                                style="background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #555; text-decoration: underline;">
+                                            댓글 보기
+                                        </button>
+                                    </div>
+
+                                    <!-- 오른쪽: 수정 / 삭제 버튼 -->
+                                    <div th:id="'comment-buttons-'+${list.commentNo}" data-type="parent" style="display: flex; gap: 8px;">
+                                        <button type="button"
+                                                th:if="${#authentication.name == list.userId}"
+                                                th:onclick="'editComment(' + ${list.commentNo} + ')'"
+                                                style="background-color: #f0f0f0; border: 1px solid #ccc; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                                            수정
+                                        </button>
+                                        <button type="button"
+                                                th:if="${#authentication.name == list.userId}"
+                                                th:onclick="'deleteComment(' + ${list.commentNo} + ')'"
+                                                style="background-color: #ffecec; border: 1px solid #ff9999; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                                            삭제
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+
+                         <!-- 대댓글 조회 -->
+                        <tr th:id="'addCommentList_' + ${list.commentNo}"></tr>
+
+                    </tbody>
+                </table>
+
+                
+                <div class="pagination"></div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{seinfo/board/popupFreeBoardRegForm :: popup01View}"></div>
+    <!-- <div th:replace="~{seinfo/request/popupQuestionCont :: popup01View}"></div> -->
+</th:block>
+
+<th:block layout:fragment="html_js">
+    <script  type="text/javascript" th:src="@{/static/seinfo/js/lib/uploadAdapter.js}"></script>
+    <script th:replace="~{seinfo/board/popupFreeBoardRegForm :: popup01Js}"></script>
+     <script type="text/javascript" th:inline="javascript">
+        const paginationImages = {
+            first: /*[[ @{/static/seinfo/img/icon-pagination-first.svg}]]*/ '',
+            prev: /*[[ @{/static/seinfo/img/icon-pagination-prev.svg}]]*/ '',
+            next: /*[[ @{/static/seinfo/img/icon-pagination-next.svg}]]*/ '',
+            last: /*[[ @{/static/seinfo/img/icon-pagination-last.svg}]]*/ ''
+        };
+        
+        let freeBoardComment = /*[[${freeBoardComment != null ? freeBoardComment : '[]'}]]*/ [];
+        //let farentcommentList = /*[[${farentcommentList != null ? farentcommentList : '[]'}]]*/ [];
+        let pageResult = /*[[${pageResult != null ? pageResult : '{}' }]]*/ {};
+        let freeBoardDetail = /*[[${freeBoardDetail != null ? freeBoardDetail : '{}' }]]*/ [];
+        let page = /*[[${page != null ? page : '' }]]*/ '';
+        const searchType = /*[[${searchType != null ? searchType : '' }]]*/ '';
+        const keyword = /*[[${keyword != null ? keyword : '' }]]*/ '';
+        const menuId = "FREEBOARD"
+        const userType = /*[[${userType != null ? userType : '' }]]*/ '';
+        const adminYn = /*[[${adminYn != null ? adminYn : '' }]]*/ false;
+        const message = /*[[${message != null ? message : '' }]]*/ '';
+        let freeboardNo = /*[[${freeboardNo != null ? freeboardNo : '' }]]*/ '';
+        let index = 0;
+        const tmpToken = pf.token();
+
+        //자유게시판 상세페이지 다시 불러오기
+        function reloadFreeBoardList(flag) {
+
+            $.ajax({
+                type: "POST",
+                url: '/board/freeBoardList/reloadFreeBoardDetail',
+                data: JSON.stringify({freeboardNo : freeBoardDetail.freeboardNo}),
+                contentType: 'application/json',
+                success: function (response) {
+                    freeBoardDetail = response.freeBoardDetail;
+                    commentList = response.commentList;
+                    $.each (commentList, (index, item) => {
+                        $(`#comment-like-count-${pf.safeId(item.commentNo)}`).text(`${pf.escapeHtml(item.likeCount)}`);
+                        $(`#comment-hate-count-${pf.safeId(item.commentNo)}`).text(`${pf.escapeHtml(item.hateCount)}`);
+                    });
+                    if(flag) {
+                        $('#like-count').text(freeBoardDetail.likeCount);
+                        $('#hate-count').text(freeBoardDetail.hateCount);
+                    }
+                },
+                error: function (jqXHR) {
+                    let response = JSON.parse(jqXHR.responseText).message;
+                    let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                    pf.seinfoAlert.warning('[(#{seinfo.com.msg.00170})] <br> '+ msg);//[조회오류]....
+                }
+            });
+        }
+
+        //자유게시판 원댓글 다시 불러오기
+        function reloadCommentList() {
+            $.ajax({
+                type: "POST",
+                url: '/board/freeBoardList/reloadFreeBoardDetail',
+                data: JSON.stringify({freeboardNo : freeBoardDetail.freeboardNo}),
+                contentType: 'application/json',
+                success: function (response) {
+                    freeBoardDetail = response.freeBoardDetail;
+                    $('#like-count').text(freeBoardDetail.likeCount);
+                    $('#hate-count').text(freeBoardDetail.hateCount);
+                },
+                error: function (jqXHR) {
+                    let response = JSON.parse(jqXHR.responseText).message;
+                    let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                    pf.seinfoAlert.warning('[(#{seinfo.com.msg.00170})] <br> '+ msg);//[조회오류]....
+                }
+            });
+        }
+// log.info("parentComments is null? {}", parentComments == null);
+// log.info("parentComments size: {}", parentComments.size());
+
+        //자유게시판 상세페이지 댓글 등록 : 저장
+        function FreeBoardComment(form) { 
+
+            const $form = $(form);
+
+            const commentContent = $form.find("textarea[name='commentContent']").val();
+            const parentNo = $form.find("input[name='parentNo']").val();
+
+            if (pf.zzzUtil.isEmpty(commentContent)) { console.log('commentContent:', commentContent);
+                pf.seinfoAlert.focus(0, '내용을 입력하세요', $form.find("textarea[name='commentContent']"));
+                return;
+            } else if (commentContent.length > 300) {
+                const msg = '[(#{seinfo.com.msg.00100})]'; // 입력 길이 초과
+                pf.seinfoAlert.focus(0, msg, $form.find("textarea[name='commentContent']"));
+                return;
+            }
+
+            const freeBoardModify = {
+                modifyYn: 'N',
+                commentNO: null
+            };
+
+            const formData = {
+                freeboardNo : freeBoardDetail.freeboardNo,
+                parentNo : parentNo === '' ? null : parentNo,
+                commentNO : freeBoardModify.modifyYn === 'Y' ? freeBoardModify.commentNO : null,
+                commentContent: commentContent,
+                modifyYn: freeBoardModify.modifyYn,
+                likeCount: freeBoardComment.likeCount,
+                hateCount: freeBoardComment.hateCount,
+                modDt: freeBoardComment.modDt,
+                regDt: freeBoardComment.regDt,
+                userId: pf.token().USER_ID
+            };
+
+            $.ajax({
+                type: "POST",
+                url: '/board/freeBoardList/registFreeBoardComment',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function (response) { 
+                // fnInit();
+                    
+                    //등록되었습니다.
+                    pf.seinfoAlert.success('등록되었습니다.', () => {
+                        window.location.reload();
+                    });
+                },
+                error: function (jqXHR) {
+                    //fnInit();
+                
+                    let response = JSON.parse(jqXHR.responseText).message;
+                    let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                    //[저장오류]...
+                    pf.seinfoAlert.warning('댓글이 등록되지 않았습니다.', ()=>{ //댓글이 등록되지 않았습니다
+                    });
+                }
+            });
+        }
+
+
+        // 게시글 추천 비추천 버튼 클릭시 
+        $(document).ready(function () {
+            function handleLikeDislike(type) {
+                const isLike = type === 'like';
+                const $button = isLike ? $('#like-button') : $('#hate-button');
+                const $countSpan = isLike ? $('#like-count') : $('#hate-count');
+                const postId = $button.data('post-id');
+                const count = parseInt($countSpan.text(), 10) || 0;
+
+                $.ajax({
+                    url: '/board/freeBoardList/likePost',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        freeboardNo: postId,
+                        likeSort: isLike ? 'Y' : 'N'
+                    }),
+                    success: function (response) {
+                        if (response.process_code === '00') {
+                            // 서버로부터 좋아요/싫어요 여부를 다시 받아서 상태 업데이트하는 게 더 안정적
+                            reloadFreeBoardList(true);
+                        } else {
+                            alert('처리 실패: ' + response.process_msg);
+                        }
+                    },
+                    error: function () {
+                        alert('에러 발생');
+                    }
+                });
+            }
+
+            $('#like-button').on('click', function () {
+                handleLikeDislike('like');
+            });
+
+            $('#hate-button').on('click', function () {
+                handleLikeDislike('dislike');
+            });
+        });
+
+
+
+        //목록 그리드 하단 페이지 처리
+        function renderPagination(pageResult) {
+            let pagination = "";
+
+            //첫 페이지 버튼
+            if(pageResult.cPage > 1) {
+                pagination += `<button type="button" class="page-navi first" style="display: block" data-page="1">
+                    <img src="${paginationImages.first}">
+                </button>`;
+            }
+
+            //이전페이지 이동
+            if(pageResult.hPrev) {
+                pagination += `<button type="button" class="page-navi prev" style="display: block" data-page="${pageResult.cPage -1}">
+                    <img src="${paginationImages.prev}">
+                </button>`;
+            }
+
+            //페이지 번호
+            let startPage = Math.max(1, pageResult.cPage -5);
+            let endPage = Math.min(pageResult.totalPages, pageResult.cPage +5);
+
+            pagination += `<div class="page-links">`;
+            for(let i = startPage; i <= endPage; i++) {
+                let activeClass = (pageResult.cPage === i) ? "active" : "";
+                pagination += `<button class="page-link ${activeClass}" data-page="${i}">${i}</button>`;
+            }
+            pagination += `</div>`;
+
+            //다음 페이지 버튼
+            if(pageResult.hNext){
+                pagination += `<button type="button" class="page-navi next" style="display: block" data-page="${pageResult.cPage + 1}">
+                    <img src="${paginationImages.next}">
+                </button>`;
+            }
+
+            //마지막 페이지 버튼
+            if(pageResult.cPage < pageResult.totalPages){
+                pagination += `<button type="button" class="page-navi last" style="display: block" data-page="${pageResult.totalPages}">
+                    <img src="${paginationImages.last}">
+                </button>`;
+            }
+            $(".pagination").html(pagination);
+        }
+
+        function fnInputSetPlaceholder() {
+            $("#keyword").attr("placeholder", "[(#{seinfo.main.msg.00150})]"); //검색어를 입력하세요.
+        }
+
+         //자유게시판 상세페이지로 이동
+        function moveView(freeboardNo) {
+            let arrLinkparam = [];
+            arrLinkparam.push('&freeboardNo=' + freeboardNo);
+            arrLinkparam.push('&page=' + page);
+
+            let encData = pf.zzzUtil.getEncryptParam(arrLinkparam.join(''));
+            location.href = contextPath + '/board/freeBoardList/freeBoardDetail'+  '?paramData=' + encData;
+        }
+
+        // 답글 버튼 클릭시
+       function toggleReplyForm(index) {
+            const replyForm = document.getElementById('reply-form-' + index);
+            const replyBtn = document.getElementById('reply-btn-' + index);
+
+            if (replyForm && replyBtn) {
+                replyForm.style.display = 'table-row';  // 폼 보이기
+                replyBtn.style.display = 'none';        // 버튼 숨기기
+            }
+        }
+
+        // 답글 취소 버튼 클릭시
+        function cancelReplyForm(index) {
+            const replyForm = document.getElementById('reply-form-' + index);
+            const replyBtn = document.getElementById('reply-btn-' + index);
+
+            if (replyForm && replyBtn) {
+                replyForm.style.display = 'none';       // 입력창 닫기
+                replyBtn.style.display = 'inline-block'; // 답글 버튼 다시 보이기
+            }
+        }
+
+        //자유게시판 상세페이지 댓글보기 버튼 클릭시 대댓글 조회
+        function toggleChildComments(parentNo) {
+            const targetTr = document.querySelector(`#addCommentList_${parentNo}`);
+            const toggleBtn = document.querySelector(`#toggle-btn-${parentNo}`);
+
+            // 이미 자식 댓글이 있으면 제거 
+            if (targetTr.dataset.loaded === 'true') {
+                targetTr.innerHTML = '';
+                targetTr.dataset.loaded = 'false';
+                toggleBtn.textContent = '댓글 보기';
+                return;
+            } 
+
+            pf.seinfo.ajax({
+                url: '/board/freeBoardList/addCommentList',
+                method: 'POST',
+                data: { parentNo: parentNo }
+            }, (rData) => {
+                const addCommentList = rData.addCommentList;
+                let html = `<td colspan="2">`;
+
+                addCommentList.forEach(item => {
+
+                    let editDeleteButton = '';
+                    if(item.userId === tmpToken.USER_ID) {
+                        editDeleteButton = `
+                                    <button id="add-comment-edit-${pf.safeId(item.commentNo)}" onclick="farentEditComment(${pf.safeId(item.commentNo)})">수정</button>
+                                    <button id="delete-comment-edit-${pf.safeId(item.commentNo)}" onclick="deleteParentComment(${pf.safeId(item.commentNo)})">삭제</button>
+                        `;
+                    }
+
+                    html += `
+                        <div style="padding-left: 25px; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                                <strong style="margin-right: 4px;">└</strong>
+                                <span style="font-weight: bold;">${pf.safeId(item.authorId)}</span>
+                                <span style="margin-left: auto;">${pf.escapeHtml(item.regDt)}</span>
+                            </div>
+                            
+                            <div id="child-comment-content-${pf.safeId(item.commentNo)}" 
+                                style="margin-left: 20px; margin-bottom: 5px;">
+                                ${pf.escapeHtml(item.commentContent)}
+                            </div>
+
+                            <div style="margin-left: 20px; margin-top: 5px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center;">
+                                
+                                <div style="display: flex; gap: 8px;">
+                                    ${editDeleteButton}
+                                </div>
+
+                                <div style="display: flex; gap: 10px; font-size: initial;">
+                                    
+                                    <span id="childCommetLikeCount-${pf.safeId(item.commentNo)}" onclick="likeChildComment(${pf.safeId(item.commentNo)})" style="cursor: pointer;">👍 ${pf.escapeHtml(item.likeCount)}</span>
+                                    <span id="childCommethateCount-${pf.safeId(item.commentNo)}" onclick="hateChildComment(${pf.safeId(item.commentNo)})" style="cursor: pointer; padding-right: 10px; padding-left: 5px;">👎 ${pf.escapeHtml(item.hateCount)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    `; 
+                });
+
+                html += `</td>`;
+
+                targetTr.innerHTML = html;
+                targetTr.dataset.loaded = 'true';
+                toggleBtn.textContent = '댓글 숨기기';
+            });
+        }
+
+
+        /*
+        *
+        * 대댓글 추천 비추천 
+        *
+        */
+        
+        //추천
+        function likeChildComment(commentNo) {
+            
+             const commentId = commentNo;
+             const text = $(`#childCommetLikeCount-${commentNo}`).text();
+             const likeCount = parseInt(text.replace(/[^0-9]/g, ''), 10) || 0;
+
+            pf.seinfo.ajax({
+                url: '/board/freeBoardList/likeComment',
+                method: 'POST',
+                data: { commentNo: commentId, likeSort: "Y" }
+            }, (response) => {
+                if(response.data === 'A') {
+                    //성공 시 숫자 +1
+                    const newLikeCount = likeCount + 1;
+                    $(`#childCommetLikeCount-${commentNo}`).text(`👍 ${newLikeCount}`);
+                }else if(response.data === 'B') {
+                    const newLikeCount = likeCount - 1;
+                    $(`#childCommetLikeCount-${commentNo}`).text(`👍 ${newLikeCount}`);
+                }else if(response.data === 'C') {
+                    const tmp = $(`#childCommethateCount-${commentNo}`).text();
+                    const hate = parseInt(tmp.replace(/[^0-9]/g, ''), 10) || 0;
+                    const newHateCount = hate === 0? 0 : hate - 1;
+                    $(`#childCommethateCount-${commentNo}`).text(`👎 ${newHateCount}`);
+                    const newLikeCount = likeCount + 1;
+                    $(`#childCommetLikeCount-${commentNo}`).text(`👍 ${newLikeCount}`);
+                }
+            });
+        }
+
+        //비추천
+        function hateChildComment(commentNo) {
+            
+             const commentId = commentNo;
+             const text = $(`#childCommethateCount-${commentNo}`).text();
+             const hateCount = parseInt(text.replace(/[^0-9]/g, ''), 10) || 0;
+
+            
+            pf.seinfo.ajax({
+                url: '/board/freeBoardList/likeComment',
+                method: 'POST',
+                data: { commentNo: commentId, likeSort: "N" }
+            }, (response) => {
+                if(response.data === 'A') {
+                    // 성공 시 숫자 +1
+                    const newHateCount = hateCount + 1;
+                    $(`#childCommethateCount-${commentNo}`).text(`👎 ${newHateCount}`);
+                }else if(response.data === 'B') {
+                    const newHateCount = hateCount - 1;
+                    $(`#childCommethateCount-${commentNo}`).text(`👎 ${newHateCount}`);
+                }else if(response.data === 'C') {
+                    const tmp = $(`#childCommetLikeCount-${commentNo}`).text();
+                    const like = parseInt(tmp.replace(/[^0-9]/g, ''), 10) || 0;
+                    const newLikeCount = like === 0 ? 0 : like - 1;
+                    $(`#childCommetLikeCount-${commentNo}`).text(`👍 ${newLikeCount}`);
+                    const newHateCount = hateCount + 1;
+                    $(`#childCommethateCount-${commentNo}`).text(`👎 ${newHateCount}`);
+                }
+            });
+        }
+
+
+        // 댓글 추천 비추천 버튼 클릭시 
+        $(document).ready(function () {
+            // 추천
+            $(document).on('click', '.like-button-comment', function () {
+                const commentId = $(this).data('comment-id');
+
+                $.ajax({
+                    url: '/board/freeBoardList/likeComment',
+                    type: "POST",
+                    data: JSON.stringify({ commentNo: commentId, likeSort: "Y" }),
+                    contentType: 'application/json',
+                    success: function (response) {
+                         if(response.process_code === '00') reloadFreeBoardList();
+                    },
+                    error: function () {
+                        alert('추천 실패');
+                    }
+                });
+            });
+
+            // 비추천
+            $(document).on('click', '.hate-button-comment', function () {
+                const commentId = $(this).data('comment-id');
+                console.log('비추천 commentId:', commentId);
+
+                $.ajax({
+                    url: '/board/freeBoardList/likeComment',
+                    type: "POST",
+                    data: JSON.stringify({ commentNo: commentId, likeSort: "N" }),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if(response.process_code === '00') reloadFreeBoardList();
+                    },
+                    error: function () {
+                        alert('비추천 실패');
+                    }
+                });
+            });
+        });
+
+
+        //댓글 삭제버튼 클릭시(대댓글도 삭제)
+        function deleteComment(commentNo) {
+            pf.seinfoAlert.confirm('정말 삭제하시겠습니까?', () => {
+                pf.seinfo.ajax({
+                    url: '/board/freeBoardList/deleteComment',
+                    method: 'POST',
+                    data: { commentNo: commentNo }
+                }, (res) => {
+                    pf.seinfoAlert.success('댓글이 삭제되었습니다.', () => {
+                        location.reload();
+                    });
+                });
+            });
+        }
+
+         //대댓글 삭제버튼 클릭시(대댓글만 삭제)
+        function deleteParentComment(commentNo) {
+            pf.seinfoAlert.confirm('정말 삭제하시겠습니까?', () => {
+                pf.seinfo.ajax({
+                    url: '/board/freeBoardList/deleteParentComment',
+                    method: 'POST',
+                    data: { commentNo: commentNo }
+                }, (res) => {
+                     pf.seinfoAlert.success('댓글이 삭제되었습니다.', () => {
+                        location.reload();
+                    });
+                });
+            });
+        }
+
+        //게시글 삭제 (댓글 포함)
+        function deletePost(freeboardNo) {
+            pf.seinfoAlert.confirm('정말 삭제하시겠습니까?', () => {
+                pf.seinfo.ajax({
+                    url: '/board/freeBoardList/deletePost',  
+                    method: 'POST',
+                    data: { freeboardNo: freeboardNo }      
+                }, (res) => {
+                    pf.seinfoAlert.success('게시글이 삭제되었습니다.', () => {
+                        window.location.href = '/board/freeBoardList'; 
+                    });
+                });
+            });
+        }
+
+        // 댓글 수정 폼 열기
+        function editComment(commentNo) {
+            const $contentDiv = $(`#comment-content-${commentNo}`);
+            const originalContent = $contentDiv.text().trim();
+
+            // 이미 수정폼이 열려있으면 중복 생성 방지
+            if ($(`#edit-form-${commentNo}`).length) return;
+
+            const safeOriginalContent = originalContent.replace(/`/g, '\\`');
+
+            const editFormHtml = `
+                <div id="edit-form-${commentNo}">
+                 <div class="textarea-area">
+                 <textarea id="edit-textarea-${commentNo}" 
+                  style="width: 100%; height: 80px; padding: 10px; box-sizing: border-box; font-size: 1rem;">${pf.escapeHtml(originalContent)}</textarea>
+                 </div>
+                    <div style="font-size: 0.9rem;">
+                        <button onclick="submitEditedComment(${commentNo})">수정</button>
+                        <button class="cancel-comment-edit">취소</button>
+                    </div>
+                </div>
+            `;
+
+            $contentDiv.html(editFormHtml);
+            $contentDiv.find('.cancel-comment-edit').on('click', () => cancelEditComment(commentNo, originalContent));
+            $contentDiv.find('.cancel-child-edit').on('click', () => cancelEditFarentComment(commentNo, originalContent));
+
+            // 버튼 div 선택
+           // const $btnDiv = $(`#comment-buttons-${commentNo}`);
+           $(`#comment-buttons-${commentNo}`).hide();
+        }
+
+
+        // 댓글 수정 버튼 클릭 시
+        function submitEditedComment(commentNo) {
+            const newContent = document.getElementById(`edit-textarea-${commentNo}`).value.trim();
+
+            if (!newContent) {
+                alert("댓글 내용을 입력해주세요.");
+                return;
+            }
+            // if(regUserId !== pf.token().USER_ID) {
+            //     $("butoon43243").css('display', none).attr('disabled', true);
+            // }
+
+            // Ajax 요청 보내기 
+            pf.seinfoAlert.confirm('댓글을 수정하시겠습니까?', () => {
+                pf.seinfo.ajax({
+                    url: '/board/freeBoardList/updateComment', 
+                    method: 'POST',
+                    data: {
+                        commentNo: commentNo,
+                        commentContent: newContent
+                    }
+                }, function(response) {
+                    if (response.success) {
+                        const contentDiv = document.getElementById(`comment-content-${commentNo}`);
+                        contentDiv.textContent = newContent;
+                        $(`#comment-buttons-${commentNo}`).show();
+                        //location.reload();
+                    } else {
+                        pf.seinfoAlert.success('댓글 수정에 실패했습니다.', () => {
+                        location.reload();
+                    });
+                    }
+                });
+            });
+             
+        }
+
+        // 수정 취소 버튼 클릭 시 원래 내용 복구
+        function cancelEditComment(commentNo, originalContent) {
+            const contentDiv = document.getElementById(`comment-content-${commentNo}`);
+            contentDiv.textContent = originalContent;
+
+            $(`#comment-buttons-${commentNo}`).show();
+        }
+
+
+        function farentEditComment(commentNo) {
+            const $contentDiv = $(`#child-comment-content-${commentNo}`);
+            const originalContent = $contentDiv.text().trim();
+
+            $(`#add-comment-edit-${commentNo}`).css('display', 'none').attr('disabled', true);
+            $(`#delete-comment-edit-${commentNo}`).css('display', 'none').attr('disabled', true);
+
+            if ($(`#edit-form-${commentNo}`).length) return;
+
+            const safeOriginalContent = originalContent.replace(/`/g, '\\`');
+
+            const editFormHtml = `
+                <div id="edit-form-${commentNo}">
+                    <div class="textarea-area">
+                        <textarea id="child-edit-textarea-${commentNo}">${pf.escapeHtml(originalContent)}</textarea>
+                    </div>
+                    <div style="font-size: 0.8rem;">
+                        <button onclick="submitEditedFarentComment(${commentNo})">수정</button>
+                        <button class="cancel-child-edit">취소</button>
+                    </div>
+                </div>
+            `;
+
+            $contentDiv.html(editFormHtml);
+            $contentDiv.find('.cancel-comment-edit').on('click', () => cancelEditComment(commentNo, originalContent));
+            $contentDiv.find('.cancel-child-edit').on('click', () => cancelEditFarentComment(commentNo, originalContent));
+        }
+
+
+        //댓글 수정하기 
+        function submitEditedFarentComment(commentNo) {
+            const newContent = document.getElementById(`child-edit-textarea-${commentNo}`).value.trim();
+
+            if (!newContent) {
+                alert("댓글 내용을 입력해주세요.");
+                return;
+            }
+
+            pf.seinfoAlert.confirm('댓글을 수정하시겠습니까?', () => {
+                pf.seinfo.ajax({
+                    url: '/board/freeBoardList/updateParentComment',  // 서버 API 주소 확인 필요
+                    method: 'POST',
+                    data: {
+                        commentNo: commentNo,
+                        commentContent: newContent,
+                    }
+                }, function(response) {
+                    if (response.success) {
+                        $(`#child-comment-content-${commentNo}`).text(`${newContent}`);
+                        $(`#add-comment-edit-${commentNo}`).css('display', 'block').attr('disabled', false);
+                        $(`#delete-comment-edit-${commentNo}`).css('display', 'block').attr('disabled', false);
+                    } else {
+                        pf.seinfoAlert.success('댓글 수정에 실패했습니다.', () => {
+                            location.reload();
+                        });
+                    }
+                });
+            });
+        }
+
+        function cancelEditFarentComment(commentNo, originalContent) {
+            const contentDiv = document.getElementById(`child-comment-content-${commentNo}`);
+            contentDiv.textContent = originalContent;
+        }
+
+        //버튼클릭 : 수정하기
+        // 전역에서 접근 가능하도록 window에 붙이기
+        window.openModifyFreeBoard = function() {
+            // 팝업 열기
+            $('#modalFreeBoardReg').css('display', 'block');
+
+            // 제목 세팅
+            $('#modalFreeBoardTitle').val(freeBoardDetail.freeboardTitle);
+
+            // 내용 세팅 (에디터 초기화)
+            ckedit_init('popupFreeBoardReg', freeBoardDetail.freeboardContent, false);
+
+            // 글 번호를 data로 저장 (저장 시 참고)
+            $('#modalFreeBoardNo').val(freeBoardDetail.freeboardNo); 
+        };
+
+
+
+        $(() => {
+            //로그인 경고
+            if(message.trim().length > 0) {
+                pf.seinfoAlert.warning(message, () => {
+                    if(userType === "LRTP") {
+                        location.href = contextPath + '/template/errPage';
+                    } else {
+                        location.href = contextPath + '/anyone/errPage';
+                    }
+                });
+                return;
+            }
+
+            if(freeboardNo) {
+                readFreeBoardDetail(freeboardNo);
+            }
+
+            fnInputSetPlaceholder();
+
+
+            // //버튼 클릭: 등록하기 (자유게시판 입력합업 호출 > 입력모드)
+            // $('#regFreeBoardBtn').on('click', function (e) {
+            //     e.preventDefault();
+            //     if(!adminYn) {
+            //         pf.seinfoAlert.warning('[(#{seinfo.main.msg.00150})]'); //권한이 불충분합니다.
+            //         return;
+            //     }
+
+            //     //첨부파일 초기화
+            //     fileUpDown.uploadInit();
+            //     fileUpDown.initWrite();
+
+            //     $("#modalFreeBoardTitle").val('');
+            //     ckedit_init('popupFreeBoardReg', '', false);
+            //     $('#modalFreeBoardReg').css('display', 'block');
+            // });
+
+            //클릭 이벤트 (페이지 이동)
+            $(document).on("click", ".pagination button", function (e) {
+                page = $(this).data("page");
+                reloadFreeBoardList();
+            });
+
+            $("#keyword").on("keyup", function (key) {
+                if(key.keyCode === 13) {
+                    reloadFreeBoardList();
+                }
+            });
+            //엔터키 이벤트 추가_ 끝
+        });
+    </script>
+
+    <script  type="text/javascript" th:src="@{/static/js/lib/uploadAdapter.js}"></script>
+</th:block>
+
+

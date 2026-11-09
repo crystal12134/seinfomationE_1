@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.seinfo.seinfomationA.component.member.mapper.DropInfoMapper">
+
+    <select id="selectDropUsrInfo" parameterType="camelmap" resultType="camelmap">
+        SELECT   /* com.seinfo.protoA.component.member.mapper.DropInfoMapper.selectDropUsrInfo */
+            vm.user_uid,
+            vm.user_email,
+            vm.user_pwd,
+            vm.bl_yn,
+            vm.user_pwd_init_yn
+        FROM seinfo_vendor_manager vm
+        WHERE vm.user_uid = #{userUid}
+    </select>
+
+    <select id="selectMfileList" parameterType="camelmap" resultType="camelmap">
+        /* com.seinfo.protoA.component.member.mapper.DropInfoMapper.selectMfileList */
+        SELECT  ml.mfile_id AS file_id
+             ,ml.mfile_path AS mfile_path
+             ,ml.mfile_group_id AS mfile_grp_id
+        FROM seinfo_mfile_list ml
+                 JOIN seinfo_mfile_group mg
+                      ON ml.mfile_group_id = mg.mfile_group_id
+                 JOIN seinfo_proposal pr
+                      ON pr.mfile_group_id = mg.mfile_group_id
+                 JOIN seinfo_vendor_manager vm
+                      ON pr.user_uid = vm.user_uid
+        WHERE vm.user_uid = #{userUid}
+        UNION
+        SELECT  ml.mfile_id AS file_id
+             ,ml.mfile_path AS mfile_path
+             ,ml.mfile_group_id AS mfile_grp_id
+        FROM seinfo_mfile_list ml
+                 JOIN seinfo_mfile_group mg
+                      ON  ml.mfile_group_id = mg.mfile_group_id
+                 JOIN seinfo_request_cont rc
+                      ON rc.mfile_group_id = mg.mfile_group_id
+                 JOIN seinfo_proposal pr2
+                      ON rc.proposal_no = pr2.proposal_no
+                 JOIN seinfo_vendor_manager vm2
+                      ON pr2.user_uid = vm2.user_uid
+        WHERE vm2.user_uid = #{userUid}
+    </select>
+
+    <delete id="deleteUsrAllTables" parameterType="list">
+        <!-- 파일 다운로드 삭제 -->
+        DELETE md
+        FROM seinfo_mfile_down md
+        JOIN seinfo_vendor_manager vm ON vm.user_email = md.reg_user_id
+        WHERE vm.user_uid IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ;
+
+        <!-- 제안서 요청 컨텐츠 삭제 -->
+        DELETE rc
+        FROM seinfo_request_cont rc
+        JOIN seinfo_proposal pr ON rc.proposal_no = pr.proposal_no
+        JOIN seinfo_vendor_manager vm ON pr.user_uid = vm.user_uid
+        WHERE vm.user_uid IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ;
+
+        <!-- 제안서 삭제 -->
+        DELETE pr
+        FROM seinfo_proposal pr
+        JOIN seinfo_vendor_manager vm ON pr.user_uid = vm.user_uid
+        WHERE vm.user_uid IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ;
+
+        <!-- QNA 삭제 -->
+        DELETE qa
+        FROM seinfo_notice qa
+        JOIN seinfo_vendor_manager vm ON qa.user_uid = vm.user_uid
+        WHERE vm.user_uid IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ;
+
+        <!-- 벤더 삭제 -->
+        DELETE ve
+        FROM seinfo_vendor ve
+        JOIN seinfo_vendor_manager vm ON vm.company_no = ve.company_no
+        WHERE vm.user_uid IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND NOT EXISTS (
+        SELECT 1
+        FROM seinfo_vendor_manager vm2
+        WHERE vm2.company_no = ve.company_no
+        AND vm2.user_uid NOT IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        )
+        ;
+
+        <!-- 벤더 매니저 삭제 -->
+        DELETE
+        FROM seinfo_vendor_manager
+        WHERE user_uid IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ;
+    </delete>
+
+</mapper>

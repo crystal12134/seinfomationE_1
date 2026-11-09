@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"  layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+        <style>
+            .inline-bar{
+                display:flex;
+                align-items:center;
+                gap:10px;
+                flex-wrap:nowrap;          /* 한 줄 고정 */
+            }
+
+            .inline-bar button {
+                width: 200px;
+            }
+            .inline-bar button:first-of-type{  /* 첫 버튼(검색)을 오른쪽으로 밀기용 스페이서로 */
+                margin-left:auto;
+            }
+
+            /* 특정 셀만 회색 음영 */
+            .cell-manager-disabled {
+                background-color: #f2f2f2;
+                color: #999;
+                pointer-events: none; /* 클릭 불가 */
+            }
+        </style>
+    </th:block>
+    <!-- Toast Editor JS -->
+    <script th:src="@{/static/seinfo/js/external/purify.min.js}"></script>
+    <script th:src="@{/static/seinfo/js/external/fullcalendar.global.min.js}"></script>
+    <script th:src="@{/static/seinfo/js/external/toastgrid/tui-date-picker.js}"></script>
+    <script th:src="@{/static/seinfo/js/external/toastgrid/tui-grid.js}"></script>
+    <script th:src="@{/static/seinfo/js/external/toastgrid/tui-pagination.js}"></script>
+
+    <!-- Toast Grid css -->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/seinfo/css/tui-date-picker.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/static/seinfo/css/tui-grid.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/static/seinfo/css/tui-pagination.css}">
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <div th:replace="~{seinfo/layout/include/frame/navCategory :: menuMid720}"></div>
+
+    <main>
+        <div class="subpage-content">
+            <h2>[(#{seinfo.admin.label.00310})]</h2> <!--팀관리-->
+            <div class="pps-history-area">
+                <div class="inline-bar">
+                    <label for="userNm"></label>
+                    <input type="text" id="userNm" placeholder="이름" />
+
+                    <label for="userEmail"></label>
+                    <input type="text" id="userEmail" placeholder="이메일" />
+
+                    <label for="userPhone"></label>
+                    <input type="text" id="userPhone" placeholder="전화번호" />
+
+                    <button type="button" class="primary-sm-btn" onclick="reloadGrid()">검색</button>
+                    <button type="button" class="primary-outline-sm-btn" onclick="addRow()">추가</button>
+                    <button type="button" class="secondary-sm-btn" onclick="deleteSelectedRows()">삭제</button>
+                    <button type="button" class="primary-sm-btn" onclick="saveChanges()">저장</button>
+                </div>
+                <div id="grid"></div>
+            </div>
+        </div>
+    </main>
+
+</th:block>
+
+<th:block layout:fragment="html_js">
+    <script type="text/javascript" th:inline="javascript">
+        const Grid = tui.Grid;
+        let grid;
+        // 서버에서 내려줄 원본 데이터(수정 전 기준)
+        let teamList = /*[[${teamList != null ? teamList : '[]'}]]*/ [];
+        let teamMemberList = /*[[${teamMemberList != null ? teamMemberList : '[]'}]]*/ [];
+        let saveData = [];
+        let checkedData = [];
+        const RANK_MAP = [
+            { text: '대표', value: '대표' },
+            { text: '차장', value: '차장' },
+            { text: '사원', value: '사원' }
+        ];
+
+        function loadGrid() {
+            const TEAM_ITEMS = teamList.map(tmp => ({
+                text: tmp.teamNm,
+                value: String(tmp.teamNo)
+            }));
+            TEAM_ITEMS.unshift({text : '선택', value: null});
+
+            teamMemberList.forEach((row, index) => {
+                row.id = index + 1
+                row.teamNo = row.teamNo != null ? String(row.teamNo) : '';
+            });
+
+            grid = new Grid({
+                el: document.getElementById('grid'),
+                rowKey: 'userUid',
+                bodyHeight: 420,
+                data: teamMemberList,
+                scrollX: false,
+                scrollY: true,
+                rowHeaders: ['checkbox'],
+                columns: [
+                    {
+                        header: 'No.',
+                        name : 'id',
+                        width: 20,
+                        align: 'center',
+                    },
+                    {
+                        header: '로그인 아이디',
+                        name: 'loginId',
+                        editor: 'text',
+                    },
+                    {
+                        header: '이름',
+                        name: 'userNm',
+                        editor: 'text',
+                    },
+                    {
+                        header: '이메일',
+                        name: 'userEmail',
+                        editor: 'text',
+                    },
+                    {
+                        header: '전화번호',
+                        name: 'userPhone',
+                        editor: 'text'
+                    },
+                    {
+                        header: '소속(팀)',
+                        name: 'teamNo',
+                        editor: {
+                            type: 'select',
+                            options: { listItems: TEAM_ITEMS }
+                        },
+                        formatter: ({value, row}) => {
+                            const text = TEAM_ITEMS.find(t => t.value === String(value))?.text ?? '';
+                            const className = row.managerYn === 'Y' ? 'cell-manager-disabled' : '';
+                            return `<div class="${className}">${pf.escapeHtml(text)}</div>`;
+                        }
+                    },
+                    {
+                        header: '직위',
+                        name: 'teamGrade',
+                        editor: {
+                            type: 'select',
+                            options: {
+                                listItems: RANK_MAP
+                            }
+                        }
+                    },
+                    // 삭제 시 서버 식별자. 보여줄 필요 없으면 hidden 처리
+                    {
+                        header: 'UID',
+                        name: 'userUid',
+                        hidden: true
+                    }
+                ]
+            });
+
+            grid.on('editingStart', (ev) => {
+                if (ev.columnName === 'teamNo') {
+                    const row = grid.getRow(ev.rowKey);
+                    if (row?.managerYn === 'Y') {
+                        ev.stop();
+                    }
+                }
+            });
+
+            grid.on('afterChange', ({ changes /*, origin*/ }) => {
+                // 한 번에 여러 셀 변경(붙여넣기 등) 대비 → rowKey 중복 제거
+                const touched = new Set(changes.map(c => c.rowKey));
+
+                touched.forEach((rowKey) => {
+                    const editedRow = grid.getRow(rowKey);
+                    if (!editedRow) return;
+
+                    const key = editedRow.id;
+
+                    const idx = saveData.findIndex(r => r.id === key);
+                    if (idx === -1) saveData.push(editedRow);
+                    else saveData[idx] = editedRow;
+                });
+            });
+        }
+
+        /**
+         * 행 추가: 비워진 신규 행 추가 후 첫 컬럼 포커스
+         */
+        function addRow() {
+            const newRowData = { id: teamList.length + 1, loginId: '', userNm: '', userPhone: '', userEmail: '', teamGrade: '사원' };
+            saveData.push(newRowData);
+
+            const prevCount = grid.getRowCount();
+            grid.appendRow(newRowData, { focus: false });
+
+            const added = grid.getRowAt(prevCount);
+            if (added) {
+                grid.focus(added.rowKey, 'userNm');
+                grid.startEditing(added.rowKey, 'userNm');
+            }
+
+            teamList = [...teamList, newRowData];
+        }
+
+        /**
+         * 체크된 행 삭제(그리드 상에서만 먼저 제거)
+         * - 실제 서버 반영은 저장 버튼에서 일괄 처리
+         */
+        function deleteSelectedRows() {
+            grid.finishEditing();
+
+            checkedData = grid.getCheckedRows();
+            if(!checkedData || checkedData.length === 0){
+                pf.seinfoAlert.warning('체크된 행이 없습니다.');
+                return null;
+            }
+
+            pf.seinfoAlert.confirm('체크된 데이터를 삭제 하시겠습니까?', () => {
+                pf.seinfo.ajax({
+                        url: '/admin/deleteTeamManagerData',
+                        method: 'POST',
+                        data : checkedData
+                }, (rData)=> {
+                    if(rData.process_code === '00') {
+                        pf.seinfoAlert.success(rData.data);
+                        initCheckedData();
+                    }else {
+                        pf.seinfoAlert.warning(rData.data.message);
+                    }
+                });
+            });
+        }
+
+        function initCheckedData(){
+            const selectedIds = checkedData.map(r => r.id).filter(id => id != null);
+            const ids = selectedIds ?? checkedData.map(r => r.id);
+            const idSet = new Set(ids);
+
+            // 2) 메모리 동기화
+            teamList = teamList.filter(r => !idSet.has(r.id));
+            saveData = saveData.filter(r => !idSet.has(r.id));
+
+            // 3) 표시용 id 재채번(선택)
+            teamList.forEach((row, i) => row.id = i + 1);
+
+            // 4) 그리드 갱신
+            grid.resetData(teamList);
+
+            // 5) 정리
+            checkedData = [];
+        }
+
+        function saveChanges() {
+            grid.finishEditing();
+
+           if(!saveData || saveData.length === 0) return null;
+
+           pf.seinfoAlert.confirm('수정된 내역을 저장 하시겠습니까?', () => {
+               for(var i=0; i < saveData.length; i++){
+                   if( !saveData[i].loginId || !saveData[i].userNm || !saveData[i].userPhone || !saveData[i].userEmail ){
+                       pf.seinfoAlert.warning(saveData[i].id + '행의 필수 내용이 비어있습니다.');
+                       return null;
+                   }
+               }
+
+               pf.seinfo.ajax({
+                   url: '/admin/saveTeamMangerData',
+                   method: 'POST',
+                   data : saveData
+               }, (rData)=> {
+                   if(rData.process_code === '00') {
+                       pf.seinfoAlert.success(rData.data);
+                   reloadGrid();
+                   }else {
+                       pf.seinfoAlert.warning(rData.data.message);
+                   }
+               })
+           });
+        }
+
+        function reloadGrid(){
+            saveData = [];
+
+            const paramData = {
+                userNm: $('#userNm').val() || null,
+                userPhone: $('#userPhone').val() || null,
+                userEmail: $('#userEmail').val() || null,
+                userRole: $('#userRole').val() || null
+            }
+
+            pf.seinfo.ajax({
+                url: '/admin/reloadTeamManage',
+                method: 'POST',
+                data : paramData,
+            }, (rData)=> {
+                teamMemberList = rData.data;
+                teamMemberList.forEach((row, index) => {
+                    row.id = index + 1;
+                    row.teamNo = row.teamNo != null ? String(row.teamNo) : '';
+                });
+                grid.resetData(teamMemberList);
+            });
+        }
+
+        $(() => {
+            loadGrid();
+
+            $("#userNm, #userPhone, #userEmail").on("keyup", function (key) {
+                if(key.keyCode === 13) {
+                    reloadGrid();
+                }
+            });
+        });
+
+    </script>
+</th:block>
+</html>

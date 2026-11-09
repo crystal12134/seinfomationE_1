@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+    <!-- 헤더 정의-->
+    <head th:insert="~{seinfo/layout/include/css/defaultHeader :: defaultHeader}"><title></title></head>
+
+    <!-- 컨텐츠 내용 - 본문 -->
+    <th:block layout:fragment="html_body"></th:block>
+
+    <!-- JAVASCRIPT 정의 -->
+    <div th:insert="~{seinfo/layout/include/js/defaultJS :: defaultJS}"></div>
+</html>

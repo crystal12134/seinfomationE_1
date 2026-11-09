@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block layout:fragment="popup01CkEdit">
+   <style></style>
+</th:block>
+
+<th:block th:fragment="popup01View">
+   <div class="modal comm-modal comm-scroll-modal" id="modalCont">
+       <div class="modal-content" style="max-width: 1200px !important;">
+           <div class="modal-body">
+               <div class="contact-register-area">
+                   <strong id="modalTitle" class="comm-modal-title">[(#{seinfo.pps.label.00300})]</strong><!--추가 요청&질문-->
+                   <section>
+                       <div class="table-row-container">
+                           <table>
+                               <colgroup>
+                                   <col style="width: 160px"/>
+                                   <col />
+                                   <col style="width: 160px"/>
+                                   <col />
+                               </colgroup>
+                               <tbody>
+                                   <tr>
+                                       <th><i class="required">*</i>[(#{seinfo.pps.label.00350})]</th><!--작성자-->
+                                       <td>
+                                           <div class="title-textarea-area">
+                                               <input id="popupWriter" type="text" readonly>
+                                           </div>
+                                       </td>
+                                       <th><i class="required">*</i>[(#{seinfo.pps.label.00360})]</th><!--작성일-->
+                                       <td>
+                                           <div class="title-textarea-area">
+                                               <input id="popupRegDt" type="text" readonly>
+                                           </div>
+                                       </td>
+                                   </tr>
+                                   <tr>
+                                       <th><i class="required">*</i>[(#{seinfo.pps.label.00310})]</th><!--제목-->
+                                       <td colspan="3">
+                                           <div class="title-textarea-area">
+                                               <input id="popupContTitle" type="text" maxlength="50">
+                                           </div>
+                                        </td>
+                                   </tr>
+                                   <tr>
+                                       <th><i class="required">*</i>[(#{seinfo.pps.label.00330})]</th><!--내용-->
+                                       <td colspan="3">
+                                           <input type="hidden" id="contContent" name="contContent">
+                                           <div class="editorWrap" style="padding: 10px 0;">
+                                               <div id="popupContContent" class="ck-editor-reg" style="height: 100%;"></div>
+                                           </div>
+                                       </td>
+                                   </tr>
+                                   <tr>
+                                       <th>[(#{seinfo.pps.label.00340})]</th><!--파일첨부-->
+                                       <td colspan="3">
+                                           <!--3. 팝업화면 첨부파일 : 신규 (업로드) >>> fileTusJs-->
+                                           <div id="uploadMode">
+                                               <th:block th:replace="~{seinfo/file/divFileTus :: popupFileUpload}"></th:block>
+                                           </div>
+                                           <div id="downloadMode">
+                                               <th:block th:replace="~{seinfo/file/divFileTus :: popupFileDownload03}"></th:block>
+                                           </div>
+                                       </td>
+                                   </tr>
+                               </tbody>
+                           </table>
+                       </div>
+                   </section>
+                   <div class="button-area">
+                       <!-- 질문답변 이동 -->
+                       <button type="button" id="popupMoveCont" class="primary-outline-md-btn" onclick="moveCont()" style="display: none"></button>
+
+                       <!--저장-->
+                       <button type="submit" id="popupContBtnSave" class="primary-md-btn" onclick="registerCont()">
+                           [(#{seinfo.com.btn.00010})]
+                       </button>
+
+                       <!--닫기-->
+                       <button class="comm-close-modal-btn secondary-md-btn" onclick="popupClose()">
+                           [(#{seinfo.com.btn.00040})]
+                       </button>
+                   </div>
+               </div>
+           </div>
+       </div>
+   </div>
+</th:block>
+
+<th:block th:fragment="popup01Js">
+    <script type="text/javascript" th:inline="javascript">
+    let loadPopup = false;
+
+    //읽기 모드 설정
+    let requestCont = {};
+    function readContDetail(requestNo, requestSeq, replyYn) {
+
+        pf.seinfo.ajax({
+            url: "/admin/getRequestCont",
+            method: "POST",
+            data: {requestNo: requestNo, requestSeq:requestSeq, replyYn: replyYn === 'Y' ? 'Y' : 'N'}
+        }, (rData) => {
+            requestCont = rData.data;
+
+            $('#popupContTitle').val(pf.seinfoComUtil.unEscape(requestCont.questionTitle)).attr('readonly', true);
+            ckedit_init('popupContContent', pf.seinfoComUtil.unEscape(requestCont.questionContent), true);
+            $('#popupContBtnSave').css('display', 'none').attr('disabled', true);
+            $('#popupWriter').val(requestCont.userNm);
+            $('#popupRegDt').val(requestCont.regDt);
+
+            if (requestCont.replyYn === 'N' && requestCont.hasOpposite === 'Y') {
+                // 질문이고 답변 있음 → 답변보기
+                $('#popupMoveCont').text('답변보기').css('display', 'block').attr('disabled', false);
+                $('#modalTitle').text('질문보기');
+            } else if (requestCont.replyYn === 'Y' && requestCont.hasOpposite === 'Y') {
+                // 답변이고 질문 있음 → 질문보기
+                $('#popupMoveCont').text('질문보기').css('display', 'block').attr('disabled', false);
+                $('#modalTitle').text('답변보기');
+            } else if(requestCont.replyYn === 'N' &&  requestDetail.requestState === '20' &&
+                        requestCont.hasOpposite === 'N' && requestCont.userEmail !== pf.token().USER_ID){
+                $('#popupMoveCont').text('답변하기').css('display', 'block').attr('disabled', false);
+                $('#modalTitle').text('답변보기');
+            } else {
+                $('#popupMoveCont').css('display', 'none').attr('disabled', true);
+            }
+
+            //첨부파일
+            $('#uploadMode').css('display', 'none')
+            $('#downloadMode').css('display', 'block');
+            uploadSetting.fileGrpId = requestCont?.mfileGrpId || null;
+            fileUpDown.initView('file-download-popup-id');
+
+            if(!loadPopup) {
+                loadPopup = true;
+                $('#modalCont').css('display', 'block');
+            }
+        });
+    }
+
+    function moveCont() {
+        if (requestCont.replyYn === 'N' && requestCont.hasOpposite === 'Y') {
+            readContDetail(requestCont.requestNo, requestCont.requestSeq, 'Y');
+        }else if(requestCont.replyYn === 'N' &&  requestDetail.requestState === '20' &&
+            requestCont.hasOpposite === 'N' && requestCont.userEmail !== pf.token().USER_ID){
+            let tempRequestCont = requestCont;
+            fnContInit();
+            btnAction.registerAnswerBtn(tempRequestCont.requestNo, tempRequestCont.requestSeq, 'N');
+        }else if (requestCont.replyYn === 'Y' && requestCont.hasOpposite === 'Y') {
+            readContDetail(requestCont.requestNo, requestCont.requestSeq, 'N');
+        }
+    }
+
+    //공지사항 등록 : 저장
+    function registerCont() {
+        if(pf.zzzUtil.isEmpty($("#popupContTitle").val())) {
+            pf.seinfoAlert.focus(0, '[(#{seinfo.main.msg.00130})]', $('#popupContTitle')); //제목을 입력하세요.
+            return;
+        }else if($('#popupContTitle').val().length > 100) {
+            var msg = '[(#{seinfo.board.label.00015})]' + '[(#{seinfo.com.msg.00100})]'; //제목 : 입력길이가 한도를 초과하였습니다.
+            pf.seinfoAlert.focus(0, msg, $('#popupQuestionTitle'));
+            return;
+        }
+
+        $('#contContent').val(config.ckeditInstances['popupContContent'].getData());
+        let contContent = $('#contContent').val();
+        if(pf.zzzUtil.isEmpty(contContent)) {
+            pf.seinfoAlert('[(#{seinfo.pps.msg.00020})]'); //제안 내용을 입력하세요.
+            return;
+        }
+
+        ///저장순서 : 첨부파일 저장 > 업무저장
+        fileUpDownSave((resultVal) => {
+            if(!resultVal) {
+                fileUpDownErr();
+                return;
+            }
+
+            //업무저장 (공지사항 등록)
+            const formData = {
+                requestNo : requestDetail?.requestNo || null,
+                requestSeq : registerRequestCont?.requestSeq || null,
+                questionTitle: $("#popupContTitle").val(),
+                questionContent: contContent,
+                fileGrpId: uploadSetting.fileGrpId,
+                replyYn: registerRequestCont?.replyYn === 'N'? 'Y' : 'N',
+            };
+
+            pf.seinfo.ajax({
+                url: "/admin/registerRequestCont",
+                method: "POST",
+                data: formData
+            }, (rData) => {
+                if(rData.process_code === '00'){
+                    //저장되었습니다.
+                    pf.seinfoAlert.success('[(#{seinfo.com.msg.00010})]', () => {
+                        $('#modalCont').css('display', 'none');
+                        fnContInit(true);
+                    });
+                }else {
+                    pf.seinfoAlert.warning(rData.data, () => {
+                        fnContInit();
+                        fileUpDownErr();
+                    });
+                }
+            });
+        });
+    }
+
+    //초기화
+    function fnContInit(flag) {
+        loadPopup = false;
+        $('#modalTitle').text('');
+        $("#popupContTitle").val('').attr('readonly', false);
+        $('#popupMoveCont').css('display', 'none').attr('disabled', true);
+        $('#popupContBtnSave').css('display', 'block').attr('disabled', false);
+        config.ckeditInstances['popupContContent'].setData('');
+        requestCont = {};
+        registerRequestCont = {};
+        fileUpDown.uploadInit();
+        fileUpDown.downloadInit();
+        if(flag) reloadRequestDetail();
+        $('body').css('overflow', ''); //메인창 스크롤 초기화
+    }
+
+    function popupClose() {
+        fnContInit();
+    }
+
+    $(() => {
+        $("#modalNoticeTitle").attr("placeholder", "[(#{seinfo.main.msg.00130})]"); //제목을 입력하세요.
+        $("#popupFileInput").attr("placeholder", "[(#{seinfo.file.label.00014})]"); //첨부할 파일을 드래그 하거나, 파일 선택 버튼을 직접 선택해주세요.
+    });
+
+    </script>
+</th:block>
+</html>

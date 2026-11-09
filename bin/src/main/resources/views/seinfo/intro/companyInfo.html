@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultrag.net.nz/thymeleaf/layout"
+      layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+   <title></title>
+   <th:block layout:fragment="html_css">
+      <style></style>
+   </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+<!--   <div th:replace="~{seinfo/layout/include/frame/navCategory :: menuMid310}"></div>-->
+
+   <main>
+      <div class="subpage-content">
+         <h2 id="menuTitle">[(#{seinfo.menu.mid.00310})]</h2> <!--회사소개-->
+         <div class="mobility-area">
+            <div class="tabs">
+               <div class="tab-menu-wrap" id="target-section">
+                  <ul class="tab-menu">
+                     <li class="active" data-tab="#tab1">[(#{seinfo.intro.mid.00010})]</li><!--회사소개-->
+                     <li data-tab="#tab2">[(#{seinfo.intro.mid.00020})]</li><!--회사연혁-->
+                  </ul>
+               </div>
+               <div class="tab-content">
+                  <div id="tab1" class="tab-pane active">
+                     <section>
+                        <div class="inner">
+                           <div class="title">
+                              <h2>[(#{seinfo.intro.label.00010})]</h2><!--기업비전-->
+                              <div class="description">
+								      산업을 이해하는 기술로, 더 큰 가능성을 구현하며<br>
+								      기술의 깊이를 더하고, 혁신의 영역을 넓힌다.<br>
+								      현장의 경험을 넘어, 산업의 미래를 설계한다.
+                              </div>
+                           </div>
+                           <img th:src="@{/static/seinfo/img/image-tab01-img01.jpg}" alt="">
+                           <p>당사는 축적된 경험을 바탕으로 고객사의 지속가능한 비지니스를 지원하기 위해
+                              업무시스템을 구축하는 회사입니다.
+                              자동차 및 일반 대기업의 업무시스템을 구축하고 있습니다.
+
+                              자동차 회사(OEMs, Partners)들이 사용하는 국제화학물질관리 시스템(IMDS)과 연계된 화학물질 및 유해물질 업무 시스템을 구축하고,
+                              그외 일반업무시스템 구축하고 있습니다.</p>
+                        </div>
+                     </section>
+                  </div>
+                  <div id="tab2" class="tab-pane">
+                     <section>
+                        <div class="inner">
+                           <div class="title">
+                              <h2>회사연혁</h2>
+                           </div>
+                           <div class="feature-description">
+                              <ul>
+                                 <li><time>2024.02</time> 현대오토에버 동반성장협력사 협약</li>
+                                 <li><time>2022.04</time> 현대/기아차 연구소 업무시스템 개발 전략적 협력사 (주)현대오토에버</li>
+                                 <li><time>2021.05</time> 현대차연구소 업무 시스템 구축 수행 (2019년 ~ 현재)</li>
+                                 <li><time>2021.03</time> 현대차연구소 전략적 개발 협력사 선정 (주)현대오토에버</li>
+                                 <li><time>2021.01</time> ECHA 고위험물질 연계 시스템 구축</li>
+                                 <li><time>2020.11</time> 의왕 지식사업센터 더 비즈원 사무실 계약 (2021-04-14 매입)</li>
+                                 <li><time>2020.07</time> IMDS 연관 화학물질 관리 시스템 구축</li>
+                                 <li><time>2019.12</time> (주)현대오토에버 협력사 등록</li>
+                                 <li><time>2019.09</time> (주)에스이정보기술 설립</li>
+                              </ul>
+                           </div>
+                        </div>
+                     </section>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </main>
+</th:block>
+
+<th:block layout:fragment="html_js">
+   <script type="text/javascript" th:inline="javascript">
+      $(document).ready(function () {
+         $('html,body').animate({
+            scrollTop: $('#target-section').offset().top
+         },500);
+         let headerHeight = $('header').outerHeight() || 0;
+
+         $('.tab-menu li').on('click', function () {
+            let targetTab = $(this).data('tab');
+
+            $('.tab-menu li').removeClass('active');
+            $(this).addClass('active');
+
+            $('.tab-pane').removeClass('active');
+            $(targetTab).addClass('active');
+
+            $('#menuTitle').text($(this).text().trim());
+
+            let titlePosition = $(targetTab).find('.title').offset().top;
+
+            $('html, body').animate({
+               scrollTop: titlePosition - headerHeight - 40
+            }, 300);
+         });
+      });
+   </script>
+</th:block>
+
+</html>

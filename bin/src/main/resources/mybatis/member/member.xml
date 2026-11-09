@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.seinfo.seinfomationA.component.member.mapper.MemberMapper">
+
+	<select id="chkCompanyNoDuplicate" parameterType="String" resultType="camelmap">
+		SELECT /* com.seinfo.protoA.component.member.mapper.MemberMapper.chkCompanyNoDuplicate */
+			   company_no
+			 , company_nm
+			 , company_d
+			 , company_address
+			 , company_address_detail
+			 , ceo_nm
+			 , ceo_phone
+			 , ceo_email
+			 , company_url
+			 , company_info
+		FROM seinfo_vendor
+		WHERE company_no = #{companyNo}
+	</select>
+
+	<select id="chkUserEmailDuplicate" parameterType="camelmap" resultType="int">
+		select /* com.seinfo.protoA.component.member.mapper.MemberMapper.chkUserEmailDuplicate */
+			count(*)
+		from seinfo_vendor_manager
+		where user_email = #{userEmail}
+	</select>
+
+    <select id="chkLoginIdDuplicate" parameterType="camelmap" resultType="int">
+        SELECT COUNT(*) FROM seinfo_vendor_manager WHERE login_id = #{loginId}
+    </select>
+
+	<insert id="insertVendorManager" parameterType="camelmap">
+		insert
+		into seinfo_vendor_manager
+		(
+			login_id
+            ,user_email
+			,company_no
+			,user_nm
+			,user_phone
+			,user_office_phone
+			,user_pwd
+			,user_pwd_init_yn
+			,fail_cnt
+			,user_pwd_ch_d
+			,reg_dt
+			,reg_user_id
+			,mod_dt
+			,mod_user_id
+			,user_role
+		)
+		values
+		(
+			 #{loginId}
+            ,#{userEmail}
+			,LEFT(#{companyNo},100)
+			,LEFT(#{userNm},100)
+			,LEFT(#{userPhone},50)
+			,LEFT(#{userOfficePhone},50)
+			,LEFT(#{userPwd},100)
+			,'N'
+			,0
+			,date_format(now(),'%Y-%m-%d')
+			,now()
+			,#{regUserId}
+			,now()
+			,#{modUserId}
+			,#{userRole}
+		)
+	</insert>
+
+	<insert id="insertVendor" parameterType="camelmap">
+		insert
+		into seinfo_vendor
+		(
+		 	company_no
+            ,company_no_enc
+			,ceo_nm
+			,company_d
+			,company_nm
+			,company_address
+			,company_address_detail
+			,ceo_phone
+			,ceo_email
+			,company_url
+			,company_info
+			,reg_dt
+			,reg_user_id
+			,mod_dt
+			,mod_user_id
+		) VALUES (
+			 LEFT(#{companyNo},100)
+            ,#{companyNoEnc}
+			,LEFT(#{ceoNm},100)
+			,date_format(#{companyD}, '%Y-%m-%d')
+			,LEFT(#{companyNm},100)
+			,LEFT(#{companyAddress},200)
+			,LEFT(#{companyAddressDetail},100)
+			,LEFT(#{ceoPhone},50)
+			,LEFT(#{ceoEmail},100)
+			,LEFT(#{companyUrl},200)
+			,LEFT(#{companyInfo},400)
+			,now()
+			,#{regUserId}
+			,now()
+			,#{modUserId}
+		 ) ON DUPLICATE KEY UPDATE company_no = VALUES(company_no)
+	</insert>
+
+	<select id="selectUsrAndCompanyInfo" parameterType="camelmap" resultType="camelmap">
+		select a.company_no
+            ,a.company_no_enc
+			  ,a.company_nm
+			  ,a.company_address
+		      ,a.company_address_detail
+		      ,date_format(a.company_d, '%Y-%m-%d') as company_d
+		      ,a.ceo_nm
+			  ,a.ceo_phone
+		      ,a.ceo_email
+		      ,a.company_url
+		      ,a.company_info
+		      ,b.user_uid
+              ,b.login_id
+		      ,b.user_email
+		      ,b.user_nm
+		      ,b.user_phone
+		      ,b.user_office_phone
+		from seinfo_vendor a
+		join seinfo_vendor_manager b
+		  on a.company_no = b.company_no
+		where b.user_email = #{userEmail}
+	</select>
+
+	<select id="findUserByUserUid" parameterType="camelmap" resultType="camelmap">
+		select   company_no, user_email
+				,user_pwd
+				,bl_yn
+				,user_pwd_init_yn
+		 from seinfo_vendor_manager
+		where user_uid = #{userUid}
+	</select>
+
+	<update id="updateUserInfo" parameterType="camelmap">
+		update seinfo_vendor_manager
+		   set user_nm			 = left(#{userNm}, 100)
+			  ,user_phone		 = left(#{userPhone}, 50)
+			  ,user_office_phone = left(#{userOfficePhone}, 50)
+			  ,mod_dt			 = now()
+			  ,mod_user_id		 = #{userEmail}
+		 where user_uid = #{userUid}
+	</update>
+
+	<update id="updateVendorInfo" parameterType="camelmap">
+		update seinfo_vendor
+		   set company_address			= left(#{companyAddress}, 200)
+			  ,company_address_detail	= left(#{companyAddressDetail}, 100)
+			  ,ceo_phone				= left(#{ceoPhone}, 50)
+			  ,ceo_email				= left(#{ceoEmail}, 100)
+			  ,company_url				= left(#{companyUrl}, 200)
+			  ,company_info				= left(#{companyInfo}, 400)
+			  ,mod_dt				    = now()
+			  ,mod_user_id				= #{modUserId}
+		where company_no = #{companyNo}
+	</update>
+</mapper>

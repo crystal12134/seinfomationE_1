@@ -1,0 +1,33 @@
+{
+  "engine": "MySQL 8.4.10",
+  "import_success": true,
+  "counts": {
+    "seinfo_access_log": 545,
+    "seinfo_faq": 2,
+    "seinfo_freeboard_comments": 6,
+    "seinfo_freeboard_likes": 10,
+    "seinfo_freeboard_posts": 5,
+    "seinfo_mfile_down": 0,
+    "seinfo_mfile_group": 177,
+    "seinfo_mfile_info": 3,
+    "seinfo_mfile_list": 217,
+    "seinfo_notice": 11,
+    "seinfo_request": 15,
+    "seinfo_request_cont": 48,
+    "seinfo_team": 4,
+    "seinfo_vendor": 2,
+    "seinfo_vendor_manager": 7,
+    "seinfo_work": 21,
+    "seinfo_work_file": 0,
+    "zzz_code_info": 7,
+    "zzz_token_access": 0,
+    "zzz_token_denied": 0
+  },
+  "password_hash_mismatches": 0,
+  "company_ciphertexts_verified": 2,
+  "company_member_orphans": 0,
+  "invalid_role_rejected": true,
+  "raw_token_rejected": true,
+  "duplicate_download_id_rejected": true,
+  "production_token_expiry_sql_verified": true
+}

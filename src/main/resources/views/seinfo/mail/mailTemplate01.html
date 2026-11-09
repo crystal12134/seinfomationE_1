@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>[[${mailTitle}]]</title> <!-- 의뢰 접수 안내 -->
+    <style>
+        .btn { display:inline-block; padding:10px 16px; border-radius:6px; text-decoration:none; }
+    </style>
+</head>
+<body>
+<!-- 인라인 이미지 (cid 사용) -->
+<img th:src="'cid:logoImage'" alt="Logo" width="120"/>
+<h2>[[${mailTitle}]]</h2>
+<p>
+    <span>[[${userNm}]]</span>님의 의뢰가 접수되었습니다.
+</p>
+<p>
+    자세한 내용은 아래 버튼을 눌러 확인하세요.
+</p>
+<a class="btn" th:href="${mailUrl}" style="background:#2563eb;color:#fff;">바로가기</a>
+
+<hr/>
+<small style="color:#666;">본 메일은 발신 전용입니다.</small>
+</body>
+</html>

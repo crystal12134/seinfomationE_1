@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+        <style></style>
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <main>
+        <div class="subpage-content">
+            <h2>[(#{seinfo.menu.top.00210})]</h2> <!-- 회원가입 1.약관동의 -->
+            <div class="join-area">
+                <!-- 진행상태 -->
+                <div th:replace="~{seinfo/member/divProgress :: progress01}"></div>
+                <!-- 약관동의 -->
+                <div class="agreement">
+                    <ul>
+                        <li>
+                            <div class="inner">
+                                <div class="top">
+                                    <strong>[(#{seinfo.menu.mid.00020})]</strong> <!-- 이용약관-->
+                                    <button class="secondary-sm-btn open-modal-btn" data-modal="#modalAgree">
+                                        [(#{seinfo.com.btn.00100})] <!-- 상세내용 보기 -->
+                                    </button>
+                                </div>
+                                <div class="bottom">
+                                    <div class="box-checkbox">
+                                        <input type="checkbox" id="agreeChk">
+                                        <label for="agreeChk" class="label">
+                                            <i>[(#{seinfo.member.label.00002})]</i> <!-- 필수 -->
+                                            <span>[(#{seinfo.member.label.00003})]</span> <!-- 현대자동차 용역업체 기술제안 시스템 가입약관 -->
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="inner">
+                                <div class="top">
+                                    <strong>[(#{seinfo.member.label.00004})]</strong> <!-- 개인정보 수집 동의 -->
+                                    <button class="secondary-sm-btn open-modal-btn" data-modal="#modalPolicy">
+                                        [(#{seinfo.com.btn.00100})] <!-- 상세내용 보기-->
+                                    </button>
+                                </div>
+                                <div class="bottom">
+                                    <div class="box-checkbox">
+                                        <input type="checkbox" id="policyChk">
+                                        <label for="policyChk" class="label">
+                                            <i>[(#{seinfo.member.label.00002})]</i> <!-- 필수 -->
+                                            <span>[(#{seinfo.member.label.00005})]</span> <!-- 개인정보 수집/이용에 대한 동의 -->
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="button-area" style="margin-top: 0;">
+                    <button type="button" id="nextBtn" class="primary-md-btn">[(#{seinfo.com.btn.00030})]</button> <!-- 다음 -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{seinfo/document/popupAgree :: popup01View}"></div>
+    <div th:replace="~{seinfo/document/popupPolicy :: popup01View}"></div>
+</th:block>
+<th:block layout:fragment="html_js">
+    <script th:replace="~{seinfo/document/popupAgree :: popup01Js}"></script>
+    <script th:replace="~{seinfo/document/popupPolicy :: popup01Js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        $(() => {
+            // 팝업화면 : 이용약관 동의버튼 무조건 활성화
+           $('#modalAgreeBtnOk').prop('disabled', false);
+
+           // 팝업화면 : 이용약관 동의버튼 클릭시 체크상태 표시
+           $('#modalAgreeBtnOk').on('click', function (e) {
+               e.preventDefault();
+               $('#agreeChk').prop('checked', true).prop('disabled', false);
+               $('#modalAgree').hide();
+           });
+
+           // 팝업화면 : 개인정보수집 동의버튼 무조건 활성화
+            $('#modalPolicyBtnOk').prop('disabled', false);
+
+            // 팝업화면 : 이용약관 동의버튼 클릭시 체크상태 표시
+            $('#modalPolicyBtnOk').on('click', function (e) {
+                e.preventDefault();
+                $('#policyChk').prop('checked', true).prop('disabled', false);
+                $('#modalPolicyChkAll').prop('checked', true);
+                $('#modalPolicy').hide();
+            });
+
+            // 팝업화면 : 개인정보수집 - 개별 체크박스 클릭 시 상태 업데이트
+            $('#modalPolicyChkAll').on('change', function () {
+                updateCheckState('');
+            });
+
+            // 팝업화면 : 개인정보수집 - 닫기버튼
+            $('#modalPolicyBtnCls').on('click', function (e) {
+               e.preventDefault();
+               updateCheckState('cls');
+            });
+
+            // 체크박스 클릭시, 팝업화면 호출 (체크: 팝업에서 동의버튼 클릭시 처리/ 미체크 : 없음)
+            $('#agreeChk').on('click', function (e) {
+               e.preventDefault();
+               $('#modalAgree').show();
+            });
+            $('#policyChk').on('click', function (e) {
+                e.preventDefault();
+                $('#modalPolicy').show();
+            });
+
+            // 다음 버튼처리
+            $("#nextBtn").click(() => {
+               if($("#agreeChk").is(":checked") && $("#policyChk").is(":checked")) {
+                   fnNextPage();
+               } else {
+                   if(!$("#agreeChk").is(":checked")) {
+                       pf.seinfoAlert.warning('[(#{seinfo.member.msg.00090})]'); // 이용약관에 동의하여 주시기 바랍니다.
+                       return null;
+                   }
+                   if(!$("#policyChk").is(":checked")) {
+                       pf.seinfoAlert.warning('[(#{seinfo.member.msg.00100})]'); // 개인정보수집에 동의하여 주시기 바랍니다.
+                       return null;
+                   }
+               }
+            });
+        });
+
+        function updateCheckState(str) {
+            let chkAll = $('#modalPolicyChkAll').is(':checked');
+            $('#policyChk').prop('checked', chkAll);
+            if (str === 'cls') {
+                $('#modalPolicy').hide();
+            }
+        }
+
+        function fnNextPage() {
+            $.ajax({
+                type: "POST",
+                url: "/anyone/member/setJoinStep",
+                contentType: "application/json",
+                data: JSON.stringify({joinStep: 2}),
+                success: function (rData) {
+                    if(rData.process_code === '00') {
+                        location.href = contextPath + "/anyone/member/regMember";
+                    } else {
+                        pf.seinfoAlert.warning(rData.data.message);
+                    }
+                },
+                error: function (jqXHR) {
+                    const response = JSON.parse(jqXHR.responseText).message;
+                    const msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.proccess_msg);
+                    pf.seinfoAlert.warning(msg);
+                }
+            })
+        }
+    </script>
+</th:block>
+</html>

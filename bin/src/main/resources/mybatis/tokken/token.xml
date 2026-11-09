@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.seinfo.seinfomationA.util.token.TokenMapper">
+
+	<select id="selectTokenAccess" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.protoA.util.token.TokenMapper.selectTokenAccess */
+			token_user_id, token_key, user_ip_address, user_agent
+		FROM zzz_token_access
+		WHERE token_user_id = #{tokenUserId}
+          AND expires_at > NOW()
+	</select>
+
+	<insert id="insertTokenBanned" parameterType="camelmap">
+        <bind name="tokenFingerprint" value="@com.seinfo.seinfomationA.util.security.TokenFingerprint@of(tokenKey)"/>
+		INSERT INTO  /* com.seinfo.protoA.util.token.TokenMapper.insertTokenBanned */
+			zzz_token_denied
+		(
+		 	 token_usr_id
+		   , token_key
+		   , token_denied_desc
+		   , reg_dt
+           , expires_at
+		) VALUES (
+			 #{tokenUserId}
+			,#{tokenFingerprint}
+			,#{tokenDeniedDesc}
+			,now()
+            ,TIMESTAMPADD(MINUTE,30,NOW())
+		)
+        ON DUPLICATE KEY UPDATE
+            token_key = VALUES(token_key),
+            token_denied_desc = VALUES(token_denied_desc),
+            reg_dt = VALUES(reg_dt), expires_at = VALUES(expires_at)
+	</insert>
+
+	<insert id="insertTokenAccess" parameterType="camelmap">
+        <bind name="tokenFingerprint" value="@com.seinfo.seinfomationA.util.security.TokenFingerprint@of(tokenKey)"/>
+		INSERT INTO  /* com.seinfo.protoA.util.token.TokenMapper.insertTokenAccess */
+			zzz_token_access
+		(
+			token_user_id
+		  , token_key
+		  , user_ip_address
+		  , user_agent
+		  , reg_dt
+          , expires_at
+		) VALUES (
+			#{tokenUserId}
+			,#{tokenFingerprint}
+			,#{userIpAddress}
+			,#{userAgent}
+			,now()
+            ,TIMESTAMPADD(MINUTE,30,NOW())
+		)
+        ON DUPLICATE KEY UPDATE
+            token_key = VALUES(token_key),
+            user_ip_address = VALUES(user_ip_address),
+            user_agent = VALUES(user_agent),
+            reg_dt = VALUES(reg_dt), expires_at = VALUES(expires_at)
+	</insert>
+
+
+<select id="countDeniedToken" resultType="int">SELECT COUNT(*) FROM zzz_token_denied WHERE token_key = #{token} AND expires_at > NOW()</select>
+<delete id="deleteExpiredAccess">DELETE FROM zzz_token_access WHERE expires_at &lt;= NOW()</delete>
+<delete id="deleteExpiredDenied">DELETE FROM zzz_token_denied WHERE expires_at &lt;= NOW()</delete>
+</mapper>

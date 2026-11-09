@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.seinfo.seinfomationA.component.main.mapper.LoginMapper">
+
+	<select id="selectUserByEmail" resultType="camelmap">
+		SELECT /* com.seinfo.protoA.component.main.mapper.LoginMapper.selectUserByEmail */
+			 user_uid, login_id, user_email, user_pwd, user_role, bl_yn, user_pwd_init_yn
+		FROM seinfo_vendor_manager
+		WHERE user_email = #{userEmail}
+	</select>
+
+    <select id="selectUsrInfo" parameterType="camelmap" resultType="camelmap">
+        SELECT /* com.seinfo.protoA.component.main.mapper.LoginMapper.selectUsrInfo */
+        	  a.user_uid
+        	, a.login_id
+        	, a.user_email
+        	, a.user_nm
+        	, a.user_pwd
+            , a.user_role
+        	, CASE WHEN a.user_pwd_ch_d is null then date_format(now(), '%Y-%m-%d')
+        		   ELSE a.user_pwd_ch_d
+        	  END AS user_pwd_ch_d
+        	, CASE WHEN a.user_login_d is null then date_format(now(), '%Y-%m-%d')
+        	  	   ELSE a.user_login_d
+        	  END AS user_login_d
+        	, CASE WHEN a.fail_dt is null then DATE(now())
+        		   ELSE date(a.fail_dt)
+        	  END AS fail_dt
+        	, 'Y' AS use_yn
+        	, a.user_pwd_init_yn
+        	, a.bl_yn
+        	, a.bl_reason
+            , (SELECT zci.code_nm FROM zzz_code_info zci WHERE zci.code_parent_id = 'RTPC014' AND zci.code_value = 'MANAGER') as bl_manager
+            , (SELECT zci.code_nm FROM zzz_code_info zci WHERE zci.code_parent_id = 'RTPC014' AND zci.code_value = 'MANAGER_MAIL') as bl_mail
+        	, a.fail_cnt
+        	, CASE WHEN TIMESTAMPDIFF(MINUTE, IFNULL(a.fail_dt, DATE_SUB(now(), INTERVAL 1 DAY)), now()) &gt;= 30 THEN 'Y'
+        	       ELSE 'N'
+        	  END AS un_locking /* 30분 경과시 계정잠금해제 : 'Y' */
+        	, (30 - TIMESTAMPDIFF(MINUTE, IFNULL(a.fail_dt, now()), now())) as waiting_time
+        	, b.company_no
+        	, b.company_nm
+        FROM seinfo_vendor_manager a
+        JOIN seinfo_vendor b
+          ON a.company_no = b.company_no
+       WHERE
+       <choose>
+           <when test="loginId != null">a.login_id = #{loginId}</when>
+           <otherwise>a.user_email = #{userEmail}</otherwise>
+       </choose>
+    </select>
+
+	<update id="updateUsrLoginFail" parameterType="camelmap">
+			update /* com.seinfo.protoA.component.main.mapper.LoginMapper.updateUsrLoginFail */
+				seinfo_vendor_manager
+			   set fail_cnt  	= #{failCnt }
+				 , fail_dt   	= now()
+				 , mod_dt		= now()
+				 , mod_user_id  = #{userEmail}
+			 where user_uid = #{userUid}
+	</update>
+
+	<update id="updateUsrLoginSuccess" parameterType="camelmap">
+		update /* com.seinfo.protoA.component.main.mapper.LoginMapper.updateUsrLoginSuccess */
+				seinfo_vendor_manager
+		   set fail_cnt  	= 0
+		 	 , fail_dt   	= null
+			 , user_login_d = now()
+			 , mod_dt		= now()
+			 , mod_user_id  = #{userEmail}
+		 where user_uid = #{userUid}
+	</update>
+
+	<insert id="insertAccessLog" parameterType="camelmap">
+		insert into  /* com.seinfo.protoA.component.main.mapper.LoginMapper.insertAccessLog */
+			seinfo_access_log
+		(
+		 	 user_uid
+			,access_dt
+			,access_ip
+			,user_email
+			,user_nm
+			,company_no
+			,company_nm
+			,reg_dt
+			,reg_user_id
+			,mod_dt
+			,mod_user_id
+		) VALUES (
+			 #{userUid}
+			,now()
+			,#{accessIp}
+			,#{userEmail}
+			,#{userNm}
+			,#{companyNo}
+			,#{companyNm}
+			,now()
+			,#{userEmail}
+			,now()
+			,#{userEmail}
+		)
+	</insert>
+
+	<update id="updateUsrTempPwd" parameterType="camelmap">
+		update /* com.seinfo.protoA.component.main.mapper.LoginMapper.updateUsrTempPwd */
+				seinfo_vendor_manager
+		   set user_pwd 		= #{crytPwd}
+		     , user_pwd_init_yn = 'Y'
+		     , fail_cnt			= 0
+		     , fail_dt          = null
+		     , mod_dt           = now()
+		     , mod_user_id  	= #{userEmail}
+		where user_uid = #{userUid}
+	</update>
+
+	<update id="updateUsrPwd" parameterType="camelmap" >
+		update /* com.seinfo.protoA.component.main.mapper.LoginMapper.updateUserPwd */
+				seinfo_vendor_manager
+		   set user_pwd 		= #{crytPwd}
+			 , user_pwd_init_yn = 'N'
+			 , fail_cnt			= 0
+			 , user_pwd_ch_d 	= now()
+			 , user_login_d     = now()
+			 , mod_dt			= now()
+			 , mod_user_id  	= #{userEmail}
+		where user_uid = #{userUid}
+	</update>
+
+	<select id="findUsrEmail" parameterType="camelmap" resultType="camelmap">
+		SELECT /* com.seinfo.protoA.component.main.mapper.LoginMapper.findUsrEmail */
+		       user_uid
+             , login_id
+			 , user_email
+		  FROM seinfo_vendor_manager
+		 WHERE user_phone = #{userPhone}
+		   AND user_nm    = #{userNm}
+	</select>
+
+	<select id="findUsrInfoByUid" parameterType="camelmap"  resultType="camelmap">
+		SELECT /* com.seinfo.protoA.component.main.mapper.LoginMapper.findUsrInfoByUid */
+			   user_email
+			 ,  user_pwd
+		  FROM seinfo_vendor_manager
+		 WHERE user_uid = #{userUid}
+	</select>
+
+</mapper>

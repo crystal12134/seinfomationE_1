@@ -1,0 +1,97 @@
+/* STEP 01~05를 하나의 큰 타원 둘레에 배치. 기존 v3 CSS 전체 대체용. */
+.main-wrap main .section02 .inner {
+  position: relative; width: min(1120px, calc(100% - 80px));
+  height: clamp(500px, 72vh, 680px); margin: 0 auto;
+}
+.main-wrap main .section02 .inner .title-area {
+  position: absolute; left: 50%; top: 49%; width: 320px;
+  transform: translate(-50%, -50%); gap: 8px; margin: 0;
+  z-index: 2; text-align: center; pointer-events: none;
+}
+.main-wrap main .section02 .inner .title-area span { font-size: 14px; color: #617788; }
+.main-wrap main .section02 .inner .title-area h2 { font-size: 25px; line-height: 1.5; margin: 0; color: #193C50; }
+.main-wrap main .section02 .inner .content-area { position: absolute; inset: 0; margin: 0; }
+.main-wrap main .section02 .inner .content-area > ul {
+  position: relative; display: block; width: 100%; height: 100%;
+  margin: 0; padding: 0; list-style: none;
+}
+.main-wrap main .section02 .inner .content-area > ul::before {
+  content: ""; position: absolute; left: 12%; top: 13%;
+  width: 76%; height: 68%; border: 2px dashed #AEC7D4;
+  border-radius: 50%; pointer-events: none;
+}
+.main-wrap main .section02 .inner .content-area > ul > li {
+  position: absolute; width: 190px; min-height: 150px;
+  transform: translate(-50%, -50%); padding: 12px 10px;
+  display: flex; flex-direction: row; flex-wrap: wrap;
+  align-items: center; justify-content: center; gap: 8px;
+  background: transparent; border: none; border-radius: 16px;
+  box-shadow: none; z-index: 3;
+}
+.main-wrap main .section02 .inner .content-area > ul > li:nth-child(1) { left: 50%; top: 13%; }
+.main-wrap main .section02 .inner .content-area > ul > li:nth-child(2) { left: 87%; top: 38%; }
+.main-wrap main .section02 .inner .content-area > ul > li:nth-child(3) { left: 74%; top: 81%; }
+.main-wrap main .section02 .inner .content-area > ul > li:nth-child(4) { left: 26%; top: 81%; }
+.main-wrap main .section02 .inner .content-area > ul > li:nth-child(5) { left: 13%; top: 38%; }
+.main-wrap main .section02 .inner .content-area > ul > li .icon-area {
+	position: relative;
+	  flex: 0 0 150px; width: 150px; height: 115px;
+	  display: flex; flex-direction: column; align-items: center;
+	  justify-content: center; gap: 10px; padding: 12px; background: #177E97;
+	  border: none; border-radius: 16px; box-shadow: none;
+}
+.main-wrap main .section02 .inner .content-area > ul > li:nth-child(1) .icon-area { background: #177E97; }
+.main-wrap main .section02 .inner .content-area > ul > li:nth-child(2) .icon-area { background: #2D5CA5; }
+.main-wrap main .section02 .inner .content-area > ul > li:nth-child(3) .icon-area { background: #47649B; }
+.main-wrap main .section02 .inner .content-area > ul > li:nth-child(4) .icon-area { background: #187A77; }
+.main-wrap main .section02 .inner .content-area > ul > li:nth-child(5) .icon-area { background: #5E568E; }
+
+.main-wrap main .section02 .inner .content-area > ul > li .icon-area .process-name {
+  display: block;
+  margin: 0;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.main-wrap main .section02 .inner .content-area > ul > li .icon-area::before, .main-wrap main .section02 .inner .content-area > ul > li .icon-area::after { display: none; content: none; }
+.main-wrap main .section02 .inner .content-area > ul > li .icon-area img,
+.main-wrap main .section02 .inner .content-area > ul > li:nth-child(1) .icon-area img,
+.main-wrap main .section02 .inner .content-area > ul > li:nth-child(3) .icon-area img,
+.main-wrap main .section02 .inner .content-area > ul > li:nth-child(5) .icon-area img {
+  width: 46px; height: 46px; margin: 0; transform: none; -webkit-transform: none;
+}
+.main-wrap main .section02 .inner .content-area > ul > li .text-area { flex: 1 1 90px; margin: 0; min-width: 0; }
+.main-wrap main .section02 .inner .content-area > ul > li .text-area > span { display: block; font-size: 11px; line-height: 1.4; color: #187E99; font-weight: 700; text-align: left; }
+.main-wrap main .section02 .inner .content-area > ul > li .text-area > strong { margin: 4px 0 0; font-size: 16px; line-height: 1.4; color: #203A4C; text-align: left; }
+.main-wrap main .section02 .inner .content-area > ul > li .text-area > ul { margin: 8px 0 0; gap: 3px; padding: 0; }
+.main-wrap main .section02 .inner .content-area > ul > li .text-area > ul > li,
+.main-wrap main .section02 .inner .content-area > ul > li:nth-child(5) .text-area ul li {
+  font-size: 11px; line-height: 1.5; color: #647885;
+  text-align: left; text-indent: 0; word-break: keep-all;
+}
+@media (max-height: 760px) {
+  .main-wrap main .section02 .inner {
+    height: 460px;
+  }
+
+  .main-wrap main .section02 .inner .content-area > ul > li {
+    min-height: 120px;
+    padding: 9px;
+  }
+
+  .main-wrap main .section02 .inner .content-area > ul > li .icon-area {
+    flex-basis: 140px;
+    width: 140px;
+    height: 100px;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .main-wrap main .section02 .inner .title-area h2 {
+    font-size: 22px;
+  }
+}

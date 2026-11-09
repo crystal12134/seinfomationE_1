@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{seinfo/layout.SeinfoLayoutEmpty}">
+
+<th:block th:fragment="progress01">
+    <div class="process">
+        <ul>
+            <li class="active">
+                <div th:replace="~{seinfo/member/divStep :: stepBody01}"></div>
+            </li>
+            <li><div th:replace="~{seinfo/member/divStep :: stepBody02}"></div></li>
+            <li><div th:replace="~{seinfo/member/divStep :: stepBody03}"></div></li>
+            <li><div th:replace="~{seinfo/member/divStep :: stepBody04}"></div></li>
+        </ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="progress02">
+    <div class="process">
+        <ul>
+            <li><div th:replace="~{seinfo/member/divStep :: stepBody01}"></div> </li>
+            <li class="active">
+                <div th:replace="~{seinfo/member/divStep :: stepBody02}"></div>
+            </li>
+            <li><div th:replace="~{seinfo/member/divStep :: stepBody03}"></div></li>
+            <li><div th:replace="~{seinfo/member/divStep :: stepBody04}"></div></li>
+        </ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="progress03">
+    <div class="process">
+        <ul>
+            <li><div th:replace="~{seinfo/member/divStep :: stepBody01}"></div></li>
+            <li><div th:replace="~{seinfo/member/divStep :: stepBody02}"></div></li>
+            <li class="active">
+                <div th:replace="~{seinfo/member/divStep :: stepBody03}"></div>
+            </li>
+            <li><div th:replace="~{seinfo/member/divStep :: stepBody04}"></div></li>
+        </ul>
+    </div>
+</th:block>
+
+<th:block th:fragment="progress04">
+    <div class="process">
+        <ul>
+            <li><div th:replace="~{seinfo/member/divStep :: stepBody01}"></div></li>
+            <li><div th:replace="~{seinfo/member/divStep :: stepBody02}"></div></li>
+            <li><div th:replace="~{seinfo/member/divStep :: stepBody03}"></div></li>
+            <li class="active">
+                <div th:replace="~{seinfo/member/divStep :: stepBody04}"></div>
+            </li>
+        </ul>
+    </div>
+</th:block>
+
+</html>

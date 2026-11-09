@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block th:fragment="popup01View">
+    <div class="modal" id="modalUsrConf">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button id="modalBtnCls" class="close-modal-btn">
+                <img th:src="@{/static/seinfo/img/icon-modal-close.svg}" alt='[(#{seinfo.com.btn.00040})]'> <!--닫기-->
+            </button>
+            <div class="modal-body">
+                <div class="usr-conf-content">
+                    <strong>[(#{seinfo.com.btn.00080})]</strong> <!--사용자 인증-->
+                    <section>
+                        <strong>
+                            <i>[(#{seinfo.member.msg.00140})]</i>[(#{seinfo.member.msg.00141})]<br />[(#{seinfo.member.msg.00142})]
+                            <!--보내드린 인증번호 6자리를 입력해 주세요-->
+                        </strong>
+
+                        <div class="verification-input-area">
+                            <div class="input-area">
+                                <input id="modalAuthNo" type="password" autofocus>
+                            </div>
+                            <div class="button-area">
+                                <button type="button" onclick="fnAuthNumberCheck()" class="primary-md-btn">[(#{seinfo.com.btn.00020})]</button> <!--확인-->
+                            </div>
+                        </div>
+                        <div class="time-alert-area">
+                            <div class="countdown">
+                                <img th:src="@{/static/seinfo/img/icon-clock.svg}" alt='[(#{seinfo.member.label.00220})]'> <!--시간아이콘-->
+                                <p>[(#{seinfo.member.label.00210})]</p> <p><span id="timer"></span></p> <!--남은시간-->
+                            </div>
+                            <button type="button" onclick="fnExtendTime()" class="time-extension">[(#{seinfo.com.btn.00110})]</button> <!--시간연장-->
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:fragment="popup01Js">
+    <script type="text/javascript" th:inline="javascript">
+        // 인증번호 확인
+        function fnAuthNumberCheck() {
+            $.ajax({
+                type: "POST",
+                url: '/anyone/member/usrMember/authNumberChk',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    userEmail: $('#userEmail').val(),
+                    authNumber: $('#modalAuthNo').val()
+                }),
+                success: function (rData) {
+                    if (rData.process_code === "00") {
+                        confirmedUserEmail = rData.data.userEmail;
+                        userEmailStatus = true;
+                        clearInterval(countdownTimer);
+                        $('#result').text('[(#{seinfo.member.msg.00050})]'); // 인증완료
+                        $("#result").attr("class", "text-info"); //skyblue
+                        $(modalPopup).hide();
+                        $('#userPwd').focus();
+                    } else {
+                        pf.seinfoAlert.warning(rData.data.message);
+                    }
+                },
+                error: function (jqXHR) {
+                    let response = JSON.parse(jqXHR.responseText).message;
+                    let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                    pf.seinfoAlert.warning(msg);
+                }
+            });
+        }
+
+        function fnExtendTime() {
+            $.ajax({
+                type: "POST",
+                url: '/anyone/member/usrMember/extendTime',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    userEmail: $('#userEmail').val()
+                }),
+                success: function (rData) {
+                    if (rData.process_code === "00") {
+                        $('#modalAuthNo').val('');
+                        fnStartTimer(); // 타이머 시작
+                    } else {
+                        pf.seinfoAlert.warning(rData.data.message);
+                    }
+                },
+                error: function (jqXHR) {
+                    let response = JSON.parse(jqXHR.responseText).message;
+                    let msg = pf.zzzUtil.strNvlChange(response, jqXHR.responseJSON.process_msg);
+                    pf.seinfoAlert.warning(msg);
+                }
+            });
+        }
+
+        $(() => {
+            $("#modalAuthNo").on("keydown", function (key) {
+                if (key.keyCode == 13) {
+                    fnAuthNumberCheck();
+                }
+            });
+        });
+    </script>
+</th:block>
+
+</html>
+
+
+

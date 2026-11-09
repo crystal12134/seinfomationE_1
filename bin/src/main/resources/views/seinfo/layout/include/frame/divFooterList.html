@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block th:fragment="divBody01">
+    <div class="inner">
+        <div class="top">
+            <ul>
+                <li>
+                    <div>
+                        <a style="font-weight: bold; color: #2DC0F0; font-size: 15px; cursor: pointer;"
+                            onclick="pf.seinfo.fnMenuClick('divMid010')">[(#{seinfo.menu.mid.00010})]</a> <!-- 개인정보처리방침 -->
+                    </div>
+                </li>
+
+                <li>
+                    <div th:replace="~{seinfo/layout/include/frame/divMenuList :: divMid020}"></div> <!-- 이용약관 -->
+                </li>
+            </ul>
+
+        <div class="bottom">
+            [(#{seinfo.menu.footer.00090})]
+        </div>
+    </div>
+</th:block>
+</html>

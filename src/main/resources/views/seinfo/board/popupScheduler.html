@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<!-- 모달 영역 -->
+<th:block th:fragment="popup01View">
+    <style>
+.modal-body {
+  max-height: 80vh;
+  overflow-y: auto;
+  padding-bottom: 20px; /* 혹은 적당한 여백 */
+}
+
+#summaryGrid {
+  max-height: 300px;
+  overflow-y: auto; /* 스크롤 생성 */
+  margin-bottom: 20px;
+  overflow-x: hidden; /* 가로 스크롤 숨기기 */
+}
+
+
+
+  /* ✅ 스크롤바 스타일 커스터마이징 */
+  #summaryGrid::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  #summaryGrid::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  #summaryGrid::-webkit-scrollbar-thumb {
+    background-color: #bcbcbc;
+    border-radius: 6px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  #summaryGrid::-webkit-scrollbar-thumb:hover {
+    background-color: #999;
+  }
+  </style>
+  <div class="modal comm-modal comm-scroll-modal" id="modalScheduler" style="display:none;">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="contact-register-area">
+          <strong class="comm-modal-title">업무일지 등록</strong>
+          <section>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>작성일: <span id="selectedDate"></span></div>
+              <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                <div>성명: <span id="loggedInUserName"></span></div>
+                <div style="margin-top: 10px; display: flex; gap: 10px;">
+                  <button id="addRowBtn">+</button>
+                  <button id="removeRowBtn">-</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 그리드 영역 -->
+            <!--<div id="summaryGrid" style="margin-top:10px;"></div>-->
+            <div id="summaryGrid" style="margin-top:10px; height:300px;"></div>
+
+            <!-- 공통으로 대체 -->
+            <h4 style="margin-top:20px;">파일첨부</h4>
+            <div id="uploadMode"> <!-- 업로드, 수정모드 UI일때 -->
+              <th:block th:replace="~{seinfo/file/divFileTus :: popupFileUpload}"></th:block> <!-- 업로드 UI 영역 -->
+            </div>
+            <div id="downloadMode"> <!-- 다운로드 일때 UI-->
+              <th:block th:replace="~{seinfo/file/divFileTus :: fileDownload}"></th:block> <!-- 다운로드 UI 영역 -->
+            </div>
+          </section>
+          
+          <div class="button-area">
+            <button class="primary-md-btn" id="saveBtn" onclick="saveWorkLog()">저장</button>
+            <button class="primary-md-btn" id="approveBtn" onclick="approveWorkLog()">승인</button>
+            <button class="primary-outline-md-btn" id="rejectBtn" onclick="rejectWorkLog()">반려</button>
+            <button class="primary-outline-md-btn" onclick="closeWorkLogModal()">닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>
+
+<!-- 모달 관련 JS -->
+<th:block th:fragment="popup01Js">
+  <script th:replace="~{seinfo/file/divFileTus :: fileTusJs}"></script> <!--파일업로드 공통세팅JS 하는부분가져옴 -->
+  
+  <script type="text/javascript" th:inline="javascript">
+let deletedIds = []; // 전역선언
+let gridInstance = null;
+
+// 업무일지 첨부파일 설정 추가
+uploadKeySetting({
+    cdKey: 'SEINFO003',
+    grpKey: 'seinfo-grp-worklog',
+    idKey: 'seinfo-worklog',
+    workKey: 'worklog'
+});
+
+// 사용자 타입 가져오기
+const userType = pf.token()?.USER_TYPE || 'GUEST';
+const isAdmin = userType === 'ADMIN';
+
+// 날짜 포맷 변환
+function getLocalDateTimeString(date) {
+    const pad = n => String(n).padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
+
+// 모달 열기
+function openWorkLogModal(dateStr, existingData = null) {
+    const modal = document.getElementById('modalScheduler');
+    modal.style.display = 'block';
+    window.selectedWorkDate = dateStr;
+
+    const formattedDate = new Date(dateStr).toLocaleString('ko-KR', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+    });
+    document.getElementById('selectedDate').textContent = formattedDate;
+
+    const userName = (pf.token()?.TOKEN_USER_TYPE === 'ADMIN' ? '관리자' : pf.token()?.LOGIN_ID) || 'Unknown';
+    document.getElementById('loggedInUserName').textContent = userName;
+
+    if (existingData && existingData.id) {
+        window.selectedLogId = existingData.id;
+    } else {
+        window.selectedLogId = null;
+    }
+
+    // 버튼 표시 초기화
+    $('#saveBtn, #approveBtn, #rejectBtn').hide();
+
+    // 승인된 경우: 버튼 숨김 + 입력 비활성
+    let isReadOnly = false;
+    if (existingData && existingData.approvalStatus === 'APPROVED') {
+        isReadOnly = true;
+        $('#saveBtn, #approveBtn, #rejectBtn').hide();
+        $('#modalScheduler input, #modalScheduler textarea, #modalScheduler select').prop('disabled', true);
+    } else {
+        if (isAdmin) {
+            // 관리자: 승인/반려 버튼만
+            $('#approveBtn, #rejectBtn').show();
+            $('#saveBtn').hide();
+        } else {
+            // 일반 사용자: 저장만
+            $('#saveBtn').show();
+            $('#approveBtn, #rejectBtn').hide();
+        }
+        $('#modalScheduler input, #modalScheduler textarea, #modalScheduler select').prop('disabled', false);
+    }
+
+    setTimeout(() => {
+        renderGrid(existingData, isReadOnly);
+    }, 0);
+}
+
+// 모달 닫기
+function closeWorkLogModal() {
+    const modal = document.getElementById('modalScheduler');
+    modal.style.display = 'none';
+    fnInit();
+    document.getElementById('summaryGrid').innerHTML = '';
+    if (gridInstance) {
+        gridInstance.destroy();
+        gridInstance = null;
+        deletedIds = [];
+    }
+}
+
+// 승인
+function approveWorkLog() {
+    $.ajax({
+        url: `/member/api/worklog/${window.selectedLogId}/approve`,
+        type: 'POST',
+        data: { approverEmail: pf.token()?.USER_ID },
+        success: function () {
+            alert("승인되었습니다.");
+            closeWorkLogModal();
+            if (calendar) calendar.refetchEvents();
+        },
+        error: function (err) {
+            console.error("승인 오류:", err);
+            alert("승인 중 오류가 발생했습니다.");
+        }
+    });
+}
+
+// 반려
+function rejectWorkLog() {
+    const reason = prompt("반려 사유를 입력해주세요:");
+    if (!reason) {
+        alert("반려 사유를 입력해야 합니다.");
+        return;
+    }
+    $.ajax({
+        url: `/member/api/worklog/${window.selectedLogId}/reject`,
+        type: 'POST',
+        data: { 
+            approverEmail: pf.token()?.USER_ID,
+            rejectionReason: reason
+        },
+        success: function () {
+            alert("반려 처리되었습니다.");
+            closeWorkLogModal();
+            if (calendar) calendar.refetchEvents();
+        },
+        error: function (err) {
+            console.error("반려 오류:", err);
+            alert("반려 중 오류가 발생했습니다.");
+        }
+    });
+}
+
+// 저장
+function saveWorkLog() {
+    if (!gridInstance) { alert("그리드가 초기화 되지 않았습니다."); return; }
+    gridInstance.finishEditing();
+    const gridData = gridInstance.getData();
+
+    const selectedDate = window.selectedWorkDate;
+    const userEmail = pf.token()?.USER_ID || '';
+    const userNm = (pf.token()?.TOKEN_USER_TYPE === 'ADMIN' ? '관리자' : pf.token()?.LOGIN_ID) || 'Unknown';
+    const fileGrpId = uploadSetting.fileGrpId || '';
+
+    fileUpDownSave((resultVal) => {
+        if (!resultVal) { fileUpDownErr(); return; }
+
+        const fullDateTime = selectedDate ? getLocalDateTimeString(new Date(selectedDate)) : getLocalDateTimeString(new Date());
+        const workLogList = gridData.map(row => ({
+            id: row.id || null,
+            userEmail: userEmail,
+            title: `${userNm} (${row.time || '0'}시간)`,
+            content: row.content?.trim() || '',
+            workDate: fullDateTime,
+            fileGrpId: fileGrpId,
+            category: row.category || '기타',
+            hours: row.time ? parseFloat(row.time) : 1
+        }));
+
+        const payload = { saveList: workLogList, deleteList: deletedIds.map(id => ({ id })) };
+        if (payload.saveList.length === 0 && payload.deleteList.length === 0) { alert("저장할 데이터가 없습니다."); return; }
+
+        $.ajax({
+            url: '/member/api/worklog/batch',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(payload),
+            success: function () {
+                alert("업무일지가 저장되었습니다.");
+                closeWorkLogModal();
+                if (calendar) calendar.refetchEvents();
+            },
+            error: function (err) {
+                console.error("❌ 서버 오류:", err);
+                alert("저장 중 오류가 발생했습니다.");
+            }
+        });
+    });
+}
+
+// 그리드 렌더링
+function renderGrid(data = [], isReadOnly = false) {
+    const summaryEl = document.getElementById('summaryGrid');
+    if (!summaryEl) return;
+    if (gridInstance) { gridInstance.destroy(); gridInstance = null; }
+
+    gridInstance = new tui.Grid({
+        el: summaryEl,
+        editingEvent: 'click',
+        data: data,
+        rowHeaders: [{ type: 'checkbox', header: 'CHK', keyColumnName: 'id' }, { type: 'rowNum', header: 'NO' }],
+        columns: [
+            { name: 'id', hidden: true },
+            { header: '내용', name: 'content', editor: 'text', editable: !isReadOnly },
+            { header: '구분', name: 'category', editor: { type: 'select', options: { listItems: [ { text: '분석', value: '분석' }, { text: '설계', value: '설계' }, { text: '개발', value: '개발' }, { text: '테스트', value: '테스트' }, { text: '사내행사', value: '사내행사' }, { text: '기타', value: '기타' } ] } }, editable: !isReadOnly },
+            { header: '투입시간', name: 'time', editor: { type: 'select', options: { listItems: [ { text: '1시간', value: '1' }, { text: '2시간', value: '2' }, { text: '3시간', value: '3' }, { text: '4시간', value: '4' }, { text: '5시간', value: '5' }, { text: '6시간', value: '6' }, { text: '7시간', value: '7' }, { text: '8시간', value: '8' } ] } }, formatter: info => `${info.value}시간`, editable: !isReadOnly }
+        ],
+        summary: { height: 40, position: 'bottom', columnContent: { time: { template: valueMap => `총 시간: ${valueMap.sum || 0}시간` } } },
+        scrollX: false,
+        scrollY: false
+    });
+}
+
+// 초기화
+function fnInit() {
+    fileUpDown.downloadInit();
+    fileUpDown.uploadInit();
+    uploadSetting.fileGrpId = "";
+    $('body').css('overflow', '');
+}
+
+// 추가/삭제 버튼
+$(() => {
+    $('#addRowBtn').on('click', function () {
+        if (gridInstance) gridInstance.appendRow({ id: null, content: '', category: '분석', time: '1' });
+    });
+    $('#removeRowBtn').on('click', function () {
+        if (!gridInstance) return;
+        const checkedRows = gridInstance.getCheckedRowKeys();
+        if (!checkedRows.length) { alert('삭제할 행을 선택해주세요.'); return; }
+        checkedRows.forEach(rowKey => { const row = gridInstance.getRow(rowKey); if (row.id != null && !isNaN(row.id)) deletedIds.push(Number(row.id)); });
+        gridInstance.removeRows(checkedRows);
+    });
+    $(document).on('keydown', e => { if (e.key === 'Escape') closeWorkLogModal(); });
+});
+</script>

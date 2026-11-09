@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{seinfo/layout/SeinfoLayoutMain}">
+
+<th:block layout:fragment="html_head">
+    <title></title>
+    <th:block layout:fragment="html_css">
+        <style></style>
+    </th:block>
+</th:block>
+
+<th:block layout:fragment="html_body">
+    <div th:replace="~{seinfo/layout/include/frame/navCategory :: menuMid640}"></div>
+
+    <main>
+        <div class="subpage-content">
+            <h2>[(#{seinfo.member.label.00410})]</h2><!--회원탈퇴-->
+            <div class="account-deletion-area">
+                <section>
+                    <div class="text-info-area">
+                        <strong class="comm-title">[(#{seinfo.member.label.00420})]</strong> <!-- 회원탈퇴 신청 전, 아래 사항을 확인하시기 바랍니다. -->
+                        <div class="info-content">
+                            <ul>
+                                <li>
+                                    <strong>[(#{seinfo.member.label.00430})]</strong> <!-- 주의사항 -->
+                                    <p>
+                                        [(#{seinfo.member.label.00440})] <!-- 회원 탈퇴를 진행하시면, 가입하신 계정과 관련된 데이터가 삭제되어 기존 서비스 이용 및 이력 조회가 불가능 합니다. -->
+                                        [(#{seinfo.member.label.00441})] <!-- 또한 탈퇴 후에는 다시 계정을 복구할 수 없으니 신중히 진행 바랍니다. -->
+                                    </p>
+                                </li>
+                                <li>
+                                    <strong>[(#{seinfo.member.label.00450})]</strong> <!--  주요 삭제 정보 -->
+                                    <p>
+                                        [(#{seinfo.member.label.00460})] <br /> <!-- - 회원가입 시 기입한 개인정보 -->
+                                        [(#{seinfo.member.label.00461})] <br /> <!-- - 기술제안이력 -->
+                                        [(#{seinfo.member.label.00462})] <br /> <!-- - 비밀보호유지서약서/자료폐기확인서(계정 삭제 전 저장 必) -->
+                                    </p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="input-info-area">
+                        <div class="table-row-container">
+                            <table>
+                                <colgroup>
+                                    <col width="235px" />
+                                    <col width="365px"/>
+                                    <col width="235px" />
+                                    <col width="365px"/>
+                                </colgroup>
+                                <tbody>
+                                <tr>
+                                    <th><i class="required">*</i>[(#{seinfo.main.label.00150})]</th><!-- 아이디 -->
+                                    <td>
+                                        <sapn id="userId"></sapn>
+                                    </td>
+                                    <th><i class="required">*</i>[(#{seinfo.main.label.00160})]</th><!-- 비밀번호 -->
+                                    <td>
+                                        <div class="input-area">
+                                            <input id="userPwd" type="password"> <!-- 비밀번호를 입력하세요 -->
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th><i class="required">*</i>[(#{seinfo.member.label.00470})]</th> <!-- 탈퇴 사유 -->
+                                    <td colspan="3">
+                                        <div class="textarea-area">
+                                            <textarea id="dropReason"></textarea>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                <div class="button-area">
+                    <button type="button" onclick="btnPrevPage()" class="primary-outline-md-btn">[(#{seinfo.member.label.00480})]</button> <!-- 이전 화면으로 돌아가기 -->
+                    <button type="submit" onclick="btnUserDrop()" class="primary-md-btn">[(#{seinfo.member.label.00410})]</button> <!-- 회원탈퇴 -->
+                </div>
+            </div>
+        </div>
+    </main>
+</th:block>
+
+<th:block layout:fragment="html_js">
+
+    <script type="text/javascript" th:inline="javascript">
+        const tmpToken = pf.token();
+
+        function btnUserDrop() {
+            event.preventDefault();
+
+            if(pf.zzzUtil.isEmpty($('#userPwd').val())) return pf.seinfoAlert.focus(0, '[(#{seinfo.main.msg.00050})]', $('#userPwd')); // 비밀번호를 입력하세요.
+            if(pf.zzzUtil.isEmpty($('#dropReason').val())) return pf.seinfoAlert.focus(0, '[(#{seinfo.member.msg.00180})]', $('#dropReason')); //탈퇴 사유를 입력하세요.
+
+            pf.seinfoAlert.confirm('[(#{seinfo.member.label.00490})]', () => { // 회원 탈퇴시, 가입하신  모든 정보가 삭제됩니다. <br> 그래도 탈퇴 하시겠습니까?
+                fnUserDrop();
+            });
+        }
+
+        function fnUserDrop() {
+            pf.seinfo.ajax({
+                method: 'post',
+                url: '/member/dropInfo/userDrop',
+                data: {
+                    userPwd: $('#userPwd').val(),
+                    dropReason: escape($("#dropReason").val()) }
+            }, (rData)  => {
+                if(rData.process_code === "00") { //성공
+                    // 회원탈퇴가 정상 처리되었습니다.
+                    pf.seinfoAlert.success('[(#{seinfo.member.msg.00190})]',() => {
+                        pf.seinfo.fnLogOutProcess("/", '[(#{seinfo.member.msg.00190})]');
+                    });
+                } else {
+                    pf.seinfoAlert.warning(pf.zzzUtil.strNvlChange(rData.data.message, rData.process_msg));
+                }
+            });
+        }
+
+        function btnPrevPage() {
+            location.href='/member/myInfo';
+        }
+
+        function inputPlaceHolder() {
+            $('#userPwd').attr('placeholder', '[(#{seinfo.main.msg.00050})]'); // 비밀번호를 입력하세요.
+            $('#dropReason').attr('placeholder', '[(#{seinfo.member.msg.00180})]'); //탈퇴 사유를 입력하세요.
+        }
+
+        $(() => {
+            $('#userId').text(tmpToken.USER_ID);
+            inputPlaceHolder();
+        });
+    </script>
+</th:block>
+
+</html>

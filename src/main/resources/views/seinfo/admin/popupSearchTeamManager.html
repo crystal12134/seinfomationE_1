@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block layout:fragment="popup01CkEdit">
+   <style></style>
+</th:block>
+
+<th:block th:fragment="popup01View">
+    <div class="modal comm-modal comm-scroll-modal" id="modalSearchTeamManager">
+        <div class="modal-content">
+           <div class="modal-body">
+               <div class="contact-register-area">
+                   <strong id="modalTitle" class="comm-modal-title">[(#{seinfo.pps.label.00300})]</strong><!--팀원조회-->
+                   <div class="mt-4">
+                       <div class="inline-bar">
+                           <label for="userNm"></label>
+                           <input type="text" id="userNm" placeholder="이름" />
+
+                           <label for="userEmail"></label>
+                           <input type="text" id="userEmail" placeholder="이메일" />
+
+                           <label for="userPhone"></label>
+                           <input type="text" id="userPhone" placeholder="전화번호" />
+
+                           <button type="button" class="primary-sm-btn" onclick="loadTeamListData()">검색</button>
+                       </div>
+                       <div id="teamGrid" class="mt-4"></div>
+                   </div>
+                   <div class="button-area mt-4">
+                       <!--저장-->
+                       <button type="submit" id="userPickerConfirm" class="primary-md-btn" disabled>
+                           [(#{seinfo.com.btn.00020})]
+                       </button>
+
+                       <!--닫기-->
+                       <button class="comm-close-modal-btn secondary-md-btn" onclick="popupClose()">
+                           [(#{seinfo.com.btn.00040})]
+                       </button>
+                   </div>
+               </div>
+           </div>
+       </div>
+   </div>
+</th:block>
+
+<th:block th:fragment="popup01Js">
+    <script type="text/javascript" th:inline="javascript">
+        let childGrid;
+        let modalTeamList = [];
+
+        function loadTeamListData() {
+
+            const paramData = {
+                userNm : $("#userNm").val(),
+                userEmail : $("#userEmail").val(),
+                userPhone : $("#userPhone").val()
+            }
+
+            pf.seinfo.ajax({
+                url : '/admin/reloadTeamManage',
+                method : 'post',
+                data : paramData
+            }, (rData) => {
+                if (rData.process_code === '00') {
+                    modalTeamList = rData.data;
+                    modalTeamList.forEach((item, index) => {
+                        item.id = index + 1;
+                    })
+
+                    childGrid.resetData(modalTeamList);
+                } else {
+                    pf.seinfoAlert.warning(rData.data.message);
+                }
+            })
+        }
+
+        function loadModalGrid() {
+            // 버튼 초기 비활성화
+            $('#userPickerConfirm').prop('disabled', true);
+
+            // 기존 그리드 정리 후 생성
+            try { childGrid && childGrid.destroy(); } catch(e){}
+
+            childGrid = new Grid({
+                el: document.getElementById('teamGrid'),
+                rowKey: 'userUid',
+                bodyHeight: 420,
+                data: modalTeamList,
+                scrollX: false,
+                scrollY: true,
+                rowHeaders: [
+                    { type: 'checkbox', header: ' ' }
+                ],
+                columns: [
+                    {
+                        header: 'No.',
+                        name : 'id',
+                        width: 20,
+                        align: 'center',
+                    },
+                    {
+                        header: '이름',
+                        name: 'userNm',
+                    },
+                    {
+                        header: '이메일',
+                        name: 'userEmail',
+                    },
+                    {
+                        header: '전화번호',
+                        name: 'userPhone',
+                    },
+                    {
+                        header: '직위',
+                        name: 'teamGrade',
+                    },
+                    {
+                        header: 'UID',
+                        name: 'userUid',
+                        hidden: true
+                    }
+                ]
+            });
+
+            loadTeamListData();
+
+            // 1) 체크 시: 단일 선택 보장
+            childGrid.on('check', (ev) => {
+                // 방금 체크된 행을 제외하고 전부 해제
+                const now = ev.rowKey;
+                const checkedKeys = childGrid.getCheckedRowKeys();
+                checkedKeys.forEach((rk) => { if (rk !== now) childGrid.uncheck(rk); });
+
+                // 선택 버튼 활성화
+                $('#userPickerConfirm').prop('disabled', false);
+            });
+
+            // 2) 체크 해제 시: 아무것도 선택이 없으면 버튼 비활성화
+            childGrid.on('uncheck', () => {
+                const has = childGrid.getCheckedRowKeys().length > 0;
+                $('#userPickerConfirm').prop('disabled', !has);
+            });
+
+            $('#modalSearchTeamManager').css('display', 'block');
+
+            // 4) 확인 버튼: 선택된 한 개의 row 전달
+            $('#userPickerConfirm').on('click', () => {
+                const rows = childGrid.getCheckedRows();
+                if (rows.length === 0) return;  // 방어
+                const row = rows[0];
+
+                popupClose({
+                    userUid: row.userUid,
+                });
+            });
+        }
+
+        function popupClose(payload) {
+            $("#userNm, #userPhone, #userEmail").val("");
+            modalTeamList = [];
+
+            $('#userPickerConfirm').prop('disabled', true);
+            $('#modalSearchTeamManager').css('display', 'none');
+            if(payload) {
+                parentGrid.setValue(_targetRowKey, 'teamManager', payload.userUid);
+                try { parentGrid.finishEditing(_targetRowKey, 'teamManager'); } catch(e){}
+            }
+        }
+
+        $(() => {
+            $("#userNm, #userPhone, #userEmail").on("keyup", function (key) {
+                if(key.keyCode === 13) {
+                    loadTeamListData();
+                }
+            });
+        });
+    </script>
+</th:block>
+</html>

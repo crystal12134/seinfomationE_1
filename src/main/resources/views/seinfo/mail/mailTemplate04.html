@@ -1,0 +1,21 @@
+﻿<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>[[${mailTitle}]]</title> <!-- 인증번호 발급 메일 -->
+    <style>
+        .btn { display:inline-block; padding:10px 16px; border-radius:6px; text-decoration:none; }
+    </style>
+</head>
+<body>
+<!-- 인라인 이미지 (cid 사용) -->
+<img th:src="'cid:logoImage'" alt="Logo" width="120"/>
+<h2>[[${mailTitle}]]</h2>
+<p>
+    인증번호를 안내드립니다. <br/>
+    인증번호 : [[${mailContent}]] <br/>
+</p>
+<hr/>
+<small style="color:#666;">본 메일은 발신 전용입니다.</small>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{seinfo/layout/SeinfoLayoutEmpty}">
+
+<th:block th:fragment="divMid010"> <!-- 메인페이지 bottom -->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divMid010')">[(#{seinfo.menu.mid.00010})]</a> <!-- 개인정보처리방침 -->
+</th:block>
+
+<th:block th:fragment="divMid020"> <!-- 메인페이지 bottom -->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divMid020')">[(#{seinfo.menu.mid.00020})]</a> <!-- 이용약관 -->
+</th:block>
+
+<th:block th:fragment="divTop000"> <!-- 메인페이지 좌측로고 -->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divTop000')">
+    <img th:src="@{/static/seinfo/img/logo.svg}" alt="[(#{seinfo.menu.top.00011})]"/> <!-- h-sync 로고 -->
+  </a>
+</th:block>
+
+<th:block th:fragment="divMid110"> <!-- 로그인-->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divMid110')">[(#{seinfo.menu.top.00110})]</a> <!-- 로그인 -->
+</th:block>
+
+<th:block th:fragment="divMid210"> <!-- 회원가입 -->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divMid210')">[(#{seinfo.menu.top.00210})]</a> <!-- 회원가입 -->
+</th:block>
+
+<th:block th:fragment="divMid112">
+  <!-- 토큰유효시간 -->
+  <span id="tokenTime" style="font-weight: bold; color:#12afe2; font-size: 15px; margin-bottom: 20px;">
+    [(#{seinfo.menu.top.00113})] <!-- 로그인연장 -->
+  </span>
+  <a href="#" id="tokenRefreshBt" style="font-weight: bold; color:#12afe2">[(#{seinfo.menu.top.00112})]</a> <!-- 연장하기 -->
+</th:block>
+
+<th:block th:fragment="divMid111"> <!-- 로그아웃 -->
+  <a href="#" id="logOutBt">[(#{seinfo.menu.top.00111})]</a> <!-- 로그아웃 -->
+</th:block>
+
+<th:block th:fragment="divMid310"> <!-- 소개 -->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divMid310')">[(#{seinfo.menu.mid.00310})]</a> <!-- R&D 주요업무 -->
+</th:block>
+
+<th:block th:fragment="divMid320"> <!-- 소개 -->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divMid320')">[(#{seinfo.menu.mid.00320})]</a> <!-- 미래모빌리티 -->
+</th:block>
+
+<th:block th:fragment="divMid410"> <!-- 기술제안 -->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divMid410')">[(#{seinfo.menu.mid.00410})]</a> <!-- 제안서 작성 -->
+</th:block>
+
+<th:block th:fragment="divMid420"> <!-- 기술제안 -->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divMid420')">[(#{seinfo.menu.mid.00420})]</a> <!-- 제안이력조회 -->
+</th:block>
+
+<th:block th:fragment="divMid510"> <!-- 커뮤니티 -->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divMid510')">[(#{seinfo.menu.mid.00510})]</a> <!-- 공지사항 -->
+</th:block>
+
+<th:block th:fragment="divMid520"> <!-- 커뮤니티 -->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divMid520')">[(#{seinfo.menu.mid.00520})]</a> <!-- FAQ -->
+</th:block>
+
+<th:block th:fragment="divMid530"> <!-- 커뮤니티 -->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divMid530')">[(#{seinfo.menu.mid.00530})]</a> <!-- 자유게시판 -->
+</th:block>
+
+<th:block th:fragment="divMid610"> <!-- 마이페이지 -->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divMid610')">[(#{seinfo.menu.mid.00610})]</a> <!-- 1:1문의 -->
+</th:block>
+
+<th:block th:fragment="divMid620"> <!-- 마이페이지 -->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divMid620')">[(#{seinfo.menu.mid.00620})]</a> <!-- 회원정보수정 -->
+</th:block>
+
+<th:block th:fragment="divMid630"> <!-- 마이페이지 -->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divMid630')">[(#{seinfo.menu.mid.00630})]</a> <!-- 업무일지등록 -->
+</th:block>
+
+<th:block th:fragment="divMid640"> <!-- 마이페이지 -->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divMid640')">[(#{seinfo.menu.mid.00640})]</a> <!-- 탈퇴하기 -->
+</th:block>
+
+
+<th:block th:fragment="divMid113"> <!-- 관리자페이지 -->
+  <a href="#" onclick="pf.seinfo.fnMenuClick('divMid700')">[(#{seinfo.menu.mid.00700})]</a> <!-- 관리자페이지 -->
+</th:block>
+
+<th:block th:fragment="divMid710"> <!-- 관리자 페이지 -->
+  <a href="/admin/requestList">[(#{seinfo.menu.mid.00710})]</a> <!-- 의뢰이력조회 -->
+</th:block>
+
+<th:block th:fragment="divMid720"> <!-- 관리자 페이지 -->
+    <a href="/admin/teamManage">[(#{seinfo.menu.mid.00720})]</a> <!-- 팀원관리 -->
+</th:block>
+
+<th:block th:fragment="divMid730"> <!-- 관리자 페이지 -->
+    <a href="/admin/teamList">[(#{seinfo.menu.mid.00730})]</a> <!-- 팀관리 -->
+</th:block>
+
+
+<th:block th:fragment="divMid740">
+  <a th:href="@{/board/qnaList(qnaMode='admin')}">문의 관리</a>
+</th:block>
+
+<div th:fragment="divMidJS">
+  <script type="text/javascript" th:inline="javascript">
+    $(() => {
+      if(pf.seinfo.validateToken()) {
+        pf.seinfo.timeToken("#tokenTime");
+      }
+
+      $("#tokenRefreshBt").on("click", () => {
+        pf.seinfoAlert.confirm('[(#{seinfo.main.msg.00011})]', ()=>{ // 로그인 시간을 연장하시겠습니까?
+          pf.seinfo.refreshToken("#tokenTime");
+        });
+      });
+
+      // 로그아웃
+      $("#logOutBt").click(function(){
+        pf.seinfo.fnLogOut("/");
+      });
+    });
+  </script>
+</div>
+
+</html>

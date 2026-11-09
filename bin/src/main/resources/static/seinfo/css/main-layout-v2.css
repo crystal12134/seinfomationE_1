@@ -1,0 +1,62 @@
+/* ui.css 다음에 로드. 첫 화면 서비스 영역만 변경합니다. */
+.main-wrap main .section01 .main-content.service-home {
+  --sh-ink: #143448;
+  position: absolute; left: 50%; bottom: 5vh;
+  transform: translateX(-50%); z-index: 3;
+  width: min(1200px, calc(100% - 64px)); height: auto;
+  display: grid; grid-template-columns: 1.1fr 1fr; gap: 22px;
+  font-family: "NanumSquare", "맑은 고딕", sans-serif;
+}
+.service-home *, .service-home *::before, .service-home *::after { box-sizing: border-box; }
+.service-home a { text-decoration: none; }
+.service-home ul { list-style: none; margin: 0; padding: 0; }
+.service-home .service-home__services { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; min-width: 0; }
+.service-home .service-home__request {
+  display: flex; flex-direction: column; align-items: flex-start;
+  border-radius: 20px; padding: 23px; color: #fff;
+  background: linear-gradient(135deg, #007a91, #123b60);
+  border: 1px solid #ffffff30; box-shadow: 0 12px 34px #00142326;
+}
+.service-home .service-home__eyebrow { font-size: 10px; letter-spacing: 1.6px; color: #b9f2f8; }
+.service-home .service-home__request img { width: 38px; height: 38px; margin: 16px 0 10px; }
+.service-home .service-home__request > strong { font-size: 25px; line-height: 1.4; }
+.service-home .service-home__request > span:not(.service-home__eyebrow):not(.service-home__cta) { margin-top: 8px; font-size: 13px; line-height: 1.7; color: #e0eef6; }
+.service-home .service-home__request .service-home__cta { display: flex; align-items: center; justify-content: space-between; width: 100%; padding-top: 13px; margin-top: 20px; border-top: 1px solid #ffffff40; font-size: 13px; }
+.service-home .service-home__cta > span { font-size: 22px; }
+.service-home .service-home__shortcuts { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.service-home .service-home__shortcuts > a { flex: 1; display: flex; align-items: center; gap: 12px; padding: 15px; color: #fff; background: #102e45eb; border: 1px solid #ffffff30; border-radius: 15px; }
+.service-home .service-home__shortcuts img { width: 30px; height: 30px; flex: 0 0 30px; }
+.service-home .service-home__shortcuts span { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.service-home .service-home__shortcuts strong { font-size: 15px; line-height: 1.4; }
+.service-home .service-home__shortcuts small { color: #bed0df; font-size: 11px; }
+.service-home .service-home__shortcuts b { margin-left: auto; font-size: 18px; color: #76d6e9; }
+.service-home .service-home__updates { background: #fffffff5; border-radius: 20px; padding: 20px 25px; min-width: 0; box-shadow: 0 12px 34px #00142326; }
+.service-home .service-home__heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.service-home .service-home__heading h2 { color: var(--sh-ink); font-size: 17px; font-weight: 800; line-height: 1.5; margin: 0; }
+.service-home .service-home__heading > a { font-size: 11px; color: #536a7d; padding: 5px 0; }
+.service-home .service-home__notice li a { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; color: #233f53; font-size: 13px; }
+.service-home .service-home__notice li a > span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.service-home .service-home__notice time { white-space: nowrap; font-size: 10px; color: #63788a; }
+.service-home .service-home__faq { margin-top: 14px; padding-top: 14px; border-top: 1px solid #dce5ec; }
+.service-home .service-home__faq li a { display: flex; align-items: center; gap: 10px; padding: 8px 0; color: #233f53; font-size: 13px; }
+.service-home .service-home__faq li b { color: #087e97; font-size: 12px; }
+.service-home .service-home__faq li span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.service-home .service-home__faq li i { margin-left: auto; font-size: 20px; font-style: normal; }
+.service-home .service-home__empty { font-size: 12px; color: #63788a; padding: 10px 0; }
+.service-home a:hover { filter: brightness(1.08); }
+.service-home .service-home__updates a:hover span { text-decoration: underline; }
+.service-home a:focus-visible { outline: 3px solid #64ddef; outline-offset: 3px; }
+@media (max-width: 1100px) {
+  .main-wrap main .section01 .main-content.service-home { width: calc(100% - 40px); gap: 16px; }
+  .service-home .service-home__services { grid-template-columns: 1fr 1fr; }
+  .service-home .service-home__request { padding: 18px; }
+  .service-home .service-home__shortcuts > a { gap: 8px; padding: 12px; }
+  .service-home .service-home__updates { padding: 18px; }
+}
+@media (max-width: 760px) {
+  .main-wrap main .section01 .main-content.service-home { grid-template-columns: 1fr; }
+  .service-home .service-home__services { grid-template-columns: 1fr 1fr; }
+  .service-home .service-home__request > strong { font-size: 21px; }
+  .service-home .service-home__shortcuts small { display: none; }
+  .service-home .service-home__notice time { display: none; }
+}

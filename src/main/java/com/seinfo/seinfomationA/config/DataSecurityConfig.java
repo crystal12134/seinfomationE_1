@@ -14,7 +14,7 @@ public class DataSecurityConfig {
     @Value("${seinfo.crypto.lookup-key}") private String lookup;
     private final JdbcTemplate jdbc;
     public DataSecurityConfig(JdbcTemplate jdbc){this.jdbc=jdbc;}
-   //@PostConstruct public void configure(){EncriptUtil.configure(data,lookup);run(null);}
+    @PostConstruct public void configure(){EncriptUtil.configure(data,lookup);run(null);}
 
     private static String fingerprint(String value){
         try{return java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(Base64.getDecoder().decode(value)));}
